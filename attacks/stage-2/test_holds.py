@@ -227,3 +227,32 @@ def test_fixture_may_omit_authorizations(reset, boot):
     assert "authorizations" not in body
     ns = boot(body)
     assert wallet(ns.ada)["held"] == 0
+
+
+def test_payment_leaves_no_intermediate_hold(world):
+    assert_status(world.ada.post("/payments", json={"to_handle": "bob", "amount": 1_500},
+                                 headers={"Idempotency-Key": new_key()}), 201)
+    body = wallet(world.ada)
+    assert body["held"] == 0, "POST /payments must not leave a hold behind"
+    assert body["balance"] == body["total"] == body["available"] == 98_500
+    assert_status(world.ada.list_authorizations(), 200)
+
+
+def test_insufficient_funds_on_request_pay_uses_available(world):
+    assert_status(world.ada.authorize("bob", 99_000), 201)
+    made = world.bob.post("/requests", json={"payer_handle": "ada", "amount": 50_000},
+                          headers={"Idempotency-Key": new_key()})
+    assert_status(made, 201)
+    rid = made.json()["request_id"]
+    # ada's total is still 100_000, but only 1_000 is available
+    assert_error(world.ada.post(f"/requests/{rid}/pay", json={},
+                                headers={"Idempotency-Key": new_key()}),
+                 409, "insufficient_funds")
+
+
+def test_insufficient_funds_on_settlement_uses_available(world):
+    assert_status(world.ada.authorize("bob", 99_000), 201)
+    body = {"transfers": [{"from_handle": "ada", "to_handle": "bob", "amount": 50_000}]}
+    assert_error(world.op.post("/settlements", json=body,
+                               headers={"Idempotency-Key": new_key()}),
+                 409, "insufficient_funds")

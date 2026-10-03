@@ -243,6 +243,53 @@ def test_authorizations_page_shows_available_headline_and_permitted_controls():
     asyncio.run(with_page(main))
 
 
+def test_authorization_list_testids_capture_prefill_and_error():
+    async def main(page):
+        expires = future_iso(7200)
+        await reset_fixture(fixture2(authorizations=[
+            authz("a_cap", "u_ada", "u_bob", 4_000, status="captured",
+                  captured_amount=4_000, expires_at=expires),
+            authz("a_open", "u_cy", "u_ada", 1_500, expires_at=expires),
+        ]))
+        await sign_in(page, "ada", goto="/authorizations")
+
+        cap = page.get_by_test_id("authorization-item-a_cap")
+        await cap.wait_for(timeout=8_000)
+        assert await cap.get_attribute("data-status") == "captured"
+        assert await page.get_by_test_id("authorization-captured-a_cap").count() == 1, \
+            "authorization-captured must be present on a captured authorization"
+
+        token = await login_token("ada")
+        listing = await api_call("GET", "/authorizations", token=token)
+        server_expires = next(a["expires_at"] for a in listing.json()["authorizations"]
+                              if a["authorization_id"] == "a_cap")
+        assert await page.get_by_test_id("authorization-expires-a_cap").inner_text() == \
+            server_expires, "authorization-expires must echo the API expires_at"
+
+        # an incoming open authorization offers a prefilled capture amount
+        amount = page.get_by_test_id("authorization-capture-amount-a_open")
+        await amount.wait_for(timeout=8_000)
+        assert (await amount.input_value()) == "15.00", \
+            "the capture input must be prefilled with the remaining decimal amount"
+
+        # over-capturing is refused and surfaces authorization-error
+        await amount.fill("20.00")
+        await page.get_by_test_id("authorization-capture-a_open").click()
+        await page.get_by_test_id("authorization-error").wait_for(timeout=8_000)
+
+    asyncio.run(with_page(main))
+
+
+def test_empty_authorizations_state():
+    async def main(page):
+        await reset_fixture(fixture2())
+        await sign_in(page, "op", goto="/authorizations")
+        await page.get_by_test_id("empty-authorizations").wait_for(timeout=8_000)
+        assert await page.locator('[data-testid^="authorization-item-"]').count() == 0
+
+    asyncio.run(with_page(main))
+
+
 def test_receiver_sees_capture_not_void_and_decimal_validation():
     async def main(page):
         await reset_fixture(fixture2(authorizations=[
