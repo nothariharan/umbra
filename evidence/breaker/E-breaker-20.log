@@ -1,0 +1,143 @@
+$ set BASE_URL=http://127.0.0.1:58920&& C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls & C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls
+F                                                                        [100%]
+================================== FAILURES ===================================
+__ test_authorizations_page_shows_available_headline_and_permitted_controls ___
+
+    def test_authorizations_page_shows_available_headline_and_permitted_controls():
+        async def main(page):
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+            await sign_in(page, "ada", goto="/authorizations")
+    
+            await wait_amount(page, "wallet-available", "98000")
+            await wait_amount(page, "wallet-balance", "100000")
+            await wait_amount(page, "wallet-held", "2000")
+            for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                        "authorize-visibility", "authorize-submit"):
+                assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+    
+            item = page.get_by_test_id("authorization-item-a_seed")
+            await item.wait_for(timeout=8_000)
+            assert await item.get_attribute("data-status") == "open"
+            assert await page.get_by_test_id("authorization-void-a_seed").count() == 1, \
+                "the payer must see a void control on an open outgoing authorization"
+            assert await page.get_by_test_id("authorization-capture-a_seed").count() == 0, \
+                "the payer must not see a capture control"
+    
+            # creating a hold through the UI updates the headline
+            await page.get_by_test_id("authorize-handle").fill("bob")
+            await page.get_by_test_id("authorize-amount").fill("5.00")
+            await page.get_by_test_id("authorize-submit").click()
+            await wait_amount(page, "wallet-held", "2500")
+            assert await page.get_by_test_id("authorization-error").count() == 0
+    
+>       asyncio.run(with_page(main))
+
+attacks\stage-2\test_ui_race.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:58920/authorizations'>
+
+    async def main(page):
+        await reset_fixture(fixture2(authorizations=[
+            authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+        await sign_in(page, "ada", goto="/authorizations")
+    
+        await wait_amount(page, "wallet-available", "98000")
+        await wait_amount(page, "wallet-balance", "100000")
+        await wait_amount(page, "wallet-held", "2000")
+        for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                    "authorize-visibility", "authorize-submit"):
+>           assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+E           AssertionError: missing authorize-handle
+E           assert 0 >= 1
+
+attacks\stage-2\test_ui_race.py:226: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-2/test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls
+1 failed in 2.66s
+F                                                                        [100%]
+================================== FAILURES ===================================
+__ test_authorizations_page_shows_available_headline_and_permitted_controls ___
+
+    def test_authorizations_page_shows_available_headline_and_permitted_controls():
+        async def main(page):
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+            await sign_in(page, "ada", goto="/authorizations")
+    
+            await wait_amount(page, "wallet-available", "98000")
+            await wait_amount(page, "wallet-balance", "100000")
+            await wait_amount(page, "wallet-held", "2000")
+            for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                        "authorize-visibility", "authorize-submit"):
+                assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+    
+            item = page.get_by_test_id("authorization-item-a_seed")
+            await item.wait_for(timeout=8_000)
+            assert await item.get_attribute("data-status") == "open"
+            assert await page.get_by_test_id("authorization-void-a_seed").count() == 1, \
+                "the payer must see a void control on an open outgoing authorization"
+            assert await page.get_by_test_id("authorization-capture-a_seed").count() == 0, \
+                "the payer must not see a capture control"
+    
+            # creating a hold through the UI updates the headline
+            await page.get_by_test_id("authorize-handle").fill("bob")
+            await page.get_by_test_id("authorize-amount").fill("5.00")
+            await page.get_by_test_id("authorize-submit").click()
+            await wait_amount(page, "wallet-held", "2500")
+            assert await page.get_by_test_id("authorization-error").count() == 0
+    
+>       asyncio.run(with_page(main))
+
+attacks\stage-2\test_ui_race.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:58920/authorizations'>
+
+    async def main(page):
+        await reset_fixture(fixture2(authorizations=[
+            authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+        await sign_in(page, "ada", goto="/authorizations")
+    
+        await wait_amount(page, "wallet-available", "98000")
+        await wait_amount(page, "wallet-balance", "100000")
+        await wait_amount(page, "wallet-held", "2000")
+        for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                    "authorize-visibility", "authorize-submit"):
+>           assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+E           AssertionError: missing authorize-handle
+E           assert 0 >= 1
+
+attacks\stage-2\test_ui_race.py:226: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-2/test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls
+1 failed in 2.18s
+
+exit 1
