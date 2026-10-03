@@ -1,0 +1,29 @@
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:35+00:00", "id": "S1-C1", "req": ["S1-R1"], "text": "stage-1/ contains service source, Dockerfile, and RUN.md"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:38+00:00", "id": "S1-C2", "req": ["S1-R2"], "text": "RUN.md documents one fenced docker build-and-run command"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:40+00:00", "id": "S1-C3", "req": ["S1-R3", "S1-R44"], "text": "Dockerfile PORT and sources bind 0.0.0.0:PORT"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:43+00:00", "id": "S1-C4", "req": ["S1-R4"], "text": "GET /health returns 200 {\"status\":\"ok\"} within harness boot window"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:46+00:00", "id": "S1-C5", "req": ["S1-R5", "S1-R17"], "text": "POST /_test/reset 204, repeat supported, negative balance 422 unchanged"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:49+00:00", "id": "S1-C6", "req": ["S1-R6", "S1-R7"], "text": "JSON conventions, RFC3339 offsets, unknown fields ignored, ids <=64"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:52+00:00", "id": "S1-C9", "req": ["S1-R25", "S1-R26", "S1-R28", "S1-R15"], "text": "signup/login/auth paths and handle derivation"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:55+00:00", "id": "S1-C10", "req": ["S1-R27"], "text": "export snapshot does not contain plaintext fixture passwords"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:52:58+00:00", "id": "S1-C11", "req": ["S1-R30"], "text": "GET /me profile fields and balances"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:00+00:00", "id": "S1-C12", "req": ["S1-R31", "S1-R32", "S1-R46"], "text": "POST /payments defaults, notes, integral amount forms"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:02+00:00", "id": "S1-C13", "req": ["S1-R33", "S1-R19"], "text": "POST /requests without payer balance check"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:04+00:00", "id": "S1-C14", "req": ["S1-R34"], "text": "POST /requests/{id}/pay idempotent payer-only payment"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:24+00:00", "id": "S1-C15", "req": ["S1-R35"], "text": "decline/cancel idempotent with forbidden and not_pending cases"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:26+00:00", "id": "S1-C16", "req": ["S1-R36", "S1-R23"], "text": "GET /requests filters, pagination, bad integer queries"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:29+00:00", "id": "S1-C17", "req": ["S1-R37", "S1-R38"], "text": "POST /splits shares and rounding table"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:33+00:00", "id": "S1-C18", "req": ["S1-R20", "S1-R21", "S1-R39"], "text": "GET /activity visibility and pagination"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:35+00:00", "id": "S1-C20", "req": ["S1-R22"], "text": "4xx/5xx error envelope code and message"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:38+00:00", "id": "S1-C21", "req": ["S1-R23", "S1-R29"], "text": "Idempotency-Key length and limit/offset ranges"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:41+00:00", "id": "S1-C22", "req": ["S1-R29"], "text": "idempotency replay, reuse, post-4xx reuse on POST /payments"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:43+00:00", "id": "S1-C23", "req": ["S1-R40", "S1-R41", "S1-R16"], "text": "export/import shape and round-trip preserves payments"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:46+00:00", "id": "S1-C24", "req": ["S1-R42"], "text": "POST /settlements operator atomic batch"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:49+00:00", "id": "S1-C25", "req": ["S1-R43"], "text": "non-operator forbidden on settlements"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:52+00:00", "id": "S1-C26", "req": ["S1-R9", "S1-R10", "S1-R11"], "text": "conservation, non-negative, request pay-once"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:54+00:00", "id": "S1-C27", "req": ["S1-R24", "S1-R45"], "text": "no 5xx under concurrent payments and parallel reads"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:56+00:00", "id": "S1-C28", "req": ["S1-R8"], "text": "scope endpoints respond for pay/request/split/activity"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:53:59+00:00", "id": "S1-C29", "req": ["S1-R12", "S1-R13"], "text": "amount bounds and fixture currency minor_units"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:54:02+00:00", "id": "S1-C30", "req": ["S1-R14"], "text": "handle immutable after account creation"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:54:04+00:00", "id": "S1-C31", "req": ["S1-R9", "S1-R10", "S1-R12"], "text": "150-step payment differential vs reference_model"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T08:54:07+00:00", "id": "S1-C32", "req": ["S1-R1", "S1-R2", "S1-R3", "S1-R4", "S1-R5", "S1-R6", "S1-R7", "S1-R8", "S1-R9", "S1-R10", "S1-R11", "S1-R12", "S1-R13", "S1-R14", "S1-R15", "S1-R16", "S1-R17", "S1-R18", "S1-R19", "S1-R20", "S1-R21", "S1-R22", "S1-R23", "S1-R24", "S1-R25", "S1-R26", "S1-R27", "S1-R28", "S1-R29", "S1-R30", "S1-R31", "S1-R32", "S1-R33", "S1-R34", "S1-R35", "S1-R36", "S1-R37", "S1-R38", "S1-R39", "S1-R40", "S1-R41", "S1-R42", "S1-R43", "S1-R44", "S1-R45", "S1-R46"], "text": "official harness via lever on SUBMIT"}
