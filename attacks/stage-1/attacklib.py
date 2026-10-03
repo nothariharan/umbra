@@ -32,7 +32,7 @@ class Client:
     def close(self) -> None:
         self._c.close()
 
-    def request(self, method: str, path: str, *, json=None, headers=None,
+    def request(self, method: str, path: str, *, json=None, content=None, headers=None,
                 params=None, token=..., timeout=None) -> httpx.Response:
         hdrs = dict(headers or {})
         effective = self.token if token is ... else token
@@ -41,6 +41,8 @@ class Client:
         kwargs: dict = {"headers": hdrs}
         if json is not None:
             kwargs["json"] = json
+        if content is not None:
+            kwargs["content"] = content
         if params is not None:
             kwargs["params"] = params
         if timeout is not None:

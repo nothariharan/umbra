@@ -68,7 +68,7 @@ def test_request_may_exceed_payer_balance_and_pay_is_blocked(boot):
 
 
 def test_insufficient_request_pay_changes_nothing(world):
-    made = _request(world.bob, 10_000_000_000, payer_handle="ada")
+    made = _request(world.bob, 100_000_000, payer_handle="ada")
     assert_status(made, 201)
     rid = made.json()["request_id"]
     before = world.ada.balance()

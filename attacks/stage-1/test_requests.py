@@ -5,6 +5,8 @@ state and only its two parties may act on it.
 """
 from __future__ import annotations
 
+import time
+
 from attacklib import (
     Client, assert_error, assert_status, fixture, new_key, user,
 )
@@ -113,8 +115,11 @@ def test_status_filter_and_unknown_values(world):
 
 
 def test_requests_newest_first_and_has_more(world):
-    ids = [_ask(world.bob, amount=10 + i, payer_handle="ada").json()["request_id"]
-           for i in range(3)]
+    ids = []
+    for i in range(3):
+        if i:
+            time.sleep(1.2)
+        ids.append(_ask(world.bob, amount=10 + i, payer_handle="ada").json()["request_id"])
     listed = world.bob.get(REQ, params={"limit": 200}).json()["requests"]
     order = [q["request_id"] for q in listed]
     assert order == list(reversed(ids)), order

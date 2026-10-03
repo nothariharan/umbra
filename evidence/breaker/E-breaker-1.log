@@ -1,0 +1,382 @@
+$ python scripts/lever.py checks --suite breaker --stage 1 --rev 89bbfd52ef55
+...F........F.......................FFFFF.F....F.........F............F. [ 84%]
+...F..F.F....                                                            [100%]
+================================== FAILURES ===================================
+________________ test_insufficient_request_pay_changes_nothing ________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C03A7C2ED0>, <attacklib.Client object at 0x000002C03A7C3C50>], api=<function api.<locals>._make at 0x000002C03A79BBA0>)
+
+    def test_insufficient_request_pay_changes_nothing(world):
+        made = _request(world.bob, 10_000_000_000, payer_handle="ada")
+>       assert_status(made, 201)
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_balance.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [422 Unprocessable Entity]>, expected = 201
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 201. POST /requests -> 422 '{"error":{"code":"validation_failed","message":"invalid amount"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:80: AssertionError
+_______________ test_amount_accepts_only_integral_numeric_forms _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C03A73E690>, <attacklib.Client object at 0x000002C03A7C0CE0>], api=<function api.<locals>._make at 0x000002C03A7DFCE0>)
+
+    def test_amount_accepts_only_integral_numeric_forms(world):
+        for good in (1000, 1000.0, 1e3):
+            r = _pay(world.ada, good, to_handle="bob")
+            assert_status(r, 201)
+        for bad in ("1000", True, False, None):
+            r = _pay(world.ada, bad, to_handle="bob")
+>           assert_error(r, 422, "validation_failed")
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_balance.py:168: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [400 Bad Request]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 validation_failed, got 400 malformed_request. POST /payments -> 400 '{"error":{"code":"malformed_request","message":"invalid amount type"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:103: AssertionError
+__________________ test_concurrent_payments_never_overspend ___________________
+
+boot = <function boot.<locals>._boot at 0x000002C03A7DEF20>
+api = <function api.<locals>._make at 0x000002C03A7DFC40>
+
+    def test_concurrent_payments_never_overspend(boot, api):
+        """1000 available, 50 simultaneous payments of 100: exactly 10 may succeed."""
+        w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
+    
+        def one(i):
+            c = api()
+            return c.post(PAY, json={"to_handle": "bob", "amount": 100},
+                          headers={"Idempotency-Key": new_key()})
+    
+        results = race(one, 50)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+>       assert codes.count(201) == 10, f"expected 10 winners, got {codes}"
+E       AssertionError: expected 10 winners, got [401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401]
+E       assert 0 == 10
+E        +  where 0 = <built-in method count of list object at 0x000002C03A351900>(201)
+E        +    where <built-in method count of list object at 0x000002C03A351900> = [401, 401, 401, 401, 401, 401, ...].count
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py:36: AssertionError
+______________ test_concurrent_same_key_payment_moves_money_once ______________
+
+boot = <function boot.<locals>._boot at 0x000002C03B7E0680>
+api = <function api.<locals>._make at 0x000002C03A7C9260>
+
+    def test_concurrent_same_key_payment_moves_money_once(boot, api):
+        """30 simultaneous identical requests with one unused key: one effect, one 201."""
+        w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
+        key = new_key()
+        payload = {"to_handle": "bob", "amount": 100}
+    
+        def one(i):
+            c = api()
+            return c.post(PAY, json=payload, headers={"Idempotency-Key": key})
+    
+        results = race(one, 30)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+>       assert codes.count(201) == 1, f"exactly one first-use must win: {codes}"
+E       AssertionError: exactly one first-use must win: [401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401]
+E       assert 0 == 1
+E        +  where 0 = <built-in method count of list object at 0x000002C03A7A29C0>(201)
+E        +    where <built-in method count of list object at 0x000002C03A7A29C0> = [401, 401, 401, 401, 401, 401, ...].count
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py:60: AssertionError
+________________ test_concurrent_pay_request_moves_money_once _________________
+
+boot = <function boot.<locals>._boot at 0x000002C03B7E3EC0>
+api = <function api.<locals>._make at 0x000002C03B7E2520>
+
+    def test_concurrent_pay_request_moves_money_once(boot, api):
+        """One request, 30 simultaneous pays with distinct keys: exactly one payment."""
+        w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
+        made = w.bob.post("/requests", json={"payer_handle": "ada", "amount": 100},
+                          headers={"Idempotency-Key": new_key()})
+        assert made.status_code == 201, made.text
+        rid = made.json()["request_id"]
+    
+        def one(i):
+            c = api()
+            return c.post(f"/requests/{rid}/pay", json={},
+                          headers={"Idempotency-Key": new_key()})
+    
+        results = race(one, 30)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+>       assert codes.count(201) == 1, f"a request may move money once: {codes}"
+E       AssertionError: a request may move money once: [401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401]
+E       assert 0 == 1
+E        +  where 0 = <built-in method count of list object at 0x000002C03A4E7C80>(201)
+E        +    where <built-in method count of list object at 0x000002C03A4E7C80> = [401, 401, 401, 401, 401, 401, ...].count
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py:86: AssertionError
+____________________ test_concurrent_pay_request_same_key _____________________
+
+boot = <function boot.<locals>._boot at 0x000002C03B834360>
+api = <function api.<locals>._make at 0x000002C03B835800>
+
+    def test_concurrent_pay_request_same_key(boot, api):
+        """One request paid 30 times with the same key: replays are 200, money once."""
+        w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
+        made = w.bob.post("/requests", json={"payer_handle": "ada", "amount": 100},
+                          headers={"Idempotency-Key": new_key()})
+        assert made.status_code == 201, made.text
+        rid = made.json()["request_id"]
+        key = new_key()
+    
+        def one(i):
+            c = api()
+            return c.post(f"/requests/{rid}/pay", json={}, headers={"Idempotency-Key": key})
+    
+        results = race(one, 30)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+>       assert codes.count(201) == 1, codes
+E       AssertionError: [401, 401, 401, 401, 401, 401, ...]
+E       assert 0 == 1
+E        +  where 0 = <built-in method count of list object at 0x000002C03A793780>(201)
+E        +    where <built-in method count of list object at 0x000002C03A793780> = [401, 401, 401, 401, 401, 401, ...].count
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py:115: AssertionError
+________________ test_concurrent_settlements_cannot_overspend _________________
+
+boot = <function boot.<locals>._boot at 0x000002C03A7DFBA0>
+api = <function api.<locals>._make at 0x000002C03B834FE0>
+
+    def test_concurrent_settlements_cannot_overspend(boot, api):
+        """Two settlements each need 600 from a wallet holding 1000: only one commits."""
+        w = boot(
+            fixture(users=[user("bob", 0), user("op", 1000, uid="u_op")], operators=["u_op"]),
+            handles=("bob", "op"),
+        )
+        payload = {"transfers": [{"from_handle": "op", "to_handle": "bob", "amount": 600}]}
+    
+        def one(i):
+            c = api()
+            return c.post("/settlements", json=payload,
+                          headers={"Idempotency-Key": new_key()})
+    
+        results = race(one, 2)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+>       assert codes.count(201) == 1, f"settlements overspent: {codes}"
+E       AssertionError: settlements overspent: [401, 401]
+E       assert 0 == 1
+E        +  where 0 = <built-in method count of list object at 0x000002C03C895B00>(201)
+E        +    where <built-in method count of list object at 0x000002C03C895B00> = [401, 401].count
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py:140: AssertionError
+_____________________ test_fifty_inflight_reads_never_5xx _____________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C03A7C2AB0>, <attacklib.Client object at 0x000002C03B88FA40>], api=<function api.<locals>._make at 0x000002C03A7C80E0>)
+api = <function api.<locals>._make at 0x000002C03A7C80E0>
+
+    def test_fifty_inflight_reads_never_5xx(world, api):
+        """Reads under the published 50-in-flight limit stay healthy."""
+        def one(i):
+            c = api()
+            return c.get("/me")
+    
+        results = race(one, 50)
+>       assert all(r.status_code == 200 for r in results), \
+            [r.status_code for r in results if r.status_code != 200]
+E       AssertionError: [401, 401, 401, 401, 401, 401, ...]
+E       assert False
+E        +  where False = all(<generator object test_fifty_inflight_reads_never_5xx.<locals>.<genexpr> at 0x000002C03A450380>)
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py:179: AssertionError
+__________________ test_invalid_import_is_422_and_unchanged ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C03B7B8D70>, <attacklib.Client object at 0x000002C03B860D10>], api=<function api.<locals>._make at 0x000002C03A7DEA20>)
+
+    def test_invalid_import_is_422_and_unchanged(world):
+        before = world.ada.balance()
+        good = _export().json()
+        for bad in (
+            {"format_version": 1, "state": good["state"]},
+            {"track": "not-pocketful", "format_version": 1, "state": good["state"]},
+            {"track": "pocketful", "format_version": 2, "state": good["state"]},
+            {"track": "pocketful", "format_version": 1},
+        ):
+            assert_error(_import(bad), 422, "validation_failed")
+>       assert_error(_import_raw(b"{not json"), 422, "validation_failed")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_durability.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_durability.py:36: in _import_raw
+    return c.post(IMPORT, content=raw, headers={"Content-Type": "application/json"},
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <attacklib.Client object at 0x000002C03B849E20>, path = '/_test/import'
+kw = {'content': b'{not json', 'headers': {'Content-Type': 'application/json'}, 'token': None}
+
+    def post(self, path: str, **kw) -> httpx.Response:
+>       return self.request("POST", path, **kw)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: Client.request() got an unexpected keyword argument 'content'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:54: TypeError
+_______________ test_request_pay_replay_after_paid_returns_200 ________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C03C880050>, <attacklib.Client object at 0x000002C03C883E90>], api=<function api.<locals>._make at 0x000002C03B835080>)
+
+    def test_request_pay_replay_after_paid_returns_200(world):
+        made = world.bob.post(REQ, json={"payer_handle": "ada", "amount": 100},
+                              headers={"Idempotency-Key": new_key()})
+        assert_status(made, 201)
+        rid = made.json()["request_id"]
+        key = new_key()
+        first = world.ada.post(f"/requests/{rid}/pay", json={},
+                               headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        assert first.json()["request_id"] == rid
+        replay = world.ada.post(f"/requests/{rid}/pay", json={},
+                                headers={"Idempotency-Key": key})
+        assert_status(replay, 200)
+        assert replay.json() == first.json()
+        blocked = world.ada.post(f"/requests/{rid}/pay", json={},
+                                 headers={"Idempotency-Key": new_key()})
+>       assert_error(blocked, 409, "request_not_pending")
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_idempotency.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [200 OK]>, status = 409, code = 'request_not_pending'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 request_not_pending, got 200 None. POST /requests/rq_50b363da1aacee4b47628a78258ec51b/pay -> 200 '{"payment_id":"p_cb5b6b56831b28015d3cdc85f95e94f0","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":100,"currency":"EUR","note":"","visibility":"public","request_id":"rq_50b363da1aacee4b47628a78258ec51b","created_at":"2026-10-03T09:24:39+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:103: AssertionError
+___________________ test_requests_newest_first_and_has_more ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C03B87A000>, <attacklib.Client object at 0x000002C03B878500>], api=<function api.<locals>._make at 0x000002C03B835300>)
+
+    def test_requests_newest_first_and_has_more(world):
+        ids = [_ask(world.bob, amount=10 + i, payer_handle="ada").json()["request_id"]
+               for i in range(3)]
+        listed = world.bob.get(REQ, params={"limit": 200}).json()["requests"]
+        order = [q["request_id"] for q in listed]
+>       assert order == list(reversed(ids)), order
+E       AssertionError: ['rq_5024c06d328cb67a32d60d34fc1140d5', 'rq_d54e62fe22bc99ef9d999e5e2f872a85', 'rq_877be752772eba9619682dad74adb44e']
+E       assert ['rq_5024c06d...2dad74adb44e'] == ['rq_877be752...0d34fc1140d5']
+E         
+E         At index 0 diff: 'rq_5024c06d328cb67a32d60d34fc1140d5' != 'rq_877be752772eba9619682dad74adb44e'
+E         Use -v to get more diff
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_requests.py:120: AssertionError
+________ test_collective_net_zero_batch_commits_even_with_zero_wallets ________
+
+boot = <function boot.<locals>._boot at 0x000002C03B836A20>
+
+    def test_collective_net_zero_batch_commits_even_with_zero_wallets(boot):
+        """ada=0 and bob=0, but ada->bob 100 and bob->ada 100 nets to zero: it is affordable."""
+        w = _op_world(boot, [user("ada", 0), user("bob", 0), user("op", 0, uid="u_op")])
+        r = _settle(w.op, [{"from_handle": "ada", "to_handle": "bob", "amount": 100},
+                           {"from_handle": "bob", "to_handle": "ada", "amount": 100}])
+>       assert_status(r, 201)
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_settlement.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 201
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 201. POST /settlements -> 409 '{"error":{"code":"insufficient_funds","message":"insufficient funds"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:80: AssertionError
+__________________________ test_self_transfer_is_422 __________________________
+
+boot = <function boot.<locals>._boot at 0x000002C03B837F60>
+
+    def test_self_transfer_is_422(boot):
+        w = _op_world(boot, [user("ada", 100), user("bob", 0), user("op", 0, uid="u_op")])
+        r = _settle(w.op, [{"from_handle": "ada", "to_handle": "ada", "amount": 1}])
+>       assert_error(r, 422, "self_payment")
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_settlement.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [422 Unprocessable Entity]>, status = 422
+code = 'self_payment'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 self_payment, got 422 validation_failed. POST /settlements -> 422 '{"error":{"code":"validation_failed","message":"self payment"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:103: AssertionError
+_____________________ test_malformed_batch_shapes_are_422 _____________________
+
+boot = <function boot.<locals>._boot at 0x000002C03A7DF4C0>
+
+    def test_malformed_batch_shapes_are_422(boot):
+        w = _op_world(boot, [user("ada", 100), user("bob", 0), user("op", 0, uid="u_op")])
+        for transfers in (
+            {"from_handle": "ada", "to_handle": "bob", "amount": 1},
+            [{"to_handle": "bob", "amount": 1}],
+            [{"from_handle": "ada", "to_handle": "bob", "amount": 0}],
+            [{"from_handle": "ada", "to_handle": "bob", "amount": "1"}],
+        ):
+            r = w.op.post(SETTLE, json={"transfers": transfers},
+                          headers={"Idempotency-Key": new_key()})
+>           assert_error(r, 422, "validation_failed")
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_settlement.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [400 Bad Request]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 validation_failed, got 400 malformed_request. POST /settlements -> 400 '{"error":{"code":"malformed_request","message":"invalid transfers"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\attacklib.py:103: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_balance.py::test_insufficient_request_pay_changes_nothing
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_balance.py::test_amount_accepts_only_integral_numeric_forms
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py::test_concurrent_payments_never_overspend
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py::test_concurrent_same_key_payment_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py::test_concurrent_pay_request_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py::test_concurrent_pay_request_same_key
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py::test_concurrent_settlements_cannot_overspend
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_concurrency.py::test_fifty_inflight_reads_never_5xx
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_durability.py::test_invalid_import_is_422_and_unchanged
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_idempotency.py::test_request_pay_replay_after_paid_returns_200
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_requests.py::test_requests_newest_first_and_has_more
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_settlement.py::test_collective_net_zero_batch_commits_even_with_zero_wallets
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_settlement.py::test_self_transfer_is_422
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-89bbfd52-ohonn94p\repo\attacks\stage-1\test_settlement.py::test_malformed_batch_shapes_are_422
+14 failed, 71 passed in 1009.95s (0:16:49)
+breaker stage 1: FAIL (exit 1)
+
+exit 1

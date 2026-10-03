@@ -25,7 +25,7 @@ def test_concurrent_payments_never_overspend(boot, api):
     w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
 
     def one(i):
-        c = api()
+        c = api(token=w.ada.token)
         return c.post(PAY, json={"to_handle": "bob", "amount": 100},
                       headers={"Idempotency-Key": new_key()})
 
@@ -50,7 +50,7 @@ def test_concurrent_same_key_payment_moves_money_once(boot, api):
     payload = {"to_handle": "bob", "amount": 100}
 
     def one(i):
-        c = api()
+        c = api(token=w.ada.token)
         return c.post(PAY, json=payload, headers={"Idempotency-Key": key})
 
     results = race(one, 30)
@@ -75,7 +75,7 @@ def test_concurrent_pay_request_moves_money_once(boot, api):
     rid = made.json()["request_id"]
 
     def one(i):
-        c = api()
+        c = api(token=w.ada.token)
         return c.post(f"/requests/{rid}/pay", json={},
                       headers={"Idempotency-Key": new_key()})
 
@@ -105,7 +105,7 @@ def test_concurrent_pay_request_same_key(boot, api):
     key = new_key()
 
     def one(i):
-        c = api()
+        c = api(token=w.ada.token)
         return c.post(f"/requests/{rid}/pay", json={}, headers={"Idempotency-Key": key})
 
     results = race(one, 30)
@@ -129,7 +129,7 @@ def test_concurrent_settlements_cannot_overspend(boot, api):
     payload = {"transfers": [{"from_handle": "op", "to_handle": "bob", "amount": 600}]}
 
     def one(i):
-        c = api()
+        c = api(token=w.op.token)
         return c.post("/settlements", json=payload,
                       headers={"Idempotency-Key": new_key()})
 
@@ -153,12 +153,12 @@ def test_many_payments_are_conserved_and_never_negative(boot, api):
              handles=("ada", "bob"))
 
     def one(i):
-        c = api()
         src, dst = ("ada", "bob") if i % 2 == 0 else ("bob", "ada")
         amount = 1 + (i * 37) % 97
         owner = w.ada if src == "ada" else w.bob
-        return owner.post(PAY, json={"to_handle": dst, "amount": amount},
-                          headers={"Idempotency-Key": new_key()})
+        c = api(token=owner.token)
+        return c.post(PAY, json={"to_handle": dst, "amount": amount},
+                      headers={"Idempotency-Key": new_key()})
 
     results = race(one, 60)
     for r in results:
@@ -172,7 +172,7 @@ def test_many_payments_are_conserved_and_never_negative(boot, api):
 def test_fifty_inflight_reads_never_5xx(world, api):
     """Reads under the published 50-in-flight limit stay healthy."""
     def one(i):
-        c = api()
+        c = api(token=world.ada.token)
         return c.get("/me")
 
     results = race(one, 50)
