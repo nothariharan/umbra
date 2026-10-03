@@ -5,8 +5,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from lib import fixtures as fx
-from lib.http import assert_error, assert_status, new_key
+from s2lib import fixtures as fx
+from s2lib.http import assert_error, assert_status, new_key
 
 pytestmark = pytest.mark.stage(2)
 
@@ -98,7 +98,9 @@ def test_s2_c19_final_capture_releases_remainder(world, authorize, me_wallet):
     )
     after = me_wallet(world.ada)
     assert after["held"] == 0
-    assert after["available"] == before["available"] - 1500
+    # Final capture moves 1500 and releases uncaptured hold (500) back to available.
+    assert after["available"] == before["available"] - 1500 + 500
+    assert after["balance"] == before["balance"] - 1500
 
 
 def test_s2_c19_second_capture_after_final_is_not_open(world, authorize):

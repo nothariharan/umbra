@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from lib import delivery
+from s2lib import delivery
 
 pytestmark = pytest.mark.stage(2)
 
@@ -14,7 +14,7 @@ pytest.importorskip("playwright.sync_api")
 def test_s2_c6_pay_form_no_double_submit_without_change(base_url):
     from playwright.sync_api import sync_playwright
 
-    from lib import fixtures as fx
+    from s2lib import fixtures as fx
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -23,6 +23,8 @@ def test_s2_c6_pay_form_no_double_submit_without_change(base_url):
         page.get_by_test_id("login-email").fill(fx.ADA["email"])
         page.get_by_test_id("login-password").fill(fx.ADA["password"])
         page.get_by_test_id("login-submit").click()
+        page.wait_for_url(lambda url: "/login" not in url.path, timeout=10_000)
+        page.get_by_test_id("pay-handle").wait_for(state="visible", timeout=10_000)
         page.get_by_test_id("pay-handle").fill("bob")
         page.get_by_test_id("pay-amount").fill("1.00")
         page.get_by_test_id("pay-submit").click()

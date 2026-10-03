@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from lib import delivery
+from s2lib import delivery
 
 pytestmark = pytest.mark.stage(2)
 

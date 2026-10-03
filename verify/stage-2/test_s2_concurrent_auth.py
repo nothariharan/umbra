@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from lib.concurrent import burst, no_5xx, tally
-from lib.http import new_key
+from s2lib.concurrent import burst, no_5xx, tally
+from s2lib.http import new_key
 
 pytestmark = pytest.mark.stage(2)
 

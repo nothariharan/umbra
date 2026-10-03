@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from lib import fixtures as fx
+from s2lib import fixtures as fx
 
 
 class ModelError(Exception):

@@ -5,8 +5,8 @@ import random
 
 import pytest
 
-from lib.http import new_key
-from lib.reference_model import ModelError, model_from_fixture
+from s2lib.http import new_key
+from s2lib.reference_model import ModelError, model_from_fixture
 
 pytestmark = pytest.mark.stage(2)
 

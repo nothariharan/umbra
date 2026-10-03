@@ -12,8 +12,8 @@ ROOT = os.path.dirname(__file__)
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from lib import fixtures as fx  # noqa: E402
-from lib.http import Api, RESET_TIMEOUT, assert_status, new_key  # noqa: E402
+from s2lib import fixtures as fx  # noqa: E402
+from s2lib.http import Api, RESET_TIMEOUT, assert_status, new_key  # noqa: E402
 
 
 @pytest.fixture(scope="session")

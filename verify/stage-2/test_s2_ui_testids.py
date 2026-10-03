@@ -8,8 +8,8 @@ pytestmark = pytest.mark.stage(2)
 pytest.importorskip("playwright.sync_api")
 from playwright.sync_api import sync_playwright  # noqa: E402
 
-from lib import delivery  # noqa: E402
-from lib import fixtures as fx  # noqa: E402
+from s2lib import delivery  # noqa: E402
+from s2lib import fixtures as fx  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -27,6 +27,8 @@ def _login(page, base_url, email, password):
     page.get_by_test_id("login-email").fill(email)
     page.get_by_test_id("login-password").fill(password)
     page.get_by_test_id("login-submit").click()
+    page.wait_for_url(lambda url: "/login" not in url.path, timeout=10_000)
+    page.get_by_test_id("current-user").wait_for(state="visible", timeout=10_000)
 
 
 def test_s2_c4_home_wallet_and_pay_testids(browser_base):

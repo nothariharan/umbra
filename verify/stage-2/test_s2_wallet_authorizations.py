@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from lib.http import assert_error, assert_status, new_key
+from s2lib.http import assert_error, assert_status, new_key
 
 pytestmark = pytest.mark.stage(2)
 
@@ -37,7 +37,7 @@ def test_s2_c19_capture_creates_payment(world, authorize, me_wallet):
     auth = assert_status(authorize(amount=1500), 201).json()
     cap = world.bob.post(
         f"/authorizations/{auth['authorization_id']}/capture",
-        json={"amount": 700},
+        json={"amount": 700, "final": False},
         idempotency_key=new_key(),
     )
     assert_status(cap, 201)
@@ -45,7 +45,7 @@ def test_s2_c19_capture_creates_payment(world, authorize, me_wallet):
     assert pay.get("authorization_id") == auth["authorization_id"]
     assert pay["amount"] == 700
     me = me_wallet(world.ada)
-    assert me["held"] == 1500 - 700 or me["held"] == 800  # remainder still held until final
+    assert me["held"] == 1500 - 700  # partial capture with default final keeps remainder held
 
 
 def test_s2_c20_void_releases_hold(world, authorize, me_wallet):
@@ -79,7 +79,7 @@ def test_s2_c20_capture_errors_forbidden(world, authorize):
 
 
 def test_s2_c18_insufficient_on_available_not_total(reset, api, me_wallet):
-    from lib import fixtures as fxmod
+    from s2lib import fixtures as fxmod
 
     ada = dict(fxmod.ADA)
     ada["balance"] = 1000

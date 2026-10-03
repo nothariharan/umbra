@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from lib.http import assert_status, new_key
+from s2lib.http import assert_status, new_key
 
 pytestmark = pytest.mark.stage(2)
 
@@ -18,7 +18,7 @@ def test_s2_c26_stage1_pay_and_activity_unchanged_without_holds(world, pay, cons
 
 
 def test_s2_c26_request_pay_uses_available_when_no_holds(world, me_wallet):
-    from lib.http import new_key as nk
+    from s2lib.http import new_key as nk
 
     rq = assert_status(
         world.bob.post(
