@@ -22,7 +22,14 @@ def browser_base(base_url):
         browser.close()
 
 
+def _reset(base_url: str) -> None:
+    import httpx
+
+    httpx.post(f"{base_url}/_test/reset", json=fx.fixture(), timeout=10.0).raise_for_status()
+
+
 def _login(page, base_url, email, password):
+    _reset(base_url)
     page.goto(f"{base_url}/login")
     page.get_by_test_id("login-email").fill(email)
     page.get_by_test_id("login-password").fill(password)

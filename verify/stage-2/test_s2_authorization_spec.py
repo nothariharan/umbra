@@ -117,6 +117,18 @@ def test_s2_c19_second_capture_after_final_is_not_open(world, authorize):
     assert_error(again, 409, "authorization_not_open")
 
 
+@pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+    auth = assert_status(authorize(amount=500), 201).json()
+    aid = auth["authorization_id"]
+    resp = world.bob.post(
+        f"/authorizations/{aid}/capture",
+        json={"amount": bad_amount},
+        idempotency_key=new_key(),
+    )
+    assert_error(resp, 422, "validation_failed")
+
+
 def test_s2_c19_capture_exceeds_remainder(world, authorize):
     auth = assert_status(authorize(amount=400), 201).json()
     aid = auth["authorization_id"]
