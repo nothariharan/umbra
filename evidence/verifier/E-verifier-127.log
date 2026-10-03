@@ -1,0 +1,12 @@
+$ powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C32
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-4dc03cb7-51y_6pfv/repo/stage-1 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/10080d1a2b/stage-1.log)
+  stage 2: fail  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/10080d1a2b/stage-2.log)
+highest contiguous stage: 1
+claimed stage: 1 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/10080d1a2b/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\10080d1a2b\report.json
+official stage 1: PASS (exit 0)
+
+exit 0
