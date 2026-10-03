@@ -5,6 +5,11 @@
   let payIdemKey = null;
   let authorizeIdemKey = null;
   let authorizeFormBound = false;
+  let payFormBound = false;
+  let loginFormBound = false;
+  let paySubmitInFlight = false;
+  let paySettledKey = null;
+  let paySettledBody = null;
   let walletRefreshSeq = 0;
 
   function token() {
@@ -313,11 +318,15 @@
   }
 
   function bindPayForm() {
+    if (payFormBound) return;
     const form = document.querySelector("[data-testid='pay-form']");
     if (!form) return;
+    payFormBound = true;
     payIdemKey = newIdempotencyKey();
     const resetIdem = () => {
       payIdemKey = newIdempotencyKey();
+      paySettledKey = null;
+      paySettledBody = null;
     };
     form.querySelectorAll("input,select").forEach((el) => {
       el.addEventListener("input", resetIdem);
@@ -325,6 +334,7 @@
     });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (paySubmitInFlight) return;
       showError("pay-error", "");
       showError("pay-uncertain", "");
       const to = document.querySelector("[data-testid='pay-handle']").value.trim();
@@ -342,6 +352,11 @@
         note: note || "",
         visibility: vis,
       };
+      const payloadJson = JSON.stringify(payload);
+      if (paySettledKey === payIdemKey && paySettledBody === payloadJson) {
+        return;
+      }
+      paySubmitInFlight = true;
       let res;
       let body = null;
       try {
@@ -351,7 +366,7 @@
             "Content-Type": "application/json",
             "Idempotency-Key": payIdemKey,
           }),
-          body: JSON.stringify(payload),
+          body: payloadJson,
         });
         res = out.res;
         body = out.body;
@@ -359,9 +374,12 @@
         showError("pay-uncertain", "payment outcome unknown");
         await refreshWallet();
         await loadActivity();
+        paySubmitInFlight = false;
         return;
       }
       if (res.ok) {
+        paySettledKey = payIdemKey;
+        paySettledBody = payloadJson;
         showError("pay-error", "");
         showError("pay-uncertain", "");
         await refreshWallet();
@@ -372,6 +390,7 @@
       } else {
         showError("pay-uncertain", "payment outcome unknown");
       }
+      paySubmitInFlight = false;
     });
   }
 
@@ -759,10 +778,11 @@
     });
   }
 
-  async function initLogin() {
-    bindLogout();
+  function initLogin() {
+    if (loginFormBound) return;
     const form = document.querySelector("[data-testid='login-form']");
     if (!form) return;
+    loginFormBound = true;
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       showError("auth-error", "");
