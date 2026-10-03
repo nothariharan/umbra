@@ -498,14 +498,6 @@ func (sv *Server) handlePayRequest(w http.ResponseWriter, r *http.Request, reqID
 			b, f := errResp(http.StatusForbidden, "forbidden", "not payer")
 			return http.StatusForbidden, b, f, true
 		}
-		if mr.Status == "paid" && mr.PaymentID != nil {
-			for _, p := range sv.store.Payments {
-				if p.PaymentID == *mr.PaymentID {
-					resp, _ := json.Marshal(p)
-					return http.StatusOK, resp, false, true
-				}
-			}
-		}
 		if mr.Status != "pending" {
 			b, f := errResp(http.StatusConflict, "request_not_pending", "request not pending")
 			return http.StatusConflict, b, f, true
@@ -805,10 +797,15 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid json")
 			return http.StatusBadRequest, b, f, true
 		}
+		rawTransfers, ok := body["transfers"]
+		if !ok || len(rawTransfers) == 0 {
+			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid transfers")
+			return http.StatusUnprocessableEntity, b, f, true
+		}
 		var transfers []map[string]json.RawMessage
-		if err := json.Unmarshal(body["transfers"], &transfers); err != nil {
-			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid transfers")
-			return http.StatusBadRequest, b, f, true
+		if err := json.Unmarshal(rawTransfers, &transfers); err != nil {
+			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid transfers")
+			return http.StatusUnprocessableEntity, b, f, true
 		}
 		if len(transfers) < 1 || len(transfers) > 32 {
 			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid transfer count")
