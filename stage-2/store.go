@@ -205,6 +205,7 @@ type fixtureUser struct {
 
 type fixturePayment struct {
 	ID           string `json:"id"`
+	PaymentID    string `json:"payment_id"`
 	FromUserID   string `json:"from_user_id"`
 	ToUserID     string `json:"to_user_id"`
 	Amount       int64  `json:"amount"`
@@ -214,6 +215,7 @@ type fixturePayment struct {
 
 type fixtureRequest struct {
 	ID            string `json:"id"`
+	RequestID     string `json:"request_id"`
 	RequesterID   string `json:"requester_id"`
 	PayerID       string `json:"payer_id"`
 	Amount        int64  `json:"amount"`
@@ -222,8 +224,9 @@ type fixtureRequest struct {
 }
 
 type fixtureAuthorization struct {
-	ID             string `json:"id"`
-	FromUserID     string `json:"from_user_id"`
+	ID                string `json:"id"`
+	AuthorizationID   string `json:"authorization_id"`
+	FromUserID        string `json:"from_user_id"`
 	ToUserID       string `json:"to_user_id"`
 	Amount         int64  `json:"amount"`
 	Note           string `json:"note"`
@@ -416,7 +419,10 @@ func (s *Store) applyFixture(f fixture) error {
 	for _, p := range f.Payments {
 		from := users[p.FromUserID]
 		to := users[p.ToUserID]
-		pid := p.ID
+		pid := p.PaymentID
+		if pid == "" {
+			pid = p.ID
+		}
 		if pid == "" {
 			pid = newID("p_")
 		}
@@ -431,7 +437,10 @@ func (s *Store) applyFixture(f fixture) error {
 	for _, r := range f.Requests {
 		reqr := users[r.RequesterID]
 		payer := users[r.PayerID]
-		rid := r.ID
+		rid := r.RequestID
+		if rid == "" {
+			rid = r.ID
+		}
 		if rid == "" {
 			rid = newID("rq_")
 		}
@@ -447,7 +456,10 @@ func (s *Store) applyFixture(f fixture) error {
 	for _, a := range f.Authorizations {
 		from := users[a.FromUserID]
 		to := users[a.ToUserID]
-		aid := a.ID
+		aid := a.AuthorizationID
+		if aid == "" {
+			aid = a.ID
+		}
 		if aid == "" {
 			aid = newID("a_")
 		}
