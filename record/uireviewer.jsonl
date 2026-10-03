@@ -1,0 +1,10 @@
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:41+00:00", "id": "S2-UI-C1", "req": ["S2-R2"], "text": "Playwright: required routes / /requests /split /signup /login /authorizations at 375px and 1280px"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:42+00:00", "id": "S2-UI-C2", "req": ["S2-R4"], "text": "Playwright: mandated data-testid on home and core forms"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:43+00:00", "id": "S2-UI-C3", "req": ["S2-R5"], "text": "Playwright: no horizontal scroll on required routes at 375px and 1280px; screenshots"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:43+00:00", "id": "S2-UI-C4", "req": ["S2-R6"], "text": "Playwright: signup/login testids, auth-error, signed-in chrome on every screen"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:44+00:00", "id": "S2-UI-C5", "req": ["S2-R7"], "text": "Playwright: wallet-balance data-amount and formatted text; pay-visibility; pay-error validation"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:45+00:00", "id": "S2-UI-C6", "req": ["S2-R10"], "text": "Playwright: activity-list, activity-item-*, parties, amount, note, empty-activity"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:46+00:00", "id": "S2-UI-C7", "req": ["S2-R11"], "text": "Playwright: incoming/outgoing lists, request-item-*, pending-only actions, empty-requests"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:47+00:00", "id": "S2-UI-C8", "req": ["S2-R12"], "text": "Playwright: split-* testids; split-preview shares match equal-split rule before POST"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:48+00:00", "id": "S2-UI-C9", "req": ["S2-R28"], "text": "Playwright: /authorizations wallet-available headline, wallet-held when nonzero, authorize form"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:48+00:00", "id": "S2-UI-C10", "req": ["S2-R29"], "text": "Playwright: capture/void controls on permitted open auths; authorization-error path reserved"}
