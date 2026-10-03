@@ -1,0 +1,6 @@
+$ python scripts/lever.py boot --stage 2 --rev b013f5e17143; set BASE_URL=%BASE_URL%&& C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422 attacks/stage-2/test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls
+usage: lever.py [-h]
+                {doctor,build,boot,stop,checks,regress,mutate,reexec,pack} ...
+lever.py: error: unrecognized arguments: set BASE_URL=http://127.0.0.1:50145
+
+exit 2
