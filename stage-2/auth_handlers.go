@@ -93,33 +93,33 @@ func (sv *Server) handleCreateAuthorization(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-func parseCaptureBody(raw []byte) (captureAmount *int64, final bool, malformed bool) {
+func parseCaptureBody(raw []byte) (captureAmount *int64, final bool, malformed bool, invalidAmount bool) {
 	final = true
 	if len(raw) == 0 {
-		return nil, true, false
+		return nil, true, false, false
 	}
 	var body map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &body); err != nil {
-		return nil, true, true
+		return nil, true, true, false
 	}
 	if v, ok := body["final"]; ok {
 		var fb bool
 		if err := json.Unmarshal(v, &fb); err != nil {
-			return nil, true, true
+			return nil, true, true, false
 		}
 		final = fb
 	}
 	if v, ok := body["amount"]; ok {
 		amt, okAmt, ek := parseIntegralAmount(v)
 		if ek == errMalformed {
-			return nil, true, true
+			return nil, true, true, false
 		}
 		if !okAmt {
-			return nil, true, false
+			return nil, final, false, true
 		}
-		return &amt, final, false
+		return &amt, final, false, false
 	}
-	return nil, final, false
+	return nil, final, false, false
 }
 
 func (sv *Server) handleCaptureAuthorization(w http.ResponseWriter, r *http.Request, authID string) {
@@ -133,10 +133,14 @@ func (sv *Server) handleCaptureAuthorization(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	sv.runIdempotent(w, r, u, raw, func(w http.ResponseWriter, raw []byte) (int, []byte, bool, bool) {
-		captureAmtPtr, final, badJSON := parseCaptureBody(raw)
+		captureAmtPtr, final, badJSON, invalidAmount := parseCaptureBody(raw)
 		if badJSON {
 			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid json")
 			return http.StatusBadRequest, b, f, true
+		}
+		if invalidAmount {
+			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid amount")
+			return http.StatusUnprocessableEntity, b, f, true
 		}
 		if captureAmtPtr != nil && *captureAmtPtr < 1 {
 			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid amount")

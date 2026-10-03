@@ -5,6 +5,7 @@
   let payIdemKey = null;
   let authorizeIdemKey = null;
   let authorizeFormBound = false;
+  let walletRefreshSeq = 0;
 
   function token() {
     return localStorage.getItem(TOKEN_KEY) || "";
@@ -147,7 +148,17 @@
 
   async function refreshWallet() {
     if (!token()) return;
-    const { res, body } = await api("/me", { headers: authHeaders() });
+    const seq = ++walletRefreshSeq;
+    let res;
+    let body = null;
+    try {
+      const out = await api("/me", { headers: authHeaders() });
+      res = out.res;
+      body = out.body;
+    } catch (_) {
+      return;
+    }
+    if (seq !== walletRefreshSeq) return;
     if (res.ok) setWallet(body);
   }
 
@@ -315,6 +326,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       showError("pay-error", "");
+      showError("pay-uncertain", "");
       const to = document.querySelector("[data-testid='pay-handle']").value.trim();
       const amountStr = document.querySelector("[data-testid='pay-amount']").value.trim();
       const note = document.querySelector("[data-testid='pay-note']").value;
@@ -330,20 +342,33 @@
         note: note || "",
         visibility: vis,
       };
-      const { res, body } = await api("/payments", {
-        method: "POST",
-        headers: authHeaders({
-          "Content-Type": "application/json",
-          "Idempotency-Key": payIdemKey,
-        }),
-        body: JSON.stringify(payload),
-      });
+      let res;
+      let body = null;
+      try {
+        const out = await api("/payments", {
+          method: "POST",
+          headers: authHeaders({
+            "Content-Type": "application/json",
+            "Idempotency-Key": payIdemKey,
+          }),
+          body: JSON.stringify(payload),
+        });
+        res = out.res;
+        body = out.body;
+      } catch (_) {
+        showError("pay-uncertain", "payment outcome unknown");
+        return;
+      }
       if (res.ok) {
         showError("pay-error", "");
+        showError("pay-uncertain", "");
         await refreshWallet();
         await loadActivity();
       } else if (body && body.error) {
         showError("pay-error", body.error.message || body.error.code);
+        await refreshWallet();
+      } else {
+        showError("pay-uncertain", "payment outcome unknown");
       }
     });
   }
@@ -477,12 +502,24 @@
       opts.headers["Idempotency-Key"] = newIdempotencyKey();
       opts.body = "{}";
     }
-    const { res, body } = await api(path, opts);
+    let res;
+    let body = null;
+    try {
+      const out = await api(path, opts);
+      res = out.res;
+      body = out.body;
+    } catch (_) {
+      showError("request-error", "request failed");
+      await initRequests();
+      return;
+    }
     if (res.ok) {
       await refreshWallet();
       await initRequests();
     } else if (body && body.error) {
       showError("request-error", body.error.message || body.error.code);
+      await refreshWallet();
+      await initRequests();
     }
   }
 
