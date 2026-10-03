@@ -5,7 +5,7 @@ the order the transfers happen to be listed in.
 """
 from __future__ import annotations
 
-from attacklib import assert_error, assert_status, fixture, new_key, user
+from attacklib import Client, assert_error, assert_status, fixture, new_key, user
 
 SETTLE = "/settlements"
 PAY = "/payments"
@@ -118,6 +118,31 @@ def test_success_shape_and_order(boot):
         assert p["created_at"] == body["committed_at"]
     assert w.op.balance() == 1000 - 600
     assert w.bob.balance() == 300 and w.cy.balance() == 200 and w.ada.balance() == 100
+
+
+def test_direct_payment_is_a_nonmember(world):
+    r = world.ada.post(PAY, json={"to_handle": "bob", "amount": 10},
+                       headers={"Idempotency-Key": new_key()})
+    assert_status(r, 201)
+    assert r.json().get("settlement_id") is None, \
+        "a payment outside a settlement must expose null settlement_id"
+
+
+def test_export_import_preserves_operator_permission(boot):
+    w = _op_world(boot, [user("ada", 0), user("bob", 0), user("op", 1000, uid="u_op")])
+    snap = Client()
+    try:
+        exported = snap.get("/_test/export")
+        assert_status(exported, 200)
+    finally:
+        snap.close()
+    importer = Client()
+    try:
+        assert_status(importer.post("/_test/import", json=exported.json()), 204)
+    finally:
+        importer.close()
+    r = _settle(w.op, [{"from_handle": "op", "to_handle": "bob", "amount": 100}])
+    assert_status(r, 201,)
 
 
 def test_operator_permission_does_not_leak_private_data(boot):

@@ -186,6 +186,31 @@ def test_reset_repeatable_and_validates_minor_units(world):
     assert_status(do_reset(fixture()), 204)
 
 
+def test_split_note_is_verbatim(world):
+    raw = "  dinner \u2014 \U0001f35c  "
+    r = _split(world.ada, amount=3, participants=["ada", "bob", "cy"], note=raw)
+    assert_status(r, 201)
+    assert r.json()["note"] == raw
+    for q in r.json()["requests"]:
+        assert q["note"] == raw, "split note was trimmed in the created requests"
+
+
+def test_multiple_tokens_and_sessions(world):
+    first = world.ada.token
+    second = Client()
+    try:
+        assert_status(second.login("ada@example.com"), 200)
+        assert second.token != first
+        for token in (first, second.token):
+            c = Client(token=token)
+            try:
+                assert c.get("/me").status_code == 200, "a valid token was rejected"
+            finally:
+                c.close()
+    finally:
+        second.close()
+
+
 def test_unknown_body_fields_are_ignored(world):
     r = world.ada.post("/payments",
                        json={"to_handle": "bob", "amount": 10,
