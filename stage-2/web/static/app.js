@@ -130,7 +130,7 @@
     return { res, body };
   }
 
-  function apiSync(path, method, payload, useAuth) {
+  function apiSync(path, method, payload, useAuth, extraHeaders) {
     const xhr = new XMLHttpRequest();
     xhr.open(method, path, false);
     xhr.setRequestHeader("Accept", "application/json");
@@ -140,6 +140,11 @@
     if (useAuth) {
       const t = token();
       if (t) xhr.setRequestHeader("Authorization", "Bearer " + t);
+    }
+    if (extraHeaders) {
+      Object.keys(extraHeaders).forEach((k) => {
+        xhr.setRequestHeader(k, extraHeaders[k]);
+      });
     }
     let body = null;
     try {
@@ -332,7 +337,7 @@
       el.addEventListener("input", resetIdem);
       el.addEventListener("change", resetIdem);
     });
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
       if (paySubmitInFlight) return;
       showError("pay-error", "");
@@ -357,40 +362,27 @@
         return;
       }
       paySubmitInFlight = true;
-      let res;
-      let body = null;
-      try {
-        const out = await api("/payments", {
-          method: "POST",
-          headers: authHeaders({
-            "Content-Type": "application/json",
-            "Idempotency-Key": payIdemKey,
-          }),
-          body: payloadJson,
-        });
-        res = out.res;
-        body = out.body;
-      } catch (_) {
-        showError("pay-uncertain", "payment outcome unknown");
-        await refreshWallet();
-        await loadActivity();
-        paySubmitInFlight = false;
-        return;
-      }
-      if (res.ok) {
+      const out = apiSync("/payments", "POST", payload, true, {
+        "Idempotency-Key": payIdemKey,
+      });
+      paySubmitInFlight = false;
+      if (out.ok) {
         paySettledKey = payIdemKey;
         paySettledBody = payloadJson;
         showError("pay-error", "");
         showError("pay-uncertain", "");
-        await refreshWallet();
-        await loadActivity();
-      } else if (body && body.error) {
-        showError("pay-error", body.error.message || body.error.code);
-        await refreshWallet();
+        loadSessionSync();
+        loadActivitySync();
+      } else if (out.body && out.body.error) {
+        showError("pay-error", out.body.error.message || out.body.error.code);
+        loadSessionSync();
+      } else if (out.status === 0) {
+        showError("pay-uncertain", "payment outcome unknown");
+        loadSessionSync();
+        loadActivitySync();
       } else {
         showError("pay-uncertain", "payment outcome unknown");
       }
-      paySubmitInFlight = false;
     });
   }
 
