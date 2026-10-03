@@ -1,0 +1,31 @@
+$ powershell -NoProfile -File evidence/verifier/repro_s1_c18.ps1
+F.                                                                       [100%]
+================================== FAILURES ===================================
+_______________________ test_s1_c18_activity_visibility _______________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x000001ABD59AF1D0>, bob=<lib.http.Api object at 0x000001ABD5AB6210>, cy=<lib.http.Api object at 0x000001ABD5AB70E0>)
+pay = <function pay.<locals>._pay at 0x000001ABD5AAE980>
+
+    def test_s1_c18_activity_visibility(world, pay):
+        """S1-U9: cy keeps the public ada\u2192bob payment after a later private one."""
+        pub = assert_status(pay(world.ada, to_handle="bob", amount=100, visibility="public"), 201).json()
+        assert len(world.cy.get("/activity").json()["payments"]) == 1
+        priv = assert_status(pay(world.ada, to_handle="bob", amount=50, visibility="private"), 201).json()
+        cy_feed = world.cy.get("/activity").json()["payments"]
+>       assert len(cy_feed) == 1, "third party sees public only, not the private payment"
+E       AssertionError: third party sees public only, not the private payment
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+verify\stage-1\test_s1_splits_activity.py:52: AssertionError
+============================== warnings summary ===============================
+verify\stage-1\test_s1_splits_activity.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED verify/stage-1/test_s1_splits_activity.py::test_s1_c18_activity_visibility
+1 failed, 1 passed, 1 warning in 6.08s
+
+exit 1
