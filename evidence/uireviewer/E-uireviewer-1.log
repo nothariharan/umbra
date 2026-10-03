@@ -1,0 +1,1036 @@
+$ python scripts/lever.py checks --suite uireviewer --stage 2 --rev a094b09847ed
+FFFFFFFF....FFFFFFFFFFFFFFFFFF..............FF......................FF.. [100%]
+================================== FAILURES ===================================
+____________________ test_s2_ui_r10_empty_activity[375px] _____________________
+
+page = <Page url='http://127.0.0.1:50750/'>, base_url = 'http://127.0.0.1:50750'
+viewport_width = 375
+
+    def test_s2_ui_r10_empty_activity(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.CY["email"], fx.CY["password"])
+        page.goto(f"{base_url}/")
+>       assert page.get_by_test_id("empty-activity").count() >= 1
+E       assert 0 >= 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="empty-activity"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="empty-activity"s]'> = get_by_test_id('empty-activity')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py:17: AssertionError
+____________________ test_s2_ui_r10_empty_activity[1280px] ____________________
+
+page = <Page url='http://127.0.0.1:50750/'>, base_url = 'http://127.0.0.1:50750'
+viewport_width = 1280
+
+    def test_s2_ui_r10_empty_activity(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.CY["email"], fx.CY["password"])
+        page.goto(f"{base_url}/")
+>       assert page.get_by_test_id("empty-activity").count() >= 1
+E       assert 0 >= 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="empty-activity"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="empty-activity"s]'> = get_by_test_id('empty-activity')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py:17: AssertionError
+_________________ test_s2_ui_r10_activity_item_fields[375px] __________________
+
+page = <Page url='http://127.0.0.1:50750/'>, base_url = 'http://127.0.0.1:50750'
+viewport_width = 375
+
+    def test_s2_ui_r10_activity_item_fields(page, base_url, viewport_width):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "payment_id": "p_ui1",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 1500,
+                    "currency": "EUR",
+                    "note": "lunch",
+                    "visibility": "public",
+                    "created_at": "2026-09-24T12:00:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, fx_body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/")
+        item = page.get_by_test_id("activity-item-p_ui1")
+>       assert item.count() == 1
+E       assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="activity-item-p_ui1"s]'>.count
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py:41: AssertionError
+_________________ test_s2_ui_r10_activity_item_fields[1280px] _________________
+
+page = <Page url='http://127.0.0.1:50750/'>, base_url = 'http://127.0.0.1:50750'
+viewport_width = 1280
+
+    def test_s2_ui_r10_activity_item_fields(page, base_url, viewport_width):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "payment_id": "p_ui1",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 1500,
+                    "currency": "EUR",
+                    "note": "lunch",
+                    "visibility": "public",
+                    "created_at": "2026-09-24T12:00:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, fx_body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/")
+        item = page.get_by_test_id("activity-item-p_ui1")
+>       assert item.count() == 1
+E       assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="activity-item-p_ui1"s]'>.count
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py:41: AssertionError
+____________________ test_s2_ui_r11_empty_requests[375px] _____________________
+
+page = <Page url='http://127.0.0.1:50750/requests'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r11_empty_requests(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/requests")
+>       assert page.get_by_test_id("empty-requests").count() >= 1
+E       assert 0 >= 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/requests'> selector='internal:testid=[data-testid="empty-requests"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/requests'> selector='internal:testid=[data-testid="empty-requests"s]'> = get_by_test_id('empty-requests')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/requests'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py:17: AssertionError
+____________________ test_s2_ui_r11_empty_requests[1280px] ____________________
+
+page = <Page url='http://127.0.0.1:50750/requests'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r11_empty_requests(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/requests")
+>       assert page.get_by_test_id("empty-requests").count() >= 1
+E       assert 0 >= 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/requests'> selector='internal:testid=[data-testid="empty-requests"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/requests'> selector='internal:testid=[data-testid="empty-requests"s]'> = get_by_test_id('empty-requests')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/requests'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py:17: AssertionError
+_______________ test_s2_ui_r11_pending_incoming_actions[375px] ________________
+
+page = <Page url='http://127.0.0.1:50750/requests'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r11_pending_incoming_actions(page, base_url, viewport_width):
+        body = fx.fixture(
+            requests=[
+                {
+                    "request_id": "r_ui1",
+                    "requester_id": "u_bob",
+                    "payer_id": "u_ada",
+                    "amount": 500,
+                    "currency": "EUR",
+                    "note": "tea",
+                    "status": "pending",
+                    "created_at": "2026-09-24T12:00:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/requests")
+        assert page.get_by_test_id("incoming-list").count() >= 1
+        assert page.get_by_test_id("outgoing-list").count() >= 1
+        item = page.get_by_test_id("request-item-r_ui1")
+>       assert item.get_attribute("data-status") == "pending"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:19470: in get_attribute
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:469: in get_attribute
+    return await self._frame.get_attribute(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:758: in get_attribute
+    return await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F448BFA020>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.get_attribute: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("request-item-r_ui1")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_______________ test_s2_ui_r11_pending_incoming_actions[1280px] _______________
+
+page = <Page url='http://127.0.0.1:50750/requests'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r11_pending_incoming_actions(page, base_url, viewport_width):
+        body = fx.fixture(
+            requests=[
+                {
+                    "request_id": "r_ui1",
+                    "requester_id": "u_bob",
+                    "payer_id": "u_ada",
+                    "amount": 500,
+                    "currency": "EUR",
+                    "note": "tea",
+                    "status": "pending",
+                    "created_at": "2026-09-24T12:00:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/requests")
+        assert page.get_by_test_id("incoming-list").count() >= 1
+        assert page.get_by_test_id("outgoing-list").count() >= 1
+        item = page.get_by_test_id("request-item-r_ui1")
+>       assert item.get_attribute("data-status") == "pending"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:19470: in get_attribute
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:469: in get_attribute
+    return await self._frame.get_attribute(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:758: in get_attribute
+    return await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F44913C9A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.get_attribute: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("request-item-r_ui1")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+________________ test_s2_ui_r28_authorizations_testids[375px] _________________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r28_authorizations_testids(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+        for tid in AUTH_SCREEN_IDS:
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: authorize-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'> = get_by_test_id('authorize-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:50750/authorizations'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:29: AssertionError
+________________ test_s2_ui_r28_authorizations_testids[1280px] ________________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r28_authorizations_testids(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+        for tid in AUTH_SCREEN_IDS:
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: authorize-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'> = get_by_test_id('authorize-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:50750/authorizations'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:29: AssertionError
+____________ test_s2_ui_r28_wallet_held_absent_without_hold[375px] ____________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r28_wallet_held_absent_without_hold(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+>       assert page.get_by_test_id("wallet-held").count() == 0
+E       assert 1 == 0
+E        +  where 1 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="wallet-held"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="wallet-held"s]'> = get_by_test_id('wallet-held')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/authorizations'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:41: AssertionError
+___________ test_s2_ui_r28_wallet_held_absent_without_hold[1280px] ____________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r28_wallet_held_absent_without_hold(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+>       assert page.get_by_test_id("wallet-held").count() == 0
+E       assert 1 == 0
+E        +  where 1 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="wallet-held"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="wallet-held"s]'> = get_by_test_id('wallet-held')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/authorizations'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:41: AssertionError
+_______________ test_s2_ui_r28_wallet_headline_with_hold[375px] _______________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r28_wallet_headline_with_hold(page, base_url, viewport_width):
+        body = fx.fixture(
+            authorizations=[
+                {
+                    "id": "a_ui1",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 2000,
+                    "note": "hold",
+                    "visibility": "private",
+                    "status": "open",
+                    "expires_at": "2099-09-24T13:20:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+        assert page.get_by_test_id("wallet-held").count() >= 1
+        held_minor = int(page.get_by_test_id("wallet-held").get_attribute("data-amount") or "0")
+>       assert held_minor == 2000
+E       assert 0 == 2000
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:65: AssertionError
+______________ test_s2_ui_r28_wallet_headline_with_hold[1280px] _______________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r28_wallet_headline_with_hold(page, base_url, viewport_width):
+        body = fx.fixture(
+            authorizations=[
+                {
+                    "id": "a_ui1",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 2000,
+                    "note": "hold",
+                    "visibility": "private",
+                    "status": "open",
+                    "expires_at": "2099-09-24T13:20:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+        assert page.get_by_test_id("wallet-held").count() >= 1
+        held_minor = int(page.get_by_test_id("wallet-held").get_attribute("data-amount") or "0")
+>       assert held_minor == 2000
+E       assert 0 == 2000
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:65: AssertionError
+_________________ test_s2_ui_r28_open_auth_item_fields[375px] _________________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r28_open_auth_item_fields(page, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+        assert page.get_by_test_id("empty-authorizations").count() == 0
+        assert (
+>           page.get_by_test_id("authorization-amount-a_ui2").inner_text().strip()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            == format_amount(1000, "EUR", 2)
+        )
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:19603: in inner_text
+    self._sync(self._impl_obj.inner_text(timeout=to_milliseconds(timeout)))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:502: in inner_text
+    return await self._frame.inner_text(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:744: in inner_text
+    return await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F4492271A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.inner_text: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorization-amount-a_ui2")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+________________ test_s2_ui_r28_open_auth_item_fields[1280px] _________________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r28_open_auth_item_fields(page, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+        assert page.get_by_test_id("empty-authorizations").count() == 0
+        assert (
+>           page.get_by_test_id("authorization-amount-a_ui2").inner_text().strip()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            == format_amount(1000, "EUR", 2)
+        )
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:19603: in inner_text
+    self._sync(self._impl_obj.inner_text(timeout=to_milliseconds(timeout)))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:502: in inner_text
+    return await self._frame.inner_text(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:744: in inner_text
+    return await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F449224FE0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.inner_text: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorization-amount-a_ui2")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_____________ test_s2_ui_r28_authorize_error_insufficient[375px] ______________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r28_authorize_error_insufficient(page, base_url, viewport_width):
+        body = fx.fixture(
+            authorizations=[
+                {
+                    "id": "a_hold",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 9900,
+                    "note": "",
+                    "visibility": "private",
+                    "status": "open",
+                    "expires_at": "2099-09-24T13:20:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+>       page.get_by_test_id("authorize-handle").fill("bob")
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:18398: in fill
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:219: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:637: in fill
+    await self._fill(**locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:649: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F449219940>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorize-handle")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_____________ test_s2_ui_r28_authorize_error_insufficient[1280px] _____________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r28_authorize_error_insufficient(page, base_url, viewport_width):
+        body = fx.fixture(
+            authorizations=[
+                {
+                    "id": "a_hold",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 9900,
+                    "note": "",
+                    "visibility": "private",
+                    "status": "open",
+                    "expires_at": "2099-09-24T13:20:00+00:00",
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+>       page.get_by_test_id("authorize-handle").fill("bob")
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:18398: in fill
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:219: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:637: in fill
+    await self._fill(**locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:649: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F4492271A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorize-handle")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_______________ test_s2_ui_r29_incoming_capture_controls[375px] _______________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r29_incoming_capture_controls(page, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+        item = page.get_by_test_id("authorization-item-a_ui2")
+>       assert item.count() == 1
+E       assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorization-item-a_ui2"s]'>.count
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:141: AssertionError
+______________ test_s2_ui_r29_incoming_capture_controls[1280px] _______________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r29_incoming_capture_controls(page, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+        item = page.get_by_test_id("authorization-item-a_ui2")
+>       assert item.count() == 1
+E       assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorization-item-a_ui2"s]'>.count
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:141: AssertionError
+_________________ test_s2_ui_r29_captured_item_fields[375px] __________________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r29_captured_item_fields(page, base_url, viewport_width):
+        body = fx.fixture(
+            authorizations=[
+                {
+                    "id": "a_cap",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 2000,
+                    "note": "done",
+                    "visibility": "public",
+                    "status": "captured",
+                    "expires_at": "2099-09-24T13:20:00+00:00",
+                    "captured_amount": 2000,
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+        item = page.get_by_test_id("authorization-item-a_cap")
+>       assert item.get_attribute("data-status") == "captured"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:171: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:19470: in get_attribute
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:469: in get_attribute
+    return await self._frame.get_attribute(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:758: in get_attribute
+    return await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F4491CC400>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.get_attribute: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorization-item-a_cap")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_________________ test_s2_ui_r29_captured_item_fields[1280px] _________________
+
+page = <Page url='http://127.0.0.1:50750/login'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r29_captured_item_fields(page, base_url, viewport_width):
+        body = fx.fixture(
+            authorizations=[
+                {
+                    "id": "a_cap",
+                    "from_user_id": "u_ada",
+                    "to_user_id": "u_bob",
+                    "amount": 2000,
+                    "note": "done",
+                    "visibility": "public",
+                    "status": "captured",
+                    "expires_at": "2099-09-24T13:20:00+00:00",
+                    "captured_amount": 2000,
+                }
+            ]
+        )
+        reset_base(base_url, body)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+>       page.goto(f"{base_url}/authorizations")
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:169: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:9903: in goto
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_page.py:562: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:157: in goto
+    await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F449219760>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Page.goto: net::ERR_ABORTED at http://127.0.0.1:50750/authorizations
+E           Call log:
+E             - navigating to "http://127.0.0.1:50750/authorizations", waiting until "load"
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: Error
+__________ test_s2_ui_r29_authorization_error_on_bad_capture[375px] ___________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r29_authorization_error_on_bad_capture(page, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+>       page.get_by_test_id("authorization-capture-amount-a_ui2").fill("99.00")
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:18398: in fill
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:219: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:637: in fill
+    await self._fill(**locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:649: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F44922E7A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorization-capture-amount-a_ui2")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+__________ test_s2_ui_r29_authorization_error_on_bad_capture[1280px] __________
+
+page = <Page url='http://127.0.0.1:50750/authorizations'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r29_authorization_error_on_bad_capture(page, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        login(page, base_url, fx.BOB["email"], fx.BOB["password"])
+        page.goto(f"{base_url}/authorizations")
+>       page.get_by_test_id("authorization-capture-amount-a_ui2").fill("99.00")
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:18398: in fill
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:219: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:637: in fill
+    await self._fill(**locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:649: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001F448E74C50>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001F4491AB7E0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorization-capture-amount-a_ui2")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_________________ test_s2_ui_r29_outgoing_void_control[375px] _________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\HARIHARAN\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe> version=153.0.8010.12>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r29_outgoing_void_control(browser, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        page = browser.new_page(viewport={"width": viewport_width, "height": 900})
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+>       assert page.get_by_test_id("authorization-void-a_ui2").count() == 1
+E       assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorization-void-a_ui2"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorization-void-a_ui2"s]'> = get_by_test_id('authorization-void-a_ui2')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/authorizations'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:200: AssertionError
+________________ test_s2_ui_r29_outgoing_void_control[1280px] _________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\HARIHARAN\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe> version=153.0.8010.12>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r29_outgoing_void_control(browser, base_url, viewport_width):
+        _seed_open_auth(base_url)
+        page = browser.new_page(viewport={"width": viewport_width, "height": 900})
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+>       assert page.get_by_test_id("authorization-void-a_ui2").count() == 1
+E       assert 0 == 1
+E        +  where 0 = count()
+E        +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorization-void-a_ui2"s]'>.count
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/authorizations'> selector='internal:testid=[data-testid="authorization-void-a_ui2"s]'> = get_by_test_id('authorization-void-a_ui2')
+E        +        where get_by_test_id = <Page url='http://127.0.0.1:50750/authorizations'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py:200: AssertionError
+_________________ test_s2_ui_r4_home_mandated_testids[375px] __________________
+
+page = <Page url='http://127.0.0.1:50750/'>, base_url = 'http://127.0.0.1:50750'
+viewport_width = 375
+
+    def test_s2_ui_r4_home_mandated_testids(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/")
+        for tid in HOME_IDS:
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: request-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="request-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="request-handle"s]'> = get_by_test_id('request-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:50750/'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r4_r7_home.py:33: AssertionError
+_________________ test_s2_ui_r4_home_mandated_testids[1280px] _________________
+
+page = <Page url='http://127.0.0.1:50750/'>, base_url = 'http://127.0.0.1:50750'
+viewport_width = 1280
+
+    def test_s2_ui_r4_home_mandated_testids(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/")
+        for tid in HOME_IDS:
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: request-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="request-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/'> selector='internal:testid=[data-testid="request-handle"s]'> = get_by_test_id('request-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:50750/'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r4_r7_home.py:33: AssertionError
+____________________ test_s2_ui_r6_signed_in_chrome[375px] ____________________
+
+page = <Page url='http://127.0.0.1:50750/login'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 375
+
+    def test_s2_ui_r6_signed_in_chrome(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        for tid in SIGNED_IN_IDS:
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: current-user
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/login'> selector='internal:testid=[data-testid="current-user"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/login'> selector='internal:testid=[data-testid="current-user"s]'> = get_by_test_id('current-user')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:50750/login'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r6_auth.py:36: AssertionError
+___________________ test_s2_ui_r6_signed_in_chrome[1280px] ____________________
+
+page = <Page url='http://127.0.0.1:50750/login'>
+base_url = 'http://127.0.0.1:50750', viewport_width = 1280
+
+    def test_s2_ui_r6_signed_in_chrome(page, base_url, viewport_width):
+        reset_base(base_url)
+        login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        for tid in SIGNED_IN_IDS:
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: current-user
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:50750/login'> selector='internal:testid=[data-testid="current-user"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:50750/login'> selector='internal:testid=[data-testid="current-user"s]'> = get_by_test_id('current-user')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:50750/login'>.get_by_test_id
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r6_auth.py:36: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py::test_s2_ui_r10_empty_activity[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py::test_s2_ui_r10_empty_activity[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py::test_s2_ui_r10_activity_item_fields[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r10_activity.py::test_s2_ui_r10_activity_item_fields[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py::test_s2_ui_r11_empty_requests[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py::test_s2_ui_r11_empty_requests[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py::test_s2_ui_r11_pending_incoming_actions[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r11_requests.py::test_s2_ui_r11_pending_incoming_actions[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_authorizations_testids[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_authorizations_testids[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_wallet_held_absent_without_hold[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_wallet_held_absent_without_hold[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_wallet_headline_with_hold[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_wallet_headline_with_hold[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_open_auth_item_fields[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_open_auth_item_fields[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_authorize_error_insufficient[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r28_authorize_error_insufficient[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_incoming_capture_controls[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_incoming_capture_controls[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_captured_item_fields[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_captured_item_fields[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_authorization_error_on_bad_capture[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_authorization_error_on_bad_capture[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_outgoing_void_control[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r28_r29_authorizations.py::test_s2_ui_r29_outgoing_void_control[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r4_r7_home.py::test_s2_ui_r4_home_mandated_testids[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r4_r7_home.py::test_s2_ui_r4_home_mandated_testids[1280px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r6_auth.py::test_s2_ui_r6_signed_in_chrome[375px]
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-bdj7kx05\repo\review\stage-2\test_s2_ui_r6_auth.py::test_s2_ui_r6_signed_in_chrome[1280px]
+30 failed, 42 passed in 519.13s (0:08:39)
+uireviewer stage 2: FAIL (exit 1)
+
+exit 1
