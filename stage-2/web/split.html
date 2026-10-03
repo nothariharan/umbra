@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Split</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-page="split" data-minor-units="2">
+  <main>
+    <form data-testid="split-form">
+      <input data-testid="split-amount" placeholder="Amount">
+      <input data-testid="split-note" placeholder="Note">
+      <input data-testid="split-handles" placeholder="ada,bob,cy">
+      <div data-testid="split-preview"></div>
+      <button type="submit" data-testid="split-submit">Split</button>
+    </form>
+    <div data-testid="split-error" hidden></div>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

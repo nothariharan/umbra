@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Authorizations</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-page="authorizations" data-minor-units="2">
+  <header>
+    <span data-testid="current-user"></span>
+    <div class="wallet-headline" data-testid="wallet-available" data-amount="0">0.00 EUR</div>
+    <div data-testid="wallet-balance" data-amount="0">0.00 EUR</div>
+    <div data-testid="wallet-held" style="display:none"></div>
+  </header>
+  <main>
+    <div data-testid="authorization-error" hidden></div>
+    <div data-testid="authorization-list"></div>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

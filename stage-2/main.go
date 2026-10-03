@@ -23,7 +23,6 @@ func main() {
 	mux.HandleFunc("GET /me", sv.withAuth(sv.handleMe))
 	mux.HandleFunc("POST /payments", sv.withAuth(sv.handlePayments))
 	mux.HandleFunc("POST /requests", sv.withAuth(sv.handleCreateRequest))
-	mux.HandleFunc("GET /requests", sv.withAuth(sv.handleListRequests))
 	mux.HandleFunc("POST /splits", sv.withAuth(sv.handleSplits))
 	mux.HandleFunc("GET /activity", sv.withAuth(sv.handleActivity))
 	mux.HandleFunc("POST /settlements", sv.withAuth(sv.handleSettlements))
@@ -45,6 +44,27 @@ func main() {
 			sv.handleCancelRequest(w, r, id)
 		})(w, r)
 	})
+	mux.HandleFunc("POST /authorizations", sv.withAuth(sv.handleCreateAuthorization))
+	mux.HandleFunc("GET /authorizations", sv.withAuth(sv.handleAuthorizationsRoute))
+	mux.HandleFunc("POST /authorizations/{id}/capture", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		sv.withAuth(func(w http.ResponseWriter, r *http.Request) {
+			sv.handleCaptureAuthorization(w, r, id)
+		})(w, r)
+	})
+	mux.HandleFunc("POST /authorizations/{id}/void", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		sv.withAuth(func(w http.ResponseWriter, r *http.Request) {
+			sv.handleVoidAuthorization(w, r, id)
+		})(w, r)
+	})
+
+	mux.HandleFunc("GET /", sv.handleHome)
+	mux.HandleFunc("GET /signup", sv.handleSignupPage)
+	mux.HandleFunc("GET /login", sv.handleLoginPage)
+	mux.HandleFunc("GET /split", sv.withAuth(sv.handleSplitPage))
+	mux.HandleFunc("GET /requests", sv.withAuth(sv.handleRequestsRoute))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
 
 	addr := "0.0.0.0:" + port
 	log.Printf("listening on %s", addr)
@@ -56,7 +76,9 @@ func main() {
 func (sv *Server) withAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/health" || strings.HasPrefix(r.URL.Path, "/_test/") ||
-			r.URL.Path == "/auth/signup" || r.URL.Path == "/auth/login" {
+			strings.HasPrefix(r.URL.Path, "/static/") ||
+			r.URL.Path == "/auth/signup" || r.URL.Path == "/auth/login" ||
+			r.URL.Path == "/" || r.URL.Path == "/signup" || r.URL.Path == "/login" {
 			next(w, r)
 			return
 		}

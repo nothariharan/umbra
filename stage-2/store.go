@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"sync"
+	"unicode/utf8"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,18 +20,19 @@ type User struct {
 }
 
 type Payment struct {
-	PaymentID    string  `json:"payment_id"`
-	FromUserID   string  `json:"from_user_id"`
-	FromHandle   string  `json:"from_handle"`
-	ToUserID     string  `json:"to_user_id"`
-	ToHandle     string  `json:"to_handle"`
-	Amount       int64   `json:"amount"`
-	Currency     string  `json:"currency"`
-	Note         string  `json:"note"`
-	Visibility   string  `json:"visibility"`
-	RequestID    *string `json:"request_id"`
-	SettlementID *string `json:"settlement_id,omitempty"`
-	CreatedAt    string  `json:"created_at"`
+	PaymentID        string  `json:"payment_id"`
+	FromUserID       string  `json:"from_user_id"`
+	FromHandle       string  `json:"from_handle"`
+	ToUserID         string  `json:"to_user_id"`
+	ToHandle         string  `json:"to_handle"`
+	Amount           int64   `json:"amount"`
+	Currency         string  `json:"currency"`
+	Note             string  `json:"note"`
+	Visibility       string  `json:"visibility"`
+	RequestID        *string `json:"request_id"`
+	AuthorizationID  *string `json:"authorization_id"`
+	SettlementID     *string `json:"settlement_id,omitempty"`
+	CreatedAt        string  `json:"created_at"`
 }
 
 type MoneyRequest struct {
@@ -57,22 +59,25 @@ type IdempotencyRecord struct {
 type Store struct {
 	mu sync.Mutex
 
-	Currency              string                        `json:"currency"`
-	MinorUnits            int                           `json:"minor_units"`
-	SeededTotal           int64                         `json:"seeded_total"`
-	Users                 map[string]*User              `json:"users"`
-	UsersByEmail          map[string]string             `json:"users_by_email"`
-	UsersByHandle         map[string]string             `json:"users_by_handle"`
-	Tokens                map[string]string             `json:"tokens"`
-	Payments              []Payment                     `json:"payments"`
-	Requests              []MoneyRequest                `json:"requests"`
-	SettlementOperators   map[string]struct{}           `json:"settlement_operators"`
-	Idempotency           map[string]*IdempotencyRecord `json:"idempotency"`
-	idempotencyInProgress map[string]chan struct{}
+	Currency                  string                        `json:"currency"`
+	MinorUnits                int                           `json:"minor_units"`
+	AuthorizationTTLSeconds   int                           `json:"authorization_ttl_seconds"`
+	SeededTotal               int64                         `json:"seeded_total"`
+	Users                     map[string]*User              `json:"users"`
+	UsersByEmail              map[string]string             `json:"users_by_email"`
+	UsersByHandle             map[string]string             `json:"users_by_handle"`
+	Tokens                    map[string]string             `json:"tokens"`
+	Payments                  []Payment                     `json:"payments"`
+	Requests                  []MoneyRequest                `json:"requests"`
+	Authorizations            []Authorization               `json:"authorizations"`
+	SettlementOperators       map[string]struct{}           `json:"settlement_operators"`
+	Idempotency               map[string]*IdempotencyRecord `json:"idempotency"`
+	idempotencyInProgress     map[string]chan struct{}
 }
 
 func NewStore() *Store {
 	return &Store{
+		AuthorizationTTLSeconds: 600,
 		Users:                 make(map[string]*User),
 		UsersByEmail:          make(map[string]string),
 		UsersByHandle:         make(map[string]string),
@@ -93,38 +98,47 @@ func (s *Store) exportState() map[string]any {
 }
 
 type storeSnapshot struct {
-	Currency            string                        `json:"currency"`
-	MinorUnits          int                           `json:"minor_units"`
-	SeededTotal         int64                         `json:"seeded_total"`
-	Users               map[string]*User              `json:"users"`
-	UsersByEmail        map[string]string             `json:"users_by_email"`
-	UsersByHandle       map[string]string             `json:"users_by_handle"`
-	Tokens              map[string]string             `json:"tokens"`
-	Payments            []Payment                     `json:"payments"`
-	Requests            []MoneyRequest                `json:"requests"`
-	SettlementOperators map[string]struct{}           `json:"settlement_operators"`
-	Idempotency         map[string]*IdempotencyRecord `json:"idempotency"`
+	Currency                string                        `json:"currency"`
+	MinorUnits                int                           `json:"minor_units"`
+	AuthorizationTTLSeconds   int                           `json:"authorization_ttl_seconds"`
+	SeededTotal               int64                         `json:"seeded_total"`
+	Users                     map[string]*User              `json:"users"`
+	UsersByEmail              map[string]string             `json:"users_by_email"`
+	UsersByHandle             map[string]string             `json:"users_by_handle"`
+	Tokens                    map[string]string             `json:"tokens"`
+	Payments                  []Payment                     `json:"payments"`
+	Requests                  []MoneyRequest                `json:"requests"`
+	Authorizations            []Authorization               `json:"authorizations"`
+	SettlementOperators       map[string]struct{}           `json:"settlement_operators"`
+	Idempotency               map[string]*IdempotencyRecord `json:"idempotency"`
 }
 
 func (s *Store) snapshot() storeSnapshot {
 	return storeSnapshot{
-		Currency:            s.Currency,
-		MinorUnits:          s.MinorUnits,
-		SeededTotal:         s.SeededTotal,
-		Users:               s.Users,
-		UsersByEmail:        s.UsersByEmail,
-		UsersByHandle:       s.UsersByHandle,
-		Tokens:              s.Tokens,
-		Payments:            s.Payments,
-		Requests:            s.Requests,
-		SettlementOperators: s.SettlementOperators,
-		Idempotency:         s.Idempotency,
+		Currency:                s.Currency,
+		MinorUnits:              s.MinorUnits,
+		AuthorizationTTLSeconds: s.AuthorizationTTLSeconds,
+		SeededTotal:             s.SeededTotal,
+		Users:                   s.Users,
+		UsersByEmail:            s.UsersByEmail,
+		UsersByHandle:           s.UsersByHandle,
+		Tokens:                  s.Tokens,
+		Payments:                s.Payments,
+		Requests:                s.Requests,
+		Authorizations:          s.Authorizations,
+		SettlementOperators:     s.SettlementOperators,
+		Idempotency:             s.Idempotency,
 	}
 }
 
 func (s *Store) loadSnapshot(snap storeSnapshot) {
 	s.Currency = snap.Currency
 	s.MinorUnits = snap.MinorUnits
+	if snap.AuthorizationTTLSeconds <= 0 {
+		s.AuthorizationTTLSeconds = 600
+	} else {
+		s.AuthorizationTTLSeconds = snap.AuthorizationTTLSeconds
+	}
 	s.SeededTotal = snap.SeededTotal
 	s.Users = snap.Users
 	if s.Users == nil {
@@ -144,6 +158,10 @@ func (s *Store) loadSnapshot(snap storeSnapshot) {
 	}
 	s.Payments = snap.Payments
 	s.Requests = snap.Requests
+	s.Authorizations = snap.Authorizations
+	if s.Authorizations == nil {
+		s.Authorizations = nil
+	}
 	s.SettlementOperators = snap.SettlementOperators
 	if s.SettlementOperators == nil {
 		s.SettlementOperators = make(map[string]struct{})
@@ -203,13 +221,27 @@ type fixtureRequest struct {
 	Status        string `json:"status"`
 }
 
+type fixtureAuthorization struct {
+	ID             string `json:"id"`
+	FromUserID     string `json:"from_user_id"`
+	ToUserID       string `json:"to_user_id"`
+	Amount         int64  `json:"amount"`
+	Note           string `json:"note"`
+	Visibility     string `json:"visibility"`
+	Status         string `json:"status"`
+	ExpiresAt      string `json:"expires_at"`
+	CapturedAmount int64  `json:"captured_amount"`
+}
+
 type fixture struct {
-	Currency               string           `json:"currency"`
-	MinorUnits             int              `json:"minor_units"`
-	Users                  []fixtureUser    `json:"users"`
-	Payments               []fixturePayment `json:"payments"`
-	Requests               []fixtureRequest `json:"requests"`
-	SettlementOperatorIDs  []string         `json:"settlement_operator_ids"`
+	Currency                  string                 `json:"currency"`
+	MinorUnits                int                    `json:"minor_units"`
+	AuthorizationTTLSeconds   *int                   `json:"authorization_ttl_seconds"`
+	Users                     []fixtureUser          `json:"users"`
+	Payments                  []fixturePayment       `json:"payments"`
+	Requests                  []fixtureRequest       `json:"requests"`
+	Authorizations            []fixtureAuthorization `json:"authorizations"`
+	SettlementOperatorIDs     []string               `json:"settlement_operator_ids"`
 }
 
 func (s *Store) applyFixture(f fixture) error {
@@ -303,11 +335,71 @@ func (s *Store) applyFixture(f fixture) error {
 		ops[id] = struct{}{}
 	}
 
+	ttl := 600
+	if f.AuthorizationTTLSeconds != nil {
+		if *f.AuthorizationTTLSeconds <= 0 {
+			return errFixture("invalid authorization_ttl_seconds")
+		}
+		ttl = *f.AuthorizationTTLSeconds
+	}
+
+	nowT := now()
+	heldByUser := map[string]int64{}
+	for _, a := range f.Authorizations {
+		if _, ok := users[a.FromUserID]; !ok {
+			return errFixture("unknown authorization user")
+		}
+		if _, ok := users[a.ToUserID]; !ok {
+			return errFixture("unknown authorization user")
+		}
+		if a.Amount < 1 || a.Amount > maxAmount {
+			return errFixture("invalid authorization amount")
+		}
+		if a.Visibility != "" && a.Visibility != "public" && a.Visibility != "private" {
+			return errFixture("invalid authorization visibility")
+		}
+		if utf8.RuneCountInString(a.Note) > maxNoteRunes {
+			return errFixture("invalid authorization note")
+		}
+		switch a.Status {
+		case "open", "captured", "voided", "expired":
+		default:
+			return errFixture("invalid authorization status")
+		}
+		if a.Status == "open" {
+			if _, ok := parseTime(a.ExpiresAt); !ok {
+				return errFixture("invalid authorization expires_at")
+			}
+		}
+		cap := a.CapturedAmount
+		if cap < 0 || cap > a.Amount {
+			return errFixture("invalid authorization captured amount")
+		}
+		if a.Status == "captured" && cap == 0 {
+			cap = a.Amount
+		}
+		hold, err := openHoldForFixture(fixtureAuthorization{
+			ID: a.ID, FromUserID: a.FromUserID, ToUserID: a.ToUserID,
+			Amount: a.Amount, Status: a.Status, ExpiresAt: a.ExpiresAt,
+			CapturedAmount: cap,
+		}, nowT)
+		if err != nil {
+			return err
+		}
+		heldByUser[a.FromUserID] += hold
+	}
+	for uid, held := range heldByUser {
+		if held > users[uid].Balance {
+			return errFixture("authorization holds exceed balance")
+		}
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.Currency = f.Currency
 	s.MinorUnits = f.MinorUnits
+	s.AuthorizationTTLSeconds = ttl
 	s.SeededTotal = total
 	s.Users = users
 	s.UsersByEmail = byEmail
@@ -318,6 +410,7 @@ func (s *Store) applyFixture(f fixture) error {
 	s.SettlementOperators = ops
 	s.Payments = nil
 	s.Requests = nil
+	s.Authorizations = nil
 
 	created := nowRFC3339()
 	for _, p := range f.Payments {
@@ -331,7 +424,7 @@ func (s *Store) applyFixture(f fixture) error {
 			PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 			ToUserID: to.ID, ToHandle: to.Handle, Amount: p.Amount,
 			Currency: f.Currency, Note: p.Note, Visibility: p.Visibility,
-			RequestID: nil, CreatedAt: created,
+			RequestID: nil, AuthorizationID: nil, CreatedAt: created,
 		})
 	}
 
@@ -349,6 +442,37 @@ func (s *Store) applyFixture(f fixture) error {
 			PaymentID: nil, CreatedAt: created,
 		}
 		s.Requests = append(s.Requests, mr)
+	}
+
+	for _, a := range f.Authorizations {
+		from := users[a.FromUserID]
+		to := users[a.ToUserID]
+		aid := a.ID
+		if aid == "" {
+			aid = newID("a_")
+		}
+		vis := a.Visibility
+		if vis == "" {
+			vis = "public"
+		}
+		capAmt := a.CapturedAmount
+		if a.Status == "captured" && capAmt == 0 {
+			capAmt = a.Amount
+		}
+		st := a.Status
+		exp := a.ExpiresAt
+		if st == "open" {
+			expT, _ := parseTime(exp)
+			if !expT.After(nowT) {
+				st = "expired"
+			}
+		}
+		s.Authorizations = append(s.Authorizations, Authorization{
+			AuthorizationID: aid, FromUserID: from.ID, FromHandle: from.Handle,
+			ToUserID: to.ID, ToHandle: to.Handle, Amount: a.Amount,
+			CapturedAmount: capAmt, Note: a.Note, Visibility: vis, Status: st,
+			ExpiresAt: exp, CreatedAt: created, PaymentID: nil, PaymentIDs: []string{},
+		})
 	}
 
 	return nil

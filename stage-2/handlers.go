@@ -282,9 +282,12 @@ func (sv *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 	}
 	sv.store.mu.Lock()
 	cu := sv.store.Users[u.ID]
+	held := sv.store.heldForUserLocked(u.ID)
+	avail := sv.store.availableForUserLocked(u.ID)
 	out := map[string]any{
 		"user_id": cu.ID, "display_name": cu.DisplayName, "handle": cu.Handle,
-		"balance": cu.Balance, "currency": sv.store.Currency, "minor_units": sv.store.MinorUnits,
+		"balance": cu.Balance, "total": cu.Balance, "available": avail, "held": held,
+		"currency": sv.store.Currency, "minor_units": sv.store.MinorUnits,
 	}
 	sv.store.mu.Unlock()
 	writeJSON(w, http.StatusOK, out)
@@ -356,7 +359,7 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 			b, f := errResp(http.StatusUnprocessableEntity, "self_payment", "self payment")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
-		if from.Balance < amount {
+		if sv.store.availableForUserLocked(from.ID) < amount {
 			b, f := errResp(http.StatusConflict, "insufficient_funds", "insufficient funds")
 			return http.StatusConflict, b, f, true
 		}
@@ -368,7 +371,7 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 			PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 			ToUserID: to.ID, ToHandle: to.Handle, Amount: amount,
 			Currency: sv.store.Currency, Note: note, Visibility: vis,
-			RequestID: nil, CreatedAt: created,
+			RequestID: nil, AuthorizationID: nil, CreatedAt: created,
 		}
 		sv.store.Payments = append(sv.store.Payments, p)
 		resp, _ := json.Marshal(p)
@@ -504,7 +507,7 @@ func (sv *Server) handlePayRequest(w http.ResponseWriter, r *http.Request, reqID
 		}
 		payer := sv.store.Users[mr.PayerID]
 		reqr := sv.store.Users[mr.RequesterID]
-		if payer.Balance < mr.Amount {
+		if sv.store.availableForUserLocked(payer.ID) < mr.Amount {
 			b, f := errResp(http.StatusConflict, "insufficient_funds", "insufficient funds")
 			return http.StatusConflict, b, f, true
 		}
@@ -516,7 +519,7 @@ func (sv *Server) handlePayRequest(w http.ResponseWriter, r *http.Request, reqID
 			PaymentID: pid, FromUserID: payer.ID, FromHandle: payer.Handle,
 			ToUserID: reqr.ID, ToHandle: reqr.Handle, Amount: mr.Amount,
 			Currency: sv.store.Currency, Note: mr.Note, Visibility: vis,
-			RequestID: &rid, CreatedAt: nowRFC3339(),
+			RequestID: &rid, AuthorizationID: nil, CreatedAt: nowRFC3339(),
 		}
 		sv.store.Payments = append(sv.store.Payments, p)
 		mr.Status = "paid"
@@ -873,7 +876,10 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 			xfers = append(xfers, xfer{from: fromID, to: toID, amount: amount, note: note, vis: vis})
 		}
 		for uid, delta := range net {
-			if sv.store.Users[uid].Balance+delta < 0 {
+			if delta >= 0 {
+				continue
+			}
+			if sv.store.availableForUserLocked(uid)+delta < 0 {
 				b, f := errResp(http.StatusConflict, "insufficient_funds", "insufficient funds")
 				return http.StatusConflict, b, f, true
 			}
@@ -891,7 +897,7 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 				PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 				ToUserID: to.ID, ToHandle: to.Handle, Amount: x.amount,
 				Currency: sv.store.Currency, Note: x.note, Visibility: x.vis,
-				RequestID: nil, SettlementID: &sid, CreatedAt: committed,
+				RequestID: nil, AuthorizationID: nil, SettlementID: &sid, CreatedAt: committed,
 			}
 			sv.store.Payments = append(sv.store.Payments, p)
 			payments = append(payments, p)
