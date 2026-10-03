@@ -25,12 +25,11 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 	s.mu.Lock()
 	rec, ok := s.Idempotency[fullKey]
 	if ok {
-		if rec.BodyHash != bodyHash {
-			s.mu.Unlock()
-			return idemResult{}, nil, false
-		}
 		if rec.Failed4xx {
 			delete(s.Idempotency, fullKey)
+		} else if rec.BodyHash != bodyHash {
+			s.mu.Unlock()
+			return idemResult{}, nil, false
 		} else {
 			st := rec.StatusCode
 			if st == 201 {
