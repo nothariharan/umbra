@@ -1,0 +1,15 @@
+diff --git a/stage-2/auth_handlers.go b/stage-2/auth_handlers.go
+index 4e8a1c2..b9f3d01 100644
+--- a/stage-2/auth_handlers.go
++++ b/stage-2/auth_handlers.go
+@@ -178,10 +178,6 @@ func (sv *Server) handleCaptureAuthorization(w http.ResponseWriter, r *http.Requ
+ 		if captureAmtPtr != nil {
+ 			captureAmt = *captureAmtPtr
+ 		}
+-		if captureAmt > remaining {
+-			b, f := errResp(http.StatusUnprocessableEntity, "capture_exceeds_authorization", "capture exceeds authorization")
+-			return http.StatusUnprocessableEntity, b, f, true
+-		}
+ 		from := sv.store.Users[a.FromUserID]
+ 		to := sv.store.Users[a.ToUserID]
+ 		if from.Balance < captureAmt {

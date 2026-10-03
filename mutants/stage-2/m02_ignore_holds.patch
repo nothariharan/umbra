@@ -1,0 +1,13 @@
+diff --git a/stage-2/authorization.go b/stage-2/authorization.go
+index 98502ba..6c85c7b 100644
+--- a/stage-2/authorization.go
++++ b/stage-2/authorization.go
+@@ -58,7 +58,7 @@ func (s *Store) heldForUserLocked(userID string) int64 {
+ 			held += rem
+ 		}
+ 	}
+-	return held
++	return 0
+ }
+ 
+ func (s *Store) availableForUserLocked(userID string) int64 {

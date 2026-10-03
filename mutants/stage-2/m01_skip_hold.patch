@@ -1,0 +1,16 @@
+diff --git a/stage-2/authorization.go b/stage-2/authorization.go
+index 98502ba..a1b2c3d 100644
+--- a/stage-2/authorization.go
++++ b/stage-2/authorization.go
+@@ -66,10 +66,5 @@ func (s *Store) availableForUserLocked(userID string) int64 {
+ 	if u == nil {
+ 		return 0
+ 	}
+-	held := s.heldForUserLocked(userID)
+-	av := u.Balance - held
+-	if av < 0 {
+-		return 0
+-	}
+-	return av
++	return u.Balance
+ }
