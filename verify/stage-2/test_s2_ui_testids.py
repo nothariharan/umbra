@@ -34,6 +34,8 @@ def test_s2_c4_home_wallet_and_pay_testids(browser_base):
     browser, base_url = browser_base
     page = browser.new_page(viewport={"width": 375, "height": 812})
     _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+    page.goto(f"{base_url}/")
+    page.get_by_test_id("wallet-balance").wait_for(state="visible", timeout=10_000)
     for tid in (
         "wallet-balance",
         "pay-handle",

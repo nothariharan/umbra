@@ -7,7 +7,7 @@ $rev = if ($env:SUBMIT_REV) { $env:SUBMIT_REV } else { '06169d25b4fb' }
 $boot = & $py scripts/lever.py boot --stage 2 --rev $rev 2>&1 | Out-String
 if ($boot -notmatch 'BASE_URL=(\S+)') { throw "no BASE_URL in boot output" }
 $env:BASE_URL = $Matches[1]
-& $py -m pytest -q verify/stage-2/test_s2_ui_flows.py::test_s2_c6_pay_form_no_double_submit_without_change
+& $py -m pytest -q verify/stage-1 verify/stage-2 -p no:cacheprovider
 $code = $LASTEXITCODE
 & $py scripts/lever.py stop | Out-Null
 exit $code
