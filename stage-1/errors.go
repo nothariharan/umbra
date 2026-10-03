@@ -26,3 +26,5 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
 }
+
+func emptyJSONArray[T any]() []T { return make([]T, 0) }

@@ -32,7 +32,7 @@ func parseIntegralAmount(raw json.RawMessage) (int64, bool, errorKind) {
 		if x != math.Trunc(x) {
 			return 0, false, errValidation
 		}
-		if x < 0 || x > float64(maxAmount) {
+		if x <= 0 || x > float64(maxAmount) {
 			return 0, false, errValidation
 		}
 		return int64(x), true, errNone
@@ -131,6 +131,26 @@ func deriveHandle(email string) string {
 
 func validHandle(h string) bool {
 	return handleRe.MatchString(h)
+}
+
+const maxNoteRunes = 200
+
+func parseNoteField(body map[string]json.RawMessage, key string) (string, errorKind) {
+	raw, ok := body[key]
+	if !ok {
+		return "", errNone
+	}
+	if string(raw) == "null" {
+		return "", errValidation
+	}
+	var s string
+	if err := json.Unmarshal(raw, &s); err != nil {
+		return "", errValidation
+	}
+	if utf8.RuneCountInString(s) > maxNoteRunes {
+		return "", errValidation
+	}
+	return s, errNone
 }
 
 func nowRFC3339() string {

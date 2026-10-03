@@ -51,7 +51,7 @@ func (sv *Server) runIdempotent(w http.ResponseWriter, r *http.Request, u *User,
 		return
 	}
 	bodyHash := canonicalBodyHash(raw)
-	fullKey := idempotencyKey(u.ID, r.Method, r.URL.Path, bodyHash, idemKey)
+	fullKey := idempotencyKey(u.ID, r.Method, r.URL.Path, idemKey)
 	res, commit, ok2 := sv.store.beginIdempotency(fullKey, bodyHash)
 	if !ok2 {
 		writeError(w, http.StatusConflict, "idempotency_key_reuse", "key reused with different body")
@@ -324,7 +324,11 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid amount")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
-		note, ek := optionalStringField(body, "note", "")
+		note, ek := parseNoteField(body, "note")
+		if ek == errValidation {
+			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid note")
+			return http.StatusUnprocessableEntity, b, f, true
+		}
 		if ek == errMalformed {
 			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid note")
 			return http.StatusBadRequest, b, f, true
@@ -349,7 +353,7 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 		}
 		to := sv.store.Users[toID]
 		if from.ID == to.ID {
-			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "self payment")
+			b, f := errResp(http.StatusUnprocessableEntity, "self_payment", "self payment")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
 		if from.Balance < amount {
@@ -406,7 +410,11 @@ func (sv *Server) handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid amount")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
-		note, ek := optionalStringField(body, "note", "")
+		note, ek := parseNoteField(body, "note")
+		if ek == errValidation {
+			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid note")
+			return http.StatusUnprocessableEntity, b, f, true
+		}
 		if ek == errMalformed {
 			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid note")
 			return http.StatusBadRequest, b, f, true
@@ -422,7 +430,7 @@ func (sv *Server) handleCreateRequest(w http.ResponseWriter, r *http.Request) {
 		}
 		payer := sv.store.Users[payerID]
 		if reqr.ID == payer.ID {
-			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "self request")
+			b, f := errResp(http.StatusUnprocessableEntity, "self_request", "self request")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
 		rid := newID("rq_")
@@ -458,13 +466,14 @@ func (sv *Server) handlePayRequest(w http.ResponseWriter, r *http.Request, reqID
 		writeError(w, http.StatusBadRequest, "malformed_request", "invalid body")
 		return
 	}
-	if len(raw) == 0 {
-		raw = []byte("{}")
-	}
 	sv.runIdempotent(w, r, u, raw, func(w http.ResponseWriter, raw []byte) (int, []byte, bool, bool) {
 		_ = path
+		parseRaw := raw
+		if len(parseRaw) == 0 {
+			parseRaw = []byte("{}")
+		}
 		var body map[string]json.RawMessage
-		if err := json.Unmarshal(raw, &body); err != nil {
+		if err := json.Unmarshal(parseRaw, &body); err != nil {
 			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid json")
 			return http.StatusBadRequest, b, f, true
 		}
@@ -597,6 +606,10 @@ func (sv *Server) handleListRequests(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnprocessableEntity, "validation_failed", "invalid direction")
 		return
 	}
+	if statusF != "" && statusF != "pending" && statusF != "paid" && statusF != "declined" && statusF != "cancelled" {
+		writeError(w, http.StatusUnprocessableEntity, "validation_failed", "invalid status")
+		return
+	}
 
 	sv.store.mu.Lock()
 	defer sv.store.mu.Unlock()
@@ -621,13 +634,16 @@ func (sv *Server) handleListRequests(w http.ResponseWriter, r *http.Request) {
 	})
 	hasMore := len(filtered) > offset+limit
 	if offset > len(filtered) {
-		filtered = nil
+		filtered = emptyJSONArray[MoneyRequest]()
 	} else {
 		end := offset + limit
 		if end > len(filtered) {
 			end = len(filtered)
 		}
 		filtered = filtered[offset:end]
+	}
+	if filtered == nil {
+		filtered = emptyJSONArray[MoneyRequest]()
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"requests": filtered, "has_more": hasMore,
@@ -659,7 +675,11 @@ func (sv *Server) handleSplits(w http.ResponseWriter, r *http.Request) {
 			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid amount")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
-		note, ek := optionalStringField(body, "note", "")
+		note, ek := parseNoteField(body, "note")
+		if ek == errValidation {
+			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid note")
+			return http.StatusUnprocessableEntity, b, f, true
+		}
 		if ek == errMalformed {
 			b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid note")
 			return http.StatusBadRequest, b, f, true
@@ -673,12 +693,24 @@ func (sv *Server) handleSplits(w http.ResponseWriter, r *http.Request) {
 			b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "participants required")
 			return http.StatusUnprocessableEntity, b, f, true
 		}
+		seen := map[string]struct{}{}
+		for _, h := range handles {
+			if _, ok := seen[h]; ok {
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "duplicate participant")
+				return http.StatusUnprocessableEntity, b, f, true
+			}
+			seen[h] = struct{}{}
+		}
 
 		sv.store.mu.Lock()
 		defer sv.store.mu.Unlock()
 		reqr := sv.store.Users[u.ID]
 		shares := splitShares(amount, len(handles))
-		var created []MoneyRequest
+		shareObjs := make([]map[string]any, len(handles))
+		for i, h := range handles {
+			shareObjs[i] = map[string]any{"handle": h, "amount": shares[i]}
+		}
+		created := emptyJSONArray[MoneyRequest]()
 		for i, h := range handles {
 			uid, ok := sv.store.UsersByHandle[h]
 			if !ok {
@@ -703,7 +735,7 @@ func (sv *Server) handleSplits(w http.ResponseWriter, r *http.Request) {
 		splitID := newID("sp_")
 		out := map[string]any{
 			"split_id": splitID, "amount": amount, "currency": sv.store.Currency,
-			"note": note, "participant_handles": handles, "shares": shares, "requests": created,
+			"note": note, "participant_handles": handles, "shares": shareObjs, "requests": created,
 		}
 		resp, _ := json.Marshal(out)
 		return http.StatusCreated, resp, false, true
@@ -733,13 +765,16 @@ func (sv *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
 	})
 	hasMore := len(visible) > offset+limit
 	if offset > len(visible) {
-		visible = nil
+		visible = emptyJSONArray[Payment]()
 	} else {
 		end := offset + limit
 		if end > len(visible) {
 			end = len(visible)
 		}
 		visible = visible[offset:end]
+	}
+	if visible == nil {
+		visible = emptyJSONArray[Payment]()
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"payments": visible, "has_more": hasMore,

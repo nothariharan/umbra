@@ -8,18 +8,12 @@ import (
 )
 
 func canonicalBodyHash(raw []byte) string {
-	var v any
-	if json.Unmarshal(raw, &v) != nil {
-		h := sha256.Sum256(raw)
-		return hex.EncodeToString(h[:])
-	}
-	canonical, _ := json.Marshal(v)
-	h := sha256.Sum256(canonical)
+	h := sha256.Sum256(raw)
 	return hex.EncodeToString(h[:])
 }
 
-func idempotencyKey(userID, method, path, bodyHash, key string) string {
-	return userID + "\x00" + method + "\x00" + path + "\x00" + bodyHash + "\x00" + key
+func idempotencyKey(userID, method, path, key string) string {
+	return userID + "\x00" + method + "\x00" + path + "\x00" + key
 }
 
 type idemResult struct {
