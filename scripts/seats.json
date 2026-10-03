@@ -1,0 +1,158 @@
+{
+  "runtimes": {
+    "cursor": {
+      "kind": "cursor",
+      "harness": "Cursor CLI",
+      "transport": "acp",
+      "spawn_command": "{cursor_node}",
+      "spawn_args": [
+        "{cursor_launch}",
+        "--model",
+        "{model}",
+        "--force",
+        "--trust",
+        "--add-dir",
+        "{repo}",
+        "acp"
+      ]
+    },
+    "featherless": {
+      "kind": "opencode",
+      "harness": "OpenCode",
+      "transport": "acp",
+      "provider": "Featherless",
+      "base_url": "https://api.featherless.ai/v1",
+      "key_env": "FEATHERLESS_API_KEY",
+      "context": 262144,
+      "output": 32768,
+      "spawn_command": "{seat_launch}",
+      "spawn_args": [
+        "acp"
+      ]
+    }
+  },
+  "clock": {
+    "about": "Enforced by factory/supervise.py: a turn past its budget is interrupted and the seat told to report what it has; a room with no seat working gets Lead woken.",
+    "turn_minutes": 30,
+    "seats": {
+      "builder": 45,
+      "certifier": 45
+    },
+    "stall_minutes": 15
+  },
+  "profiles": {
+    "test": {
+      "about": "Cheap dev runs: Cursor composer-2.5 everywhere, Breaker on Featherless so that path is exercised too.",
+      "default": {
+        "runtime": "cursor",
+        "model": "composer-2.5"
+      },
+      "seats": {
+        "breaker": {
+          "runtime": "featherless",
+          "model": "deepseek-ai/DeepSeek-V4.1-Flash"
+        }
+      }
+    },
+    "run": {
+      "about": "Submitted run: Cursor seats on composer-2.5 within the subscription; the attacker, which holds the veto, on a different model family (DeepSeek through Featherless, metered per token).",
+      "default": {
+        "runtime": "cursor",
+        "model": "composer-2.5"
+      },
+      "seats": {
+        "breaker": {
+          "runtime": "featherless",
+          "model": "deepseek-ai/DeepSeek-V4.1-Flash"
+        }
+      }
+    }
+  },
+  "seats": [
+    {
+      "name": "lead",
+      "title": "Lead",
+      "role": "runs the band: plans, splits the work, opens each stage",
+      "description": "Lead and architect. Turns the task into numbered requirements, contracts and rulings, opens stages, breaks loops. Writes no code, issues no verdicts.",
+      "owns": [
+        "spec/",
+        "record/lead.jsonl",
+        "evidence/lead/",
+        "README.md"
+      ],
+      "in_room_from_start": true
+    },
+    {
+      "name": "builder",
+      "title": "Builder",
+      "role": "writes the code",
+      "description": "Builder. Writes production code, Dockerfile and RUN.md in the assigned stage folder to the specification text. Never reads supplied tests or verifier folders.",
+      "owns": [
+        "stage-*/",
+        "record/builder.jsonl",
+        "evidence/builder/"
+      ],
+      "in_room_from_start": true
+    },
+    {
+      "name": "verifier",
+      "title": "Verifier",
+      "role": "checks the code against every requirement",
+      "description": "Verifier. Writes spec-derived checks per requirement, a reference model, differential and regression runs, and runs the official checks.",
+      "owns": [
+        "verify/",
+        "record/verifier.jsonl",
+        "evidence/verifier/"
+      ],
+      "in_room_from_start": true
+    },
+    {
+      "name": "breaker",
+      "title": "Breaker",
+      "role": "tries to break the code",
+      "description": "Adversary. Attacks concurrency, repetition and ordering, boundaries, resources and durability. Holds a binding veto.",
+      "owns": [
+        "attacks/",
+        "record/breaker.jsonl",
+        "evidence/breaker/"
+      ],
+      "in_room_from_start": true
+    },
+    {
+      "name": "uireviewer",
+      "title": "UIReviewer",
+      "role": "checks the interface in a real browser",
+      "description": "Interface reviewer. Drives the user interface in a real browser at narrow and wide widths and checks every screen state the requirements name.",
+      "owns": [
+        "review/",
+        "record/uireviewer.jsonl",
+        "evidence/uireviewer/"
+      ],
+      "in_room_from_start": true
+    },
+    {
+      "name": "certifier",
+      "title": "Certifier",
+      "role": "signs off each stage after re-checking everything",
+      "description": "Certifier. Hermetic isolated build, re-executes recorded evidence, runs fault mutants against every suite, seals stages, and can reject the verifiers.",
+      "owns": [
+        "mutants/",
+        "record/certifier.jsonl",
+        "evidence/certifier/"
+      ],
+      "in_room_from_start": true
+    },
+    {
+      "name": "endurance",
+      "title": "Endurance",
+      "role": "tests long runs, restarts and heavy load",
+      "description": "Endurance tester, recruited by the lead when a stage adds long-lived state. Soak, restart and recovery, export and import under load.",
+      "owns": [
+        "soak/",
+        "record/endurance.jsonl",
+        "evidence/endurance/"
+      ],
+      "in_room_from_start": false
+    }
+  ]
+}
