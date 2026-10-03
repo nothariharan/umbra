@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File evidence/breaker/repro_visibility.ps1
+.                                                                        [100%]
+1 passed in 1.84s
+
+exit 0

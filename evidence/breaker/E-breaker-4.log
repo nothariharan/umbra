@@ -1,0 +1,5 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_balance.py::test_private_payment_does_not_hide_an_earlier_public_one
+.                                                                        [100%]
+1 passed in 2.10s
+
+exit 0

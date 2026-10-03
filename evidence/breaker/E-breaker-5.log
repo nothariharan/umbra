@@ -1,0 +1,32 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_balance.py::test_private_payment_does_not_hide_an_earlier_public_one attacks/stage-1/test_balance.py::test_public_payment_visible_to_a_third_party verify/stage-1/test_s1_splits_activity.py::test_s1_c18_activity_visibility
+F..                                                                      [100%]
+================================== FAILURES ===================================
+__________ test_private_payment_does_not_hide_an_earlier_public_one ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...D1851B7CB0>, <attacklib.Client object at 0x000001D1851B7FE0>], api=<function api.<locals>._make at 0x000001D1850B7EC0>)
+
+    def test_private_payment_does_not_hide_an_earlier_public_one(world):
+        public = _pay(world.ada, 100, to_handle="bob", visibility="public")
+        assert_status(public, 201)
+        pub_id = public.json()["payment_id"]
+        private = _pay(world.ada, 50, to_handle="bob", visibility="private")
+        assert_status(private, 201)
+        priv_id = private.json()["payment_id"]
+    
+        cy_feed = [p["payment_id"] for p in world.cy.get("/activity").json()["payments"]]
+>       assert pub_id in cy_feed, "a public payment must stay visible to a third party"
+E       AssertionError: a public payment must stay visible to a third party
+E       assert 'p_687a56245713abdfed8c3ee01701ee96' in []
+
+attacks\stage-1\test_balance.py:120: AssertionError
+============================== warnings summary ===============================
+verify\stage-1\test_s1_splits_activity.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED attacks/stage-1/test_balance.py::test_private_payment_does_not_hide_an_earlier_public_one
+1 failed, 2 passed, 1 warning in 17.95s
+
+exit 1
