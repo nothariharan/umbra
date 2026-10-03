@@ -36,6 +36,9 @@ CHECKS = [
     ("S1-C30", "S1-R14", "handle immutable after account creation"),
     ("S1-C31", "S1-R9,S1-R10,S1-R12", "150-step payment differential vs reference_model"),
     ("S1-C32", "S1-R1,S1-R2,S1-R3,S1-R4,S1-R5,S1-R6,S1-R7,S1-R8,S1-R9,S1-R10,S1-R11,S1-R12,S1-R13,S1-R14,S1-R15,S1-R16,S1-R17,S1-R18,S1-R19,S1-R20,S1-R21,S1-R22,S1-R23,S1-R24,S1-R25,S1-R26,S1-R27,S1-R28,S1-R29,S1-R30,S1-R31,S1-R32,S1-R33,S1-R34,S1-R35,S1-R36,S1-R37,S1-R38,S1-R39,S1-R40,S1-R41,S1-R42,S1-R43,S1-R44,S1-R45,S1-R46", "official harness via lever on SUBMIT"),
+    ("S1-C33", "S1-R29", "concurrent idempotency, per-user scope, pre-validation key claim, all five paths"),
+    ("S1-C34", "S1-R34,S1-R37,S1-R38,S1-R42", "pay visibility body distinctness, split-only caller, zero-share, settlement batch"),
+    ("S1-C35", "S1-R28,S1-R43,S1-R32,S1-R36,S1-R41", "multi-token sessions, operator privacy, note length, import replay"),
 ]
 
 
