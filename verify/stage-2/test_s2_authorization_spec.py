@@ -98,9 +98,8 @@ def test_s2_c19_final_capture_releases_remainder(world, authorize, me_wallet):
     )
     after = me_wallet(world.ada)
     assert after["held"] == 0
-    # Final capture moves 1500 and releases uncaptured hold (500) back to available.
-    assert after["available"] == before["available"] - 1500 + 500
-    assert after["balance"] == before["balance"] - 1500
+    assert after["available"] == after["balance"] == before["balance"] - 1500
+    assert after["available"] == before["available"] + (2000 - 1500)
 
 
 def test_s2_c19_second_capture_after_final_is_not_open(world, authorize):

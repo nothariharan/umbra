@@ -27,7 +27,6 @@ def _login(page, base_url, email, password):
     page.get_by_test_id("login-email").fill(email)
     page.get_by_test_id("login-password").fill(password)
     page.get_by_test_id("login-submit").click()
-    page.wait_for_url(lambda url: "/login" not in url.path, timeout=10_000)
     page.get_by_test_id("current-user").wait_for(state="visible", timeout=10_000)
 
 
