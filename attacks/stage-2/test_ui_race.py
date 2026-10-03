@@ -81,7 +81,7 @@ def test_lost_payment_response_is_uncertain_then_retry_moves_money_once():
         # unchanged retry with the same key and body
         await page.get_by_test_id("pay-submit").click()
         await uncertain.wait_for(state="detached", timeout=10_000)
-        await wait_amount(page, "wallet-balance", "99000")
+        await wait_amount(page, "wallet-balance", "99900")
         assert await page.locator('[data-testid^="activity-item-"]').count() == 1
 
         bob = await login_token("bob")

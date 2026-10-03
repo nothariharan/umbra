@@ -1,0 +1,82 @@
+$ set BASE_URL=http://127.0.0.1:50489 && C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_ui_race.py
+.F........                                                               [100%]
+================================== FAILURES ===================================
+_____ test_lost_payment_response_is_uncertain_then_retry_moves_money_once _____
+
+    def test_lost_payment_response_is_uncertain_then_retry_moves_money_once():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+    
+            state = {"n": 0}
+    
+            async def handler(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    await route.fetch()      # the server commits
+                    await route.abort()      # ... but the browser never sees the response
+                else:
+                    await route.continue_()
+    
+            await page.route("**/payments", handler)
+            await page.get_by_test_id("pay-handle").fill("bob")
+            await page.get_by_test_id("pay-amount").fill("1.00")
+            await page.get_by_test_id("pay-submit").click()
+    
+            uncertain = page.get_by_test_id("pay-uncertain")
+            await uncertain.wait_for(timeout=8_000)
+            assert (await uncertain.inner_text()).strip() != "", "pay-uncertain must be nonempty"
+            assert await page.get_by_test_id("pay-error").count() == 0, \
+                "an unknown outcome is not a confirmed rejection"
+    
+            # unchanged retry with the same key and body
+            await page.get_by_test_id("pay-submit").click()
+            await uncertain.wait_for(state="detached", timeout=10_000)
+            await wait_amount(page, "wallet-balance", "99000")
+            assert await page.locator('[data-testid^="activity-item-"]').count() == 1
+    
+            bob = await login_token("bob")
+            feed = await api_call("GET", "/activity", token=bob)
+            assert len(feed.json()["payments"]) == 1, "money must move exactly once"
+    
+>       asyncio.run(with_page(main))
+
+attacks\stage-2\test_ui_race.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+attacks\stage-2\test_ui_race.py:84: in main
+    await wait_amount(page, "wallet-balance", "99000")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:50489/'>, testid = 'wallet-balance'
+value = '99000', timeout = 8000
+
+    async def wait_amount(page, testid: str, value: str, timeout: float = 8_000):
+        loc = page.get_by_test_id(testid)
+        await loc.wait_for(timeout=timeout)
+        for _ in range(int(timeout / 100)):
+            if await loc.get_attribute("data-amount") == value:
+                return
+            await page.wait_for_timeout(100)
+        got = await loc.get_attribute("data-amount")
+>       raise AssertionError(f"{testid} data-amount is {got!r}, expected {value!r}")
+E       AssertionError: wallet-balance data-amount is '99900', expected '99000'
+
+attacks\stage-2\uilab.py:73: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-2/test_ui_race.py::test_lost_payment_response_is_uncertain_then_retry_moves_money_once
+1 failed, 9 passed in 169.77s (0:02:49)
+
+exit 1
