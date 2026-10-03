@@ -108,6 +108,23 @@ def test_public_payment_visible_to_a_third_party(world):
     assert any(p["payment_id"] == pid for p in feed)
 
 
+def test_private_payment_does_not_hide_an_earlier_public_one(world):
+    public = _pay(world.ada, 100, to_handle="bob", visibility="public")
+    assert_status(public, 201)
+    pub_id = public.json()["payment_id"]
+    private = _pay(world.ada, 50, to_handle="bob", visibility="private")
+    assert_status(private, 201)
+    priv_id = private.json()["payment_id"]
+
+    cy_feed = [p["payment_id"] for p in world.cy.get("/activity").json()["payments"]]
+    assert pub_id in cy_feed, "a public payment must stay visible to a third party"
+    assert priv_id not in cy_feed, "a private payment must stay hidden"
+
+    for who in (world.ada, world.bob):
+        own = [p["payment_id"] for p in who.get("/activity").json()["payments"]]
+        assert {pub_id, priv_id} <= set(own)
+
+
 def test_requests_never_appear_in_activity(world):
     made = _request(world.bob, 100, payer_handle="ada")
     assert_status(made, 201)
