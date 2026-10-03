@@ -102,7 +102,7 @@ func (sv *Server) handleRequestsRoute(w http.ResponseWriter, r *http.Request) {
 		sv.servePage(w, "requests.html")
 		return
 	}
-	sv.handleListRequests(w, r)
+	sv.withAuth(sv.handleListRequests)(w, r)
 }
 
 func (sv *Server) handleAuthorizationsRoute(w http.ResponseWriter, r *http.Request) {
@@ -114,5 +114,5 @@ func (sv *Server) handleAuthorizationsRoute(w http.ResponseWriter, r *http.Reque
 		sv.servePage(w, "authorizations.html")
 		return
 	}
-	sv.handleListAuthorizations(w, r)
+	sv.withAuth(sv.handleListAuthorizations)(w, r)
 }

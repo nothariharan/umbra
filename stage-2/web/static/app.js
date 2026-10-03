@@ -57,15 +57,30 @@
   }
 
   function showError(testid, msg) {
-    const el = document.querySelector("[data-testid='" + testid + "']");
-    if (!el) return;
-    if (msg) {
-      el.textContent = msg;
-      el.hidden = false;
-    } else {
-      el.textContent = "";
-      el.hidden = true;
+    const sel = "[data-testid='" + testid + "']";
+    const existing = document.querySelector(sel);
+    if (!msg) {
+      if (existing) existing.remove();
+      return;
     }
+    const el = existing || document.createElement("div");
+    el.dataset.testid = testid;
+    el.textContent = msg;
+    if (!existing) {
+      const anchor =
+        document.querySelector("main") ||
+        document.querySelector("form[data-testid='pay-form']")?.parentElement ||
+        document.body;
+      anchor.appendChild(el);
+    }
+  }
+
+  function emptyMarker(testid) {
+    const el = document.createElement("div");
+    el.dataset.testid = testid;
+    el.className = "empty-marker";
+    el.textContent = "\u00a0";
+    return el;
   }
 
   function setWallet(me) {
@@ -143,9 +158,7 @@
     const payments = body.payments || [];
     list.innerHTML = "";
     if (payments.length === 0) {
-      const empty = document.createElement("div");
-      empty.dataset.testid = "empty-activity";
-      list.appendChild(empty);
+      list.appendChild(emptyMarker("empty-activity"));
       return;
     }
     for (const p of payments) {
@@ -191,20 +204,22 @@
         showError("pay-error", parsed.tooMany ? "too many decimal places" : "invalid amount");
         return;
       }
+      const payload = {
+        to_handle: to,
+        amount: parsed.minor,
+        note: note || "",
+        visibility: vis,
+      };
       const { res, body } = await api("/payments", {
         method: "POST",
         headers: authHeaders({
           "Content-Type": "application/json",
           "Idempotency-Key": payIdemKey,
         }),
-        body: JSON.stringify({
-          to_handle: to,
-          amount: parsed.minor,
-          note,
-          visibility: vis,
-        }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
+        showError("pay-error", "");
         await refreshWallet();
         await loadActivity();
       } else if (body && body.error) {
@@ -341,9 +356,7 @@
       }
     }
     if (inc === 0 && out === 0) {
-      const empty = document.createElement("div");
-      empty.dataset.testid = "empty-requests";
-      document.querySelector("main").appendChild(empty);
+      document.querySelector("main").appendChild(emptyMarker("empty-requests"));
     }
   }
 

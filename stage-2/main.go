@@ -45,7 +45,7 @@ func main() {
 		})(w, r)
 	})
 	mux.HandleFunc("POST /authorizations", sv.withAuth(sv.handleCreateAuthorization))
-	mux.HandleFunc("GET /authorizations", sv.withAuth(sv.handleAuthorizationsRoute))
+	mux.HandleFunc("GET /authorizations", sv.handleAuthorizationsRoute)
 	mux.HandleFunc("POST /authorizations/{id}/capture", func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
 		sv.withAuth(func(w http.ResponseWriter, r *http.Request) {
@@ -62,8 +62,8 @@ func main() {
 	mux.HandleFunc("GET /", sv.handleHome)
 	mux.HandleFunc("GET /signup", sv.handleSignupPage)
 	mux.HandleFunc("GET /login", sv.handleLoginPage)
-	mux.HandleFunc("GET /split", sv.withAuth(sv.handleSplitPage))
-	mux.HandleFunc("GET /requests", sv.withAuth(sv.handleRequestsRoute))
+	mux.HandleFunc("GET /split", sv.handleSplitPage)
+	mux.HandleFunc("GET /requests", sv.handleRequestsRoute)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
 
 	addr := "0.0.0.0:" + port
