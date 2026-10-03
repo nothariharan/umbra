@@ -1,0 +1,70 @@
+$ powershell -NoProfile -File evidence/verifier/repro_s2_c6.ps1
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_s2_c6_pay_form_no_double_submit_without_change _____________
+
+base_url = 'http://127.0.0.1:51087'
+
+    @pytest.mark.skipif(not delivery.stage_dir_exists(), reason="stage-2 not present")
+    def test_s2_c6_pay_form_no_double_submit_without_change(base_url):
+        from playwright.sync_api import sync_playwright
+    
+        from s2lib import fixtures as fx
+    
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(f"{base_url}/login")
+            page.get_by_test_id("login-email").fill(fx.ADA["email"])
+            page.get_by_test_id("login-password").fill(fx.ADA["password"])
+            page.get_by_test_id("login-submit").click()
+>           page.get_by_test_id("current-user").wait_for(state="visible", timeout=10_000)
+
+verify\stage-2\test_s2_ui_flows.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\sync_api\_generated.py:20696: in wait_for
+    self._sync(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:752: in wait_for
+    await self._frame.wait_for_selector(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:395: in wait_for_selector
+    await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x000001A3E31635C0>
+cb = <function Channel.send.<locals>.<lambda> at 0x000001A3E33F53A0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 10000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("current-user") to be visible
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_flows.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED verify/stage-2/test_s2_ui_flows.py::test_s2_c6_pay_form_no_double_submit_without_change
+1 failed, 1 warning in 12.46s
+
+exit 1
