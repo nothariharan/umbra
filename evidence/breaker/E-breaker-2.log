@@ -1,0 +1,73 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_idempotency.py::test_request_pay_replay_after_paid_returns_200 attacks/stage-1/test_settlement.py::test_malformed_batch_shapes_are_422
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_______________ test_request_pay_replay_after_paid_returns_200 ________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...ED14A5BA40>, <attacklib.Client object at 0x000001ED14A91580>], api=<function api.<locals>._make at 0x000001ED14996D40>)
+
+    def test_request_pay_replay_after_paid_returns_200(world):
+        made = world.bob.post(REQ, json={"payer_handle": "ada", "amount": 100},
+                              headers={"Idempotency-Key": new_key()})
+        assert_status(made, 201)
+        rid = made.json()["request_id"]
+        key = new_key()
+        first = world.ada.post(f"/requests/{rid}/pay", json={},
+                               headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        assert first.json()["request_id"] == rid
+        replay = world.ada.post(f"/requests/{rid}/pay", json={},
+                                headers={"Idempotency-Key": key})
+        assert_status(replay, 200)
+        assert replay.json() == first.json()
+        blocked = world.ada.post(f"/requests/{rid}/pay", json={},
+                                 headers={"Idempotency-Key": new_key()})
+>       assert_error(blocked, 409, "request_not_pending")
+
+attacks\stage-1\test_idempotency.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [200 OK]>, status = 409, code = 'request_not_pending'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 request_not_pending, got 200 None. POST /requests/rq_469c1ba2315c83b9b7280354e1725a97/pay -> 200 '{"payment_id":"p_319f90b989c024d25d0dcbc86460b862","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":100,"currency":"EUR","note":"","visibility":"public","request_id":"rq_469c1ba2315c83b9b7280354e1725a97","created_at":"2026-10-03T09:58:51+00:00"}'
+
+attacks\stage-1\attacklib.py:105: AssertionError
+_____________________ test_malformed_batch_shapes_are_422 _____________________
+
+boot = <function boot.<locals>._boot at 0x000001ED14ABCEA0>
+
+    def test_malformed_batch_shapes_are_422(boot):
+        w = _op_world(boot, [user("ada", 100), user("bob", 0), user("op", 0, uid="u_op")])
+        for transfers in (
+            {"from_handle": "ada", "to_handle": "bob", "amount": 1},
+            [{"to_handle": "bob", "amount": 1}],
+            [{"from_handle": "ada", "to_handle": "bob", "amount": 0}],
+            [{"from_handle": "ada", "to_handle": "bob", "amount": "1"}],
+        ):
+            r = w.op.post(SETTLE, json={"transfers": transfers},
+                          headers={"Idempotency-Key": new_key()})
+>           assert_error(r, 422, "validation_failed")
+
+attacks\stage-1\test_settlement.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [400 Bad Request]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 validation_failed, got 400 malformed_request. POST /settlements -> 400 '{"error":{"code":"malformed_request","message":"invalid transfers"}}'
+
+attacks\stage-1\attacklib.py:105: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-1/test_idempotency.py::test_request_pay_replay_after_paid_returns_200
+FAILED attacks/stage-1/test_settlement.py::test_malformed_batch_shapes_are_422
+2 failed in 3.62s
+
+exit 1
