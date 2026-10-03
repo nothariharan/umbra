@@ -1,0 +1,606 @@
+$ python scripts/lever.py mutate --stage 2 --rev b013f5e17143 --mutant mutants/stage-2/m01_skip_hold.patch --suites verifier,breaker
+........................................................................ [ 62%]
+..........F...........F......sss....F.....F                              [100%]
+================================== FAILURES ===================================
+________________ test_s2_c19_final_capture_releases_remainder _________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000016F5AAAEB40>, bob=<s2lib.http.Api object at 0x0000016F5A40AB10>, cy=<s2lib.http.Api object at 0x0000016F5BAA2B40>)
+authorize = <function authorize.<locals>._auth at 0x0000016F5A592DE0>
+me_wallet = <function me_wallet.<locals>._read at 0x0000016F5A592D40>
+
+    def test_s2_c19_final_capture_releases_remainder(world, authorize, me_wallet):
+        auth = assert_status(authorize(amount=2000), 201).json()
+        aid = auth["authorization_id"]
+        before = me_wallet(world.ada)
+        assert_status(
+            world.bob.post(
+                f"/authorizations/{aid}/capture",
+                json={"amount": 1500},
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+        after = me_wallet(world.ada)
+        assert after["held"] == 0
+        assert after["available"] == after["balance"] == before["balance"] - 1500
+>       assert after["available"] == before["available"] + (2000 - 1500)
+E       assert 8500 == (10000 + (2000 - 1500))
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_authorization_spec.py:102: AssertionError
+_________________ test_s2_c28_differential_payments_and_holds _________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000016F5BA9A8A0>, bob=<s2lib.http.Api object at 0x0000016F5A46D970>, cy=<s2lib.http.Api object at 0x0000016F5BAA6030>)
+conservation = <function conservation.<locals>._check at 0x0000016F5A6B2020>
+me_wallet = <function me_wallet.<locals>._read at 0x0000016F5A6B3380>
+
+    def test_s2_c28_differential_payments_and_holds(world, conservation, me_wallet):
+        model = model_from_fixture(world.fixture)
+        clients = [world.ada, world.bob, world.cy]
+        rng = random.Random(0xC28)
+    
+        for _ in range(120):
+            actor = rng.choice(clients)
+            me = me_wallet(actor)
+            actor_id = me["user_id"]
+            op = rng.choice(("pay", "auth"))
+            to_handle = rng.choice([h for h in ("ada", "bob", "cy") if h != me["handle"]])
+            amount = rng.randint(1, 40)
+            if op == "pay":
+                resp = actor.post(
+                    "/payments",
+                    json={"to_handle": to_handle, "amount": amount},
+                    idempotency_key=new_key(),
+                )
+                assert resp.status_code in (201, 409)
+                if resp.status_code == 201:
+                    model.pay_handle(actor_id, to_handle, amount)
+                else:
+                    with pytest.raises(ModelError):
+                        model.pay_handle(actor_id, to_handle, amount)
+            else:
+                resp = actor.post(
+                    "/authorizations",
+                    json={"to_handle": to_handle, "amount": amount},
+                    idempotency_key=new_key(),
+                )
+                assert resp.status_code in (201, 409)
+                if resp.status_code == 201:
+>                   model.create_authorization(actor_id, to_handle, amount)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_differential.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = PocketfulReference(currency='EUR', minor_units=2, auth_ttl=600, users={'u_ada': {'id': 'u_ada', 'email': 'ada@example.... operators=set(), seeded_total=13000, now=datetime.datetime(2026, 9, 24, 13, 0, tzinfo=datetime.timezone.utc), _seq=51)
+from_id = 'u_cy', to_handle = 'bob', amount = 17
+
+    def create_authorization(self, from_id: str, to_handle: str, amount: int) -> str:
+        if to_handle not in self.handles:
+            raise ModelError("not_found")
+        to_id = self.handles[to_handle]
+        if to_id == from_id:
+            raise ModelError("self_payment")
+        if amount < 1 or amount > 1_000_000_000:
+            raise ModelError("validation_failed")
+        if self.available(from_id) < amount:
+>           raise ModelError("insufficient_funds")
+E           s2lib.reference_model.ModelError: insufficient_funds
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\s2lib\reference_model.py:118: ModelError
+______________ test_s2_c18_create_authorization_holds_available _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000016F5BA91C40>, bob=<s2lib.http.Api object at 0x0000016F5BAA1190>, cy=<s2lib.http.Api object at 0x0000016F5AAA7E00>)
+me_wallet = <function me_wallet.<locals>._read at 0x0000016F5BD97BA0>
+authorize = <function authorize.<locals>._auth at 0x0000016F5BD977E0>
+
+    def test_s2_c18_create_authorization_holds_available(world, me_wallet, authorize):
+        before = me_wallet(world.ada)
+        resp = authorize(amount=2000)
+        assert_status(resp, 201)
+        after = me_wallet(world.ada)
+        assert after["balance"] == before["balance"]
+        assert after["held"] == before["held"] + 2000
+>       assert after["available"] == before["available"] - 2000
+E       assert 10000 == (10000 - 2000)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_wallet_authorizations.py:25: AssertionError
+_______________ test_s2_c18_insufficient_on_available_not_total _______________
+
+reset = <function reset.<locals>._reset at 0x0000016F5BD96F20>
+api = <function api.<locals>._api at 0x0000016F5BD951C0>
+me_wallet = <function me_wallet.<locals>._read at 0x0000016F5BDA04A0>
+
+    def test_s2_c18_insufficient_on_available_not_total(reset, api, me_wallet):
+        from s2lib import fixtures as fxmod
+    
+        ada = dict(fxmod.ADA)
+        ada["balance"] = 1000
+        bob = dict(fxmod.BOB)
+        body = fxmod.fixture(users=[ada, bob, fxmod.CY])
+        body["authorizations"] = [
+            {
+                "id": "a_seed",
+                "from_user_id": ada["id"],
+                "to_user_id": bob["id"],
+                "amount": 900,
+                "note": "",
+                "visibility": "public",
+                "status": "open",
+                "expires_at": "2099-01-01T00:00:00+00:00",
+            }
+        ]
+        reset(body)
+        client = api().authenticate(ada["email"], ada["password"])
+        me = me_wallet(client)
+>       assert me["available"] <= 100
+E       assert 1000 <= 100
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_wallet_authorizations.py:103: AssertionError
+============================== warnings summary ===============================
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_auth.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_auth.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_delivery.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_differential.py:12
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_differential.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_errors_load.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_errors_load.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_export_import.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_export_import.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_idempotency.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_idempotency.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_invariants.py:10
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_invariants.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_payments.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_payments.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_requests.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_requests.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_runtime.py:13
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_runtime.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_settlements.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_settlements.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_spec_edges.py:10
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_splits_activity.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_concurrent_auth.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_concurrent_auth.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_delivery.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_differential.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_differential.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_regression_stage1.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_regression_stage1.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_routes_negotiation.py:6
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_routes_negotiation.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_ui_flows.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_authorization_spec.py::test_s2_c19_final_capture_releases_remainder
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_differential.py::test_s2_c28_differential_payments_and_holds
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_wallet_authorizations.py::test_s2_c18_create_authorization_holds_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\verify\stage-2\test_s2_wallet_authorizations.py::test_s2_c18_insufficient_on_available_not_total
+4 failed, 108 passed, 3 skipped, 22 warnings in 291.49s (0:04:51)
+........................................................................ [ 48%]
+.................F..................FF...F.....F..F.F......FF.....F....F [ 96%]
+.....F                                                                   [100%]
+================================== FAILURES ===================================
+_________________ test_extended_capture_keeps_remainder_held __________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D00DCD0>, <attacklib2.AuthClient object at 0x000002A79D006810>, <attacklib2.AuthClient object at 0x000002A79CF1DBB0>])
+
+    def test_extended_capture_keeps_remainder_held(world):
+        aid = open_authz(world, amount=2_000)
+        resp = world.bob.capture(aid, 700, final=False)
+        assert_status(resp, 201)
+        item = world.ada.find_authorization(aid)
+        assert item["status"] == "open", "final:false with a remainder keeps the hold open"
+        assert item["captured_amount"] == 700
+        assert item["remaining_amount"] == 1_300
+        assert wallet(world.ada)["held"] == 1_300
+>       assert wallet(world.ada)["available"] == 98_000, \
+            "a nonfinal capture moves money and releases the same hold, so available is unchanged"
+E       AssertionError: a nonfinal capture moves money and releases the same hold, so available is unchanged
+E       assert 99300 == 98000
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_capture.py:86: AssertionError
+__________ test_concurrent_authorizations_cannot_overspend_available __________
+
+boot = <function boot.<locals>._boot at 0x000002A79D3FEFC0>
+
+    def test_concurrent_authorizations_cannot_overspend_available(boot):
+        ns = boot(fixture2(users=[s1_user("ada", 1_000), s1_user("bob", 0),
+                                  s1_user("cy", 0)]), handles=("ada", "bob", "cy"))
+        n = 40
+    
+        def attempt(_i):
+            return ns.ada.authorize("bob", 100, key=new_key())
+    
+        results = race(attempt, n)
+        assert all(r.status_code < 500 for r in results), \
+            f"5xx under concurrent authorize: {[r.status_code for r in results]}"
+        ok = [r for r in results if r.status_code == 201]
+>       assert len(ok) <= 10, f"holds {len(ok) * 100} exceeded total 1000"
+E       AssertionError: holds 4000 exceeded total 1000
+E       assert 40 <= 10
+E        +  where 40 = len([<Response [201 Created]>, <Response [201 Created]>, <Response [201 Created]>, <Response [201 Created]>, <Response [201 Created]>, <Response [201 Created]>, ...])
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_concurrency2.py:92: AssertionError
+___________ test_payment_and_authorization_race_uses_available_once ___________
+
+boot = <function boot.<locals>._boot at 0x000002A79D3FD760>
+
+    def test_payment_and_authorization_race_uses_available_once(boot):
+        ns = boot(fixture2(users=[s1_user("ada", 1_000), s1_user("bob", 0),
+                                  s1_user("cy", 0)]), handles=("ada", "bob", "cy"))
+    
+        def pay(_i):
+            return ns.ada.post("/payments", json={"to_handle": "bob", "amount": 600},
+                               headers={"Idempotency-Key": new_key()})
+    
+        def hold(_i):
+            return ns.ada.authorize("cy", 600, key=new_key())
+    
+        results = race(lambda i: pay(i) if i == 0 else hold(i), 2)
+        assert all(r.status_code < 500 for r in results)
+        codes = sorted(r.status_code for r in results)
+>       assert codes == [201, 409], f"exactly one of payment/hold may win: {codes}"
+E       AssertionError: exactly one of payment/hold may win: [201, 201]
+E       assert [201, 201] == [201, 409]
+E         
+E         At index 1 diff: 201 != 409
+E         Use -v to get more diff
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_concurrency2.py:114: AssertionError
+___________________ test_hold_moves_no_money_only_available ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D006000>, <attacklib2.AuthClient object at 0x000002A79D0073E0>, <attacklib2.AuthClient object at 0x000002A79D0060C0>])
+conservation = <function conservation.<locals>._check at 0x000002A79D3FD620>
+
+    def test_hold_moves_no_money_only_available(world, conservation):
+        before = world.total
+        resp = world.ada.authorize("bob", 2_000)
+        assert_status(resp, 201)
+        a = resp.json()
+        assert a["from_handle"] == "ada" and a["to_handle"] == "bob"
+        assert a["amount"] == 2_000
+        assert a["captured_amount"] == 0
+        assert a["status"] == "open"
+        assert a["remaining_amount"] == 2_000
+        assert a["payment_id"] is None
+    
+        ada = wallet(world.ada)
+>       assert (ada["balance"], ada["total"], ada["held"], ada["available"]) == \
+            (100_000, 100_000, 2_000, 98_000)
+E       assert (100000, 100000, 2000, 100000) == (100000, 100000, 2000, 98000)
+E         
+E         At index 3 diff: 100000 != 98000
+E         Use -v to get more diff
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py:50: AssertionError
+_________ test_insufficient_funds_checked_against_available_not_total _________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D0690D0>, <attacklib2.AuthClient object at 0x000002A79D3E44D0>, <attacklib2.AuthClient object at 0x000002A79CEF72C0>])
+
+    def test_insufficient_funds_checked_against_available_not_total(world):
+        # ada holds nearly everything, leaving 1_000 available of a 100_000 total.
+        assert_status(world.ada.authorize("bob", 99_000), 201)
+>       assert wallet(world.ada)["available"] == 1_000
+E       assert 100000 == 1000
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py:102: AssertionError
+___________________ test_seeded_open_hold_derives_available ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D3DC740>, <attacklib2.AuthClient object at 0x000002A79CDDD430>, <attacklib2.AuthClient object at 0x000002A79D004EF0>])
+reset = <function reset.<locals>._reset at 0x000002A79CFB0540>
+boot = <function boot.<locals>._boot at 0x000002A79CFB32E0>
+
+    def test_seeded_open_hold_derives_available(world, reset, boot):
+        body = fixture2(authorizations=[authz("a_seed", "u_ada", "u_bob", 2_000,
+                                              expires_at=future_iso(7200))])
+        ns = boot(body)
+        ada = wallet(ns.ada)
+>       assert (ada["balance"], ada["total"], ada["held"], ada["available"]) == \
+            (100_000, 100_000, 2_000, 98_000)
+E       assert (100000, 100000, 2000, 100000) == (100000, 100000, 2000, 98000)
+E         
+E         At index 3 diff: 100000 != 98000
+E         Use -v to get more diff
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py:135: AssertionError
+______________ test_seeded_void_and_captured_holds_hold_nothing _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D3ECA40>, <attacklib2.AuthClient object at 0x000002A799BC92B0>, <attacklib2.AuthClient object at 0x000002A79D007F20>])
+boot = <function boot.<locals>._boot at 0x000002A79D055440>
+
+    def test_seeded_void_and_captured_holds_hold_nothing(world, boot):
+        body = fixture2(authorizations=[
+            authz("a_void", "u_ada", "u_bob", 3_000, status="voided", expires_at=future_iso()),
+            authz("a_cap", "u_ada", "u_bob", 4_000, status="captured", captured_amount=4_000,
+                  expires_at=future_iso()),
+            authz("a_open", "u_ada", "u_bob", 1_000, status="open", expires_at=future_iso()),
+        ])
+        ns = boot(body)
+        ada = wallet(ns.ada)
+        assert ada["held"] == 1_000, "only open holds reserve money"
+>       assert ada["available"] == 99_000
+E       assert 100000 == 99000
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py:164: AssertionError
+____________ test_insufficient_funds_on_request_pay_uses_available ____________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D3F3B60>, <attacklib2.AuthClient object at 0x000002A79D3F11C0>, <attacklib2.AuthClient object at 0x000002A79D3F09B0>])
+
+    def test_insufficient_funds_on_request_pay_uses_available(world):
+        assert_status(world.ada.authorize("bob", 99_000), 201)
+        made = world.bob.post("/requests", json={"payer_handle": "ada", "amount": 50_000},
+                              headers={"Idempotency-Key": new_key()})
+        assert_status(made, 201)
+        rid = made.json()["request_id"]
+        # ada's total is still 100_000, but only 1_000 is available
+>       assert_error(world.ada.post(f"/requests/{rid}/pay", json={},
+                                    headers={"Idempotency-Key": new_key()}),
+                     409, "insufficient_funds")
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py:248: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 409, code = 'insufficient_funds'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 insufficient_funds, got 201 None. POST /requests/rq_8cd89b71d33a70a2a7f2b000c41df891/pay -> 201 '{"payment_id":"p_2bd9e44969e601f411099ba6f87485a4","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":50000,"currency":"EUR","note":"","visibility":"public","request_id":"rq_8cd89b71d33a70a2a7f2b000c41df891","authorization_id":null,"created_at":"2026-10-03T22:03:04+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-1\attacklib.py:105: AssertionError
+____________ test_insufficient_funds_on_settlement_uses_available _____________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...9D2ACB30>, <attacklib2.AuthClient object at 0x000002A79D3F3830>, <attacklib2.AuthClient object at 0x000002A79D006630>])
+
+    def test_insufficient_funds_on_settlement_uses_available(world):
+        assert_status(world.ada.authorize("bob", 99_000), 201)
+        body = {"transfers": [{"from_handle": "ada", "to_handle": "bob", "amount": 50_000}]}
+>       assert_error(world.op.post("/settlements", json=body,
+                                   headers={"Idempotency-Key": new_key()}),
+                     409, "insufficient_funds")
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py:256: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 409, code = 'insufficient_funds'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 insufficient_funds, got 201 None. POST /settlements -> 201 '{"committed_at":"2026-10-03T22:03:07+00:00","payments":[{"payment_id":"p_71f2f120b8c4b050eac58e36a076348d","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":50000,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"settlement_id":"st_b5b63a29c6b02dccdff370afe592d39a","created_at":"2026-10-03T22:03:07+00:00"}],"settlem...'
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-1\attacklib.py:105: AssertionError
+_____ test_lost_payment_response_is_uncertain_then_retry_moves_money_once _____
+
+    def test_lost_payment_response_is_uncertain_then_retry_moves_money_once():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+    
+            state = {"n": 0}
+    
+            async def handler(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    await route.fetch()      # the server commits
+                    await route.abort()      # ... but the browser never sees the response
+                else:
+                    await route.continue_()
+    
+            await page.route("**/payments", handler)
+            await page.get_by_test_id("pay-handle").fill("bob")
+            await page.get_by_test_id("pay-amount").fill("1.00")
+            await page.get_by_test_id("pay-submit").click()
+    
+            uncertain = page.get_by_test_id("pay-uncertain")
+            await uncertain.wait_for(timeout=8_000)
+            assert (await uncertain.inner_text()).strip() != "", "pay-uncertain must be nonempty"
+            assert await page.get_by_test_id("pay-error").count() == 0, \
+                "an unknown outcome is not a confirmed rejection"
+    
+            # unchanged retry with the same key and body
+            await page.get_by_test_id("pay-submit").click()
+            await uncertain.wait_for(state="detached", timeout=10_000)
+            await wait_amount(page, "wallet-balance", "99000")
+            assert await page.locator('[data-testid^="activity-item-"]').count() == 1
+    
+            bob = await login_token("bob")
+            feed = await api_call("GET", "/activity", token=bob)
+            assert len(feed.json()["payments"]) == 1, "money must move exactly once"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_ui_race.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_ui_race.py:84: in main
+    await wait_amount(page, "wallet-balance", "99000")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:61214/'>, testid = 'wallet-balance'
+value = '99000', timeout = 8000
+
+    async def wait_amount(page, testid: str, value: str, timeout: float = 8_000):
+        loc = page.get_by_test_id(testid)
+        await loc.wait_for(timeout=timeout)
+        for _ in range(int(timeout / 100)):
+            if await loc.get_attribute("data-amount") == value:
+                return
+            await page.wait_for_timeout(100)
+        got = await loc.get_attribute("data-amount")
+>       raise AssertionError(f"{testid} data-amount is {got!r}, expected {value!r}")
+E       AssertionError: wallet-balance data-amount is '99900', expected '99000'
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\uilab.py:73: AssertionError
+__ test_authorizations_page_shows_available_headline_and_permitted_controls ___
+
+    def test_authorizations_page_shows_available_headline_and_permitted_controls():
+        async def main(page):
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+            await sign_in(page, "ada", goto="/authorizations")
+    
+            await wait_amount(page, "wallet-available", "98000")
+            await wait_amount(page, "wallet-balance", "100000")
+            await wait_amount(page, "wallet-held", "2000")
+            for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                        "authorize-visibility", "authorize-submit"):
+                assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+    
+            item = page.get_by_test_id("authorization-item-a_seed")
+            await item.wait_for(timeout=8_000)
+            assert await item.get_attribute("data-status") == "open"
+            assert await page.get_by_test_id("authorization-void-a_seed").count() == 1, \
+                "the payer must see a void control on an open outgoing authorization"
+            assert await page.get_by_test_id("authorization-capture-a_seed").count() == 0, \
+                "the payer must not see a capture control"
+    
+            # creating a hold through the UI updates the headline
+            await page.get_by_test_id("authorize-handle").fill("bob")
+            await page.get_by_test_id("authorize-amount").fill("5.00")
+            await page.get_by_test_id("authorize-submit").click()
+            await wait_amount(page, "wallet-held", "2500")
+            assert await page.get_by_test_id("authorization-error").count() == 0
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_ui_race.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_ui_race.py:221: in main
+    await wait_amount(page, "wallet-available", "98000")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:61214/authorizations'>
+testid = 'wallet-available', value = '98000', timeout = 8000
+
+    async def wait_amount(page, testid: str, value: str, timeout: float = 8_000):
+        loc = page.get_by_test_id(testid)
+        await loc.wait_for(timeout=timeout)
+        for _ in range(int(timeout / 100)):
+            if await loc.get_attribute("data-amount") == value:
+                return
+            await page.wait_for_timeout(100)
+        got = await loc.get_attribute("data-amount")
+>       raise AssertionError(f"{testid} data-amount is {got!r}, expected {value!r}")
+E       AssertionError: wallet-available data-amount is '100000', expected '98000'
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\uilab.py:73: AssertionError
+__________ test_hold_survives_export_import_and_is_still_capturable ___________
+
+boot = <function boot.<locals>._boot at 0x000002A79D054EA0>
+
+    def test_hold_survives_export_import_and_is_still_capturable(boot):
+        ns = boot(fixture2())
+        made = assert_status(ns.ada.authorize("bob", 2_000), 201).json()
+        aid = made["authorization_id"]
+    
+        export = assert_status(ns.ada.get("/_test/export"), 200).json()
+        assert_status(ns.ada.post("/_test/import", json=export), 204)
+    
+        ada = ns.ada.me_full()
+        assert ada["held"] == 2_000, "a hold must survive a snapshot round trip"
+>       assert ada["available"] == 98_000
+E       assert 100000 == 98000
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_upgrade.py:80: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_capture.py::test_extended_capture_keeps_remainder_held
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_concurrency2.py::test_concurrent_authorizations_cannot_overspend_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_concurrency2.py::test_payment_and_authorization_race_uses_available_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py::test_hold_moves_no_money_only_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py::test_insufficient_funds_checked_against_available_not_total
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py::test_seeded_open_hold_derives_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py::test_seeded_void_and_captured_holds_hold_nothing
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py::test_insufficient_funds_on_request_pay_uses_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_holds.py::test_insufficient_funds_on_settlement_uses_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_ui_race.py::test_lost_payment_response_is_uncertain_then_retry_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-_2lyoh9t\repo\attacks\stage-2\test_upgrade.py::test_hold_survives_export_import_and_is_still_capturable
+12 failed, 138 passed in 641.33s (0:10:41)
+MUTANT m01_skip_hold.patch: killed verifier,breaker
+mutation score 1/1 (invalid 0)
+
+exit 0

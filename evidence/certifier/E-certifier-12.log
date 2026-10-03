@@ -1,0 +1,327 @@
+$ python scripts/lever.py mutate --stage 2 --rev b013f5e17143 --mutant mutants/stage-2/m03_capture_exceed.patch --suites verifier,breaker
+........................................................................ [ 62%]
+............F................sss...........                              [100%]
+================================== FAILURES ===================================
+____________________ test_s2_c19_capture_exceeds_remainder ____________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000203B90E44D0>, bob=<s2lib.http.Api object at 0x00000203BA467320>, cy=<s2lib.http.Api object at 0x00000203B9453CE0>)
+authorize = <function authorize.<locals>._auth at 0x00000203B8F5F7E0>
+
+    def test_s2_c19_capture_exceeds_remainder(world, authorize):
+        auth = assert_status(authorize(amount=400), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": 401},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "capture_exceeds_authorization")
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_authorization_spec.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422
+code = 'capture_exceeds_authorization'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 capture_exceeds_authorization, got 201 None. POST /authorizations/a_ca60ef41f61a5949ef4c1650b7162ff0/capture -> 201 '{"payment_id":"p_dbd7d704aa12304616f02c5aa2604029","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":401,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_ca60ef41f61a5949ef4c1650b7162ff0","created_at":"2026-10-03T22:25:52+00:00"}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\s2lib\http.py:114: AssertionError
+============================== warnings summary ===============================
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_auth.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_auth.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_delivery.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_differential.py:12
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_differential.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_errors_load.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_errors_load.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_export_import.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_export_import.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_idempotency.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_idempotency.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_invariants.py:10
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_invariants.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_payments.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_payments.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_requests.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_requests.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_runtime.py:13
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_runtime.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_settlements.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_settlements.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_spec_edges.py:10
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_splits_activity.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_concurrent_auth.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_concurrent_auth.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_delivery.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_differential.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_differential.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_regression_stage1.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_regression_stage1.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_routes_negotiation.py:6
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_routes_negotiation.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_ui_flows.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\verify\stage-2\test_s2_authorization_spec.py::test_s2_c19_capture_exceeds_remainder
+1 failed, 111 passed, 3 skipped, 22 warnings in 329.56s (0:05:29)
+........................................................................ [ 48%]
+..................F...............................................F..... [ 96%]
+F.....                                                                   [100%]
+================================== FAILURES ===================================
+___________________ test_capture_exceeding_remaining_is_422 ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...896F92E0>, <attacklib2.AuthClient object at 0x000001798972E150>, <attacklib2.AuthClient object at 0x000001798972C770>])
+
+    def test_capture_exceeding_remaining_is_422(world):
+        aid = open_authz(world, amount=2_000)
+        assert_status(world.bob.capture(aid, 700, final=False), 201)
+>       assert_error(world.bob.capture(aid, 1_301, final=False), 422,
+                     "capture_exceeds_authorization")
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_capture.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422
+code = 'capture_exceeds_authorization'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 capture_exceeds_authorization, got 201 None. POST /authorizations/a_39574861c4fb52355ecfac339f7b15a3/capture -> 201 '{"payment_id":"p_1046b07f60638bdfc145fc8aa9490498","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":1301,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_39574861c4fb52355ecfac339f7b15a3","created_at":"2026-10-03T22:33:57+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-1\attacklib.py:105: AssertionError
+_____ test_lost_payment_response_is_uncertain_then_retry_moves_money_once _____
+
+    def test_lost_payment_response_is_uncertain_then_retry_moves_money_once():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+    
+            state = {"n": 0}
+    
+            async def handler(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    await route.fetch()      # the server commits
+                    await route.abort()      # ... but the browser never sees the response
+                else:
+                    await route.continue_()
+    
+            await page.route("**/payments", handler)
+            await page.get_by_test_id("pay-handle").fill("bob")
+            await page.get_by_test_id("pay-amount").fill("1.00")
+            await page.get_by_test_id("pay-submit").click()
+    
+            uncertain = page.get_by_test_id("pay-uncertain")
+            await uncertain.wait_for(timeout=8_000)
+            assert (await uncertain.inner_text()).strip() != "", "pay-uncertain must be nonempty"
+            assert await page.get_by_test_id("pay-error").count() == 0, \
+                "an unknown outcome is not a confirmed rejection"
+    
+            # unchanged retry with the same key and body
+            await page.get_by_test_id("pay-submit").click()
+            await uncertain.wait_for(state="detached", timeout=10_000)
+            await wait_amount(page, "wallet-balance", "99000")
+            assert await page.locator('[data-testid^="activity-item-"]').count() == 1
+    
+            bob = await login_token("bob")
+            feed = await api_call("GET", "/activity", token=bob)
+            assert len(feed.json()["payments"]) == 1, "money must move exactly once"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_ui_race.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_ui_race.py:84: in main
+    await wait_amount(page, "wallet-balance", "99000")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:57770/'>, testid = 'wallet-balance'
+value = '99000', timeout = 8000
+
+    async def wait_amount(page, testid: str, value: str, timeout: float = 8_000):
+        loc = page.get_by_test_id(testid)
+        await loc.wait_for(timeout=timeout)
+        for _ in range(int(timeout / 100)):
+            if await loc.get_attribute("data-amount") == value:
+                return
+            await page.wait_for_timeout(100)
+        got = await loc.get_attribute("data-amount")
+>       raise AssertionError(f"{testid} data-amount is {got!r}, expected {value!r}")
+E       AssertionError: wallet-balance data-amount is '99900', expected '99000'
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\uilab.py:73: AssertionError
+__________ test_authorization_list_testids_capture_prefill_and_error __________
+
+    def test_authorization_list_testids_capture_prefill_and_error():
+        async def main(page):
+            expires = future_iso(7200)
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_cap", "u_ada", "u_bob", 4_000, status="captured",
+                      captured_amount=4_000, expires_at=expires),
+                authz("a_open", "u_op", "u_ada", 1_500, expires_at=expires),
+            ]))
+            await sign_in(page, "ada", goto="/authorizations")
+    
+            cap = page.get_by_test_id("authorization-item-a_cap")
+            await cap.wait_for(timeout=8_000)
+            assert await cap.get_attribute("data-status") == "captured"
+            assert await page.get_by_test_id("authorization-captured-a_cap").count() == 1, \
+                "authorization-captured must be present on a captured authorization"
+    
+            token = await login_token("ada")
+            listing = await api_call("GET", "/authorizations", token=token)
+            server_expires = next(a["expires_at"] for a in listing.json()["authorizations"]
+                                  if a["authorization_id"] == "a_cap")
+            assert await page.get_by_test_id("authorization-expires-a_cap").inner_text() == \
+                server_expires, "authorization-expires must echo the API expires_at"
+    
+            # an incoming open authorization offers a prefilled capture amount
+            amount = page.get_by_test_id("authorization-capture-amount-a_open")
+            await amount.wait_for(timeout=8_000)
+            assert (await amount.input_value()) == "15.00", \
+                "the capture input must be prefilled with the remaining decimal amount"
+    
+            # over-capturing is refused and surfaces authorization-error
+            await amount.fill("20.00")
+            await page.get_by_test_id("authorization-capture-a_open").click()
+            await page.get_by_test_id("authorization-error").wait_for(timeout=8_000)
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_ui_race.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_ui_race.py:278: in main
+    await page.get_by_test_id("authorization-error").wait_for(timeout=8_000)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\async_api\_generated.py:20672: in wait_for
+    await self._impl_obj.wait_for(timeout=to_milliseconds(timeout), state=state)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:752: in wait_for
+    await self._frame.wait_for_selector(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:395: in wait_for_selector
+    await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000017989AE7500>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000017990F77600>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 8000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorization-error") to be visible
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_capture.py::test_capture_exceeding_remaining_is_422
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_ui_race.py::test_lost_payment_response_is_uncertain_then_retry_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-g3i53ilc\repo\attacks\stage-2\test_ui_race.py::test_authorization_list_testids_capture_prefill_and_error
+3 failed, 147 passed in 665.93s (0:11:05)
+MUTANT m03_capture_exceed.patch: killed verifier,breaker
+mutation score 1/1 (invalid 0)
+
+exit 0

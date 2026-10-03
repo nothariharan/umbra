@@ -1,0 +1,63 @@
+$ powershell -NoProfile -File evidence/certifier/reexec_scoped_s2_r22_r23_r28.ps1
+..........................                                               [100%]
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+26 passed, 3 warnings in 64.63s (0:01:04)
+E-verifier-61: recorded exit 0, re-executed exit 0 -> REPRODUCED
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-b013f5e1-pdqbvwzz/repo/stage-2 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e615a4fa8/stage-1.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-b013f5e1-pdqbvwzz/repo/stage-1 ...
+  stage 2: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e615a4fa8/stage-2.log)
+  stage 3: fail  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e615a4fa8/stage-3.log)
+highest contiguous stage: 2
+claimed stage: 2 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e615a4fa8/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\5e615a4fa8\report.json
+official stage 2: PASS (exit 0)
+E-verifier-56: recorded exit 0, re-executed exit 0 -> REPRODUCED
+........................................................................ [100%]
+72 passed in 95.58s (0:01:35)
+uireviewer stage 2: PASS (exit 0)
+E-uireviewer-10: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_flows.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 1.13s
+E-uireviewer-11: recorded exit 0, re-executed exit 0 -> REPRODUCED
+....................                                                     [100%]
+20 passed in 71.59s (0:01:11)
+E-breaker-21: recorded exit 0, re-executed exit 0 -> REPRODUCED
+....                                                                     [100%]
+4 passed in 10.51s
+E-breaker-22: recorded exit 0, re-executed exit 0 -> REPRODUCED
+...                                                                      [100%]
+3 passed in 6.92s
+E-breaker-23: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 28.33s
+E-breaker-24: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.....................                                                    [100%]
+21 passed in 99.64s (0:01:39)
+E-breaker-25: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..........                                                               [100%]
+10 passed in 34.19s
+E-breaker-27: recorded exit 0, re-executed exit 0 -> REPRODUCED
+
+exit 0

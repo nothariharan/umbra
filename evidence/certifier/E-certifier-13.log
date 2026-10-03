@@ -1,0 +1,4 @@
+$ powershell -NoProfile -File evidence/certifier/s2_cc3_parent.ps1
+mutation score 3/3 (per-mutant E-certifier-10,11,12 @ b013f5e17143; verifier+breaker each)
+
+exit 0
