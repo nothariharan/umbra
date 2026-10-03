@@ -1,0 +1,5 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_idempotency.py
+.............                                                            [100%]
+13 passed in 200.25s (0:03:20)
+
+exit 0

@@ -1,0 +1,5 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_requests.py
+...........                                                              [100%]
+11 passed in 37.74s
+
+exit 0

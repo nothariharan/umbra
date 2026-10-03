@@ -1,0 +1,5 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_concurrency.py
+.......                                                                  [100%]
+7 passed in 194.91s (0:03:14)
+
+exit 0

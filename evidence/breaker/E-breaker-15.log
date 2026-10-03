@@ -1,0 +1,5 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_idempotency.py::test_request_pay_replay_after_paid_returns_200 attacks/stage-1/test_settlement.py::test_malformed_batch_shapes_are_422
+..                                                                       [100%]
+2 passed in 3.18s
+
+exit 0

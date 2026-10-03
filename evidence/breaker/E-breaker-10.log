@@ -1,0 +1,5 @@
+$ C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_balance.py
+....................                                                     [100%]
+20 passed in 242.88s (0:04:02)
+
+exit 0
