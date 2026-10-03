@@ -1,0 +1,6 @@
+$ powershell -NoProfile -ExecutionPolicy Bypass -File attacks/stage-2/run_attack.ps1 -Stage 2 -Rev b013f5e17143 -Files attacks/stage-2/test_ui_api.py
+BASE_URL=http://127.0.0.1:52901
+....                                                                     [100%]
+4 passed in 28.42s
+
+exit 0

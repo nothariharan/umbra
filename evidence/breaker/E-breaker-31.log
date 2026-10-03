@@ -1,0 +1,6 @@
+$ powershell -NoProfile -ExecutionPolicy Bypass -File attacks/stage-2/run_attack.ps1 -Stage 2 -Rev b013f5e17143 -Files attacks/stage-2/test_concurrency2.py
+BASE_URL=http://127.0.0.1:50230
+......                                                                   [100%]
+6 passed in 23.28s
+
+exit 0
