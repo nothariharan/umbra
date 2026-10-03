@@ -1,0 +1,63 @@
+$ set BASE_URL=http://127.0.0.1:58920 && C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422 & C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________________ test_capture_invalid_amount_is_422 ______________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...7C6A7FB0>, <attacklib2.AuthClient object at 0x000002537C84B1D0>, <attacklib2.AuthClient object at 0x000002537C84BF80>])
+
+    def test_capture_invalid_amount_is_422(world):
+        aid = open_authz(world, amount=2_000)
+        for amount in (0, -1, 1.5, "100"):
+            resp = world.bob.post(f"/authorizations/{aid}/capture",
+                                  json={"amount": amount},
+                                  headers={"Idempotency-Key": new_key()})
+>           assert_error(resp, 422, "validation_failed")
+
+attacks\stage-2\test_capture.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_f1e2c6e7e26b3153f9c9da5953a902c3/capture -> 201 '{"payment_id":"p_8028b2357fef48450570a7f839ace598","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":2000,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_f1e2c6e7e26b3153f9c9da5953a902c3","created_at":"2026-10-03T16:11:04+00:00"}'
+
+attacks\stage-1\attacklib.py:105: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422 - ...
+1 failed in 2.60s
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________________ test_capture_invalid_amount_is_422 ______________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C7B5F9E0>, <attacklib2.AuthClient object at 0x00000114C7E2B260>, <attacklib2.AuthClient object at 0x00000114C7E2BE90>])
+
+    def test_capture_invalid_amount_is_422(world):
+        aid = open_authz(world, amount=2_000)
+        for amount in (0, -1, 1.5, "100"):
+            resp = world.bob.post(f"/authorizations/{aid}/capture",
+                                  json={"amount": amount},
+                                  headers={"Idempotency-Key": new_key()})
+>           assert_error(resp, 422, "validation_failed")
+
+attacks\stage-2\test_capture.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_e7d25573b98fcc2ae012e3af6f975de1/capture -> 201 '{"payment_id":"p_886390877a2efd7b4943cbac18647f03","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":2000,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_e7d25573b98fcc2ae012e3af6f975de1","created_at":"2026-10-03T16:11:08+00:00"}'
+
+attacks\stage-1\attacklib.py:105: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422 - ...
+1 failed in 2.82s
+
+exit 1

@@ -12,7 +12,7 @@ from playwright.async_api import async_playwright
 
 from attacklib2 import PASSWORD
 
-BASE_URL = os.environ.get("BASE_URL", "http://127.0.0.1:8080").rstrip("/")
+BASE_URL = os.environ.get("BASE_URL", "http://127.0.0.1:8080").strip().rstrip("/")
 
 
 async def with_page(fn, *, width: int = 1280, height: int = 900):
