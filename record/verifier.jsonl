@@ -82,3 +82,20 @@
 {"type": "evidence", "seat": "verifier", "at": "2026-10-03T13:56:59+00:00", "id": "E-verifier-44", "check": "S1-C33", "run": "powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C33", "rev": "1125eee49810", "dirty": false, "exit": 0, "seconds": 27.3, "sha": "1c9f65a71e22f8ed", "log": "evidence/verifier/E-verifier-44.log"}
 {"type": "evidence", "seat": "verifier", "at": "2026-10-03T13:57:19+00:00", "id": "E-verifier-45", "check": "S1-C34", "run": "powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C34", "rev": "1125eee49810", "dirty": false, "exit": 0, "seconds": 18.4, "sha": "1461f5be961cfb4d", "log": "evidence/verifier/E-verifier-45.log"}
 {"type": "evidence", "seat": "verifier", "at": "2026-10-03T13:57:42+00:00", "id": "E-verifier-46", "check": "S1-C35", "run": "powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C35", "rev": "1125eee49810", "dirty": false, "exit": 0, "seconds": 22.1, "sha": "b6c85845d2c01586", "log": "evidence/verifier/E-verifier-46.log"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:17+00:00", "id": "S2-C1", "req": ["S2-R31"], "text": "stage-2 delivery artifacts extend sealed stage-1"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:19+00:00", "id": "S2-C2", "req": ["S2-R2"], "text": "required routes reachable by URL"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:21+00:00", "id": "S2-C3", "req": ["S2-R3"], "text": "/requests and /authorizations HTML vs JSON negotiation"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:24+00:00", "id": "S2-C4", "req": ["S2-R4", "S2-R5"], "text": "mandated data-testid on core screens; 375px smoke"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:26+00:00", "id": "S2-C5", "req": ["S2-R6"], "text": "signup/login auth UI testids"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:28+00:00", "id": "S2-C6", "req": ["S2-R7", "S2-R8"], "text": "pay form formatting, idempotent resubmit without field change"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:30+00:00", "id": "S2-C7", "req": ["S2-R9"], "text": "request form testids and request-error"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:32+00:00", "id": "S2-C8", "req": ["S2-R10"], "text": "activity feed testids and visibility attrs"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:34+00:00", "id": "S2-C9", "req": ["S2-R11"], "text": "requests screen lists and pending actions"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:35+00:00", "id": "S2-C10", "req": ["S2-R12"], "text": "split preview shares match server before POST"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:37+00:00", "id": "S2-C11", "req": ["S2-R13"], "text": "post-action refresh without manual reload"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:39+00:00", "id": "S2-C12", "req": ["S2-R14"], "text": "wallet-refresh latest-wins ordering"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:41+00:00", "id": "S2-C13", "req": ["S2-R15"], "text": "competing clients pay-error and pay-uncertain"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:43+00:00", "id": "S2-C14", "req": ["S2-R16"], "text": "stage-1 export/import upgrade preserves session and retries"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:44+00:00", "id": "S2-C15", "req": ["S2-R17"], "text": "total conservation with holds and captures"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:46+00:00", "id": "S2-C16", "req": ["S2-R20"], "text": "GET /me total, available, held fields"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:47+00:00", "id": "S2-C17", "req": ["S2-R18", "S2-R21"], "text": "available funds gate; POST /authorizations idempotent hold"}
