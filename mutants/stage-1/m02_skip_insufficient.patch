@@ -1,0 +1,11 @@
+--- a/stage-1/handlers.go
++++ b/stage-1/handlers.go
+@@ -356,7 +356,7 @@
+ 			b, f := errResp(http.StatusUnprocessableEntity, "self_payment", "self payment")
+ 			return http.StatusUnprocessableEntity, b, f, true
+ 		}
+-		if from.Balance < amount {
++		if false && from.Balance < amount {
+ 			b, f := errResp(http.StatusConflict, "insufficient_funds", "insufficient funds")
+ 			return http.StatusConflict, b, f, true
+ 		}

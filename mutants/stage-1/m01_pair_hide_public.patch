@@ -1,0 +1,26 @@
+--- a/stage-1/handlers.go
++++ b/stage-1/handlers.go
+@@ -749,6 +749,20 @@
+ 	sv.store.mu.Lock()
+ 	defer sv.store.mu.Unlock()
+ 	var visible []Payment
+ 	for _, p := range sv.store.Payments {
++		if p.FromUserID != u.ID && p.ToUserID != u.ID {
++			pairPrivate := false
++			for _, q := range sv.store.Payments {
++				if q.Visibility != "private" {
++					continue
++				}
++				if (p.FromUserID == q.FromUserID && p.ToUserID == q.ToUserID) ||
++					(p.FromUserID == q.ToUserID && p.ToUserID == q.FromUserID) {
++					pairPrivate = true
++					break
++				}
++			}
++			if pairPrivate {
++				continue
++			}
++		}
+ 		if p.Visibility == "public" || p.FromUserID == u.ID || p.ToUserID == u.ID {
+ 			visible = append(visible, p)
+ 		}

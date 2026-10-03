@@ -1,0 +1,11 @@
+--- a/stage-1/idempotency.go
++++ b/stage-1/idempotency.go
+@@ -38,6 +38,8 @@
+ 
+ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int, []byte, bool), bool) {
+ 	s.mu.Lock()
++	// mutant: drop stored successes so replays re-execute the handler
++	delete(s.Idempotency, fullKey)
+ 	rec, ok := s.Idempotency[fullKey]
+ 	if ok {
+ 		if rec.Failed4xx {
