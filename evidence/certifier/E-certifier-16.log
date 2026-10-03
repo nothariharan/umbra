@@ -1,0 +1,66 @@
+$ powershell -NoProfile -File evidence/certifier/reexec_scoped_r22_r23_r28_v2.ps1
+..........................                                               [100%]
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+26 passed, 3 warnings in 68.38s (0:01:08)
+E-verifier-140: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 1.22s
+E-verifier-141: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 11.29s
+E-verifier-143: recorded exit 0, re-executed exit 0 -> REPRODUCED
+........................................................................ [100%]
+72 passed in 90.46s (0:01:30)
+uireviewer stage 2: PASS (exit 0)
+E-uireviewer-12: recorded exit 0, re-executed exit 0 -> REPRODUCED
+BASE_URL=http://127.0.0.1:61357
+.....................                                                    [100%]
+21 passed in 84.26s (0:01:24)
+E-breaker-32: recorded exit 0, re-executed exit 0 -> REPRODUCED
+BASE_URL=http://127.0.0.1:60420
+....................                                                     [100%]
+20 passed in 80.73s (0:01:20)
+E-breaker-28: recorded exit 0, re-executed exit 0 -> REPRODUCED
+BASE_URL=http://127.0.0.1:63487
+......                                                                   [100%]
+6 passed in 14.39s
+E-breaker-31: recorded exit 0, re-executed exit 0 -> REPRODUCED
+BASE_URL=http://127.0.0.1:63573
+....                                                                     [100%]
+4 passed in 9.58s
+E-breaker-29: recorded exit 0, re-executed exit 0 -> REPRODUCED
+BASE_URL=http://127.0.0.1:63597
+..........                                                               [100%]
+10 passed in 29.22s
+E-breaker-33: recorded exit 0, re-executed exit 0 -> REPRODUCED
+BASE_URL=http://127.0.0.1:59151
+...                                                                      [100%]
+3 passed in 6.43s
+E-breaker-30: recorded exit 0, re-executed exit 0 -> REPRODUCED
+
+exit 0
