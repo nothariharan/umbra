@@ -1,0 +1,4 @@
+$ $env:SUBMIT_REV='b013f5e17143'; powershell -NoProfile -File evidence/verifier/repro_s2_c6.ps1
+The filename, directory name, or volume label syntax is incorrect.
+
+exit 1
