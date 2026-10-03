@@ -60,6 +60,15 @@ def test_s1_c18_activity_visibility(world, pay):
     assert by_id[priv["payment_id"]]["visibility"] == "private"
 
 
+def test_s1_c18_public_payment_visible_to_third_party(world, pay):
+    """S1-U10: a public payment must appear for cy, not only for parties."""
+    pub = assert_status(pay(world.ada, to_handle="bob", amount=25, visibility="public"), 201).json()
+    cy_feed = world.cy.get("/activity").json()["payments"]
+    assert any(p["payment_id"] == pub["payment_id"] for p in cy_feed), (
+        "public payment hidden from third party"
+    )
+
+
 def test_s1_c18_requests_never_in_activity(world, ask):
     assert_status(ask(amount=100), 201)
     assert world.ada.get("/activity").json()["payments"] == []
