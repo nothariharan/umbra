@@ -733,9 +733,11 @@ func (sv *Server) handleSplits(w http.ResponseWriter, r *http.Request) {
 			created = append(created, mr)
 		}
 		splitID := newID("sp_")
+		createdAt := nowRFC3339()
 		out := map[string]any{
 			"split_id": splitID, "amount": amount, "currency": sv.store.Currency,
 			"note": note, "participant_handles": handles, "shares": shareObjs, "requests": created,
+			"created_at": createdAt,
 		}
 		resp, _ := json.Marshal(out)
 		return http.StatusCreated, resp, false, true
@@ -817,9 +819,10 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 			from, to string
 			amount   int64
 			note     string
+			vis      string
 		}
 		var xfers []xfer
-		debit := map[string]int64{}
+		net := map[string]int64{}
 		for _, t := range transfers {
 			fh, ek := stringField(t, "from_handle")
 			if ek != errNone {
@@ -832,7 +835,7 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 				return http.StatusBadRequest, b, f, true
 			}
 			if fh == th {
-				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "self payment")
+				b, f := errResp(http.StatusUnprocessableEntity, "self_payment", "self payment")
 				return http.StatusUnprocessableEntity, b, f, true
 			}
 			amount, amtOk, ek := parseIntegralAmount(t["amount"])
@@ -840,10 +843,23 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid amount")
 				return http.StatusUnprocessableEntity, b, f, true
 			}
-			note, ek := optionalStringField(t, "note", "")
+			note, ek := parseNoteField(t, "note")
+			if ek == errValidation {
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid note")
+				return http.StatusUnprocessableEntity, b, f, true
+			}
 			if ek == errMalformed {
 				b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid note")
 				return http.StatusBadRequest, b, f, true
+			}
+			vis, ek := optionalStringField(t, "visibility", "public")
+			if ek == errMalformed {
+				b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid visibility")
+				return http.StatusBadRequest, b, f, true
+			}
+			if vis != "public" && vis != "private" {
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid visibility")
+				return http.StatusUnprocessableEntity, b, f, true
 			}
 			fromID, ok := sv.store.UsersByHandle[fh]
 			if !ok {
@@ -855,11 +871,12 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 				b, f := errResp(http.StatusNotFound, "not_found", "handle not found")
 				return http.StatusNotFound, b, f, true
 			}
-			debit[fromID] += amount
-			xfers = append(xfers, xfer{from: fromID, to: toID, amount: amount, note: note})
+			net[fromID] -= amount
+			net[toID] += amount
+			xfers = append(xfers, xfer{from: fromID, to: toID, amount: amount, note: note, vis: vis})
 		}
-		for uid, d := range debit {
-			if sv.store.Users[uid].Balance < d {
+		for uid, delta := range net {
+			if sv.store.Users[uid].Balance+delta < 0 {
 				b, f := errResp(http.StatusConflict, "insufficient_funds", "insufficient funds")
 				return http.StatusConflict, b, f, true
 			}
@@ -876,7 +893,7 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 			p := Payment{
 				PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 				ToUserID: to.ID, ToHandle: to.Handle, Amount: x.amount,
-				Currency: sv.store.Currency, Note: x.note, Visibility: "private",
+				Currency: sv.store.Currency, Note: x.note, Visibility: x.vis,
 				RequestID: nil, SettlementID: &sid, CreatedAt: committed,
 			}
 			sv.store.Payments = append(sv.store.Payments, p)

@@ -72,7 +72,7 @@ func parseQueryInt(s string, def *int) (int, errorKind) {
 }
 
 func parseLimitOffset(q map[string][]string) (limit, offset int, ok bool) {
-	defLimit := 20
+	defLimit := 50
 	lim, ek := parseQueryInt(first(q["limit"]), &defLimit)
 	if ek != errNone {
 		return 0, 0, false

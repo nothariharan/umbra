@@ -3,11 +3,26 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"net/http"
 )
 
 func canonicalBodyHash(raw []byte) string {
-	h := sha256.Sum256(raw)
+	if len(raw) == 0 {
+		h := sha256.Sum256(raw)
+		return hex.EncodeToString(h[:])
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		h := sha256.Sum256(raw)
+		return hex.EncodeToString(h[:])
+	}
+	canon, err := json.Marshal(v)
+	if err != nil {
+		h := sha256.Sum256(raw)
+		return hex.EncodeToString(h[:])
+	}
+	h := sha256.Sum256(canon)
 	return hex.EncodeToString(h[:])
 }
 
@@ -45,7 +60,22 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 		<-ch
 		s.mu.Lock()
 		rec2 := s.Idempotency[fullKey]
-		if rec2 == nil || rec2.BodyHash != bodyHash {
+		if rec2 == nil {
+			s.mu.Unlock()
+			return idemResult{}, nil, false
+		}
+		if rec2.Failed4xx {
+			if rec2.BodyHash != bodyHash {
+				delete(s.Idempotency, fullKey)
+				s.mu.Unlock()
+				return idemResult{}, nil, false
+			}
+			st := rec2.StatusCode
+			body := rec2.Response
+			s.mu.Unlock()
+			return idemResult{status: st, body: body, replay: true}, nil, true
+		}
+		if rec2.BodyHash != bodyHash {
 			s.mu.Unlock()
 			return idemResult{}, nil, false
 		}

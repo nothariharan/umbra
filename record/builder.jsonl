@@ -1,0 +1,2 @@
+{"type": "check", "seat": "builder", "at": "2026-10-03T09:08:07+00:00", "id": "B-S1-build", "req": ["S1-R1", "S1-R2", "S1-R44"], "text": "docker build and official isolated stage 1"}
+{"type": "evidence", "seat": "builder", "at": "2026-10-03T09:11:37+00:00", "id": "E-builder-1", "check": "B-S1-build", "run": "python scripts/lever.py checks --suite official --stage 1 --isolated --rev 89bbfd52ef55", "rev": "89bbfd52ef55", "dirty": false, "exit": 0, "seconds": 208.5, "sha": "cab5439cf3070eff", "log": "evidence/builder/E-builder-1.log"}
