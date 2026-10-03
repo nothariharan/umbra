@@ -1,0 +1,7 @@
+$ python scripts/lever.py checks --suite breaker --stage 1 --rev 1125eee49810
+........................................................................ [ 83%]
+..............                                                           [100%]
+86 passed in 638.67s (0:10:38)
+breaker stage 1: PASS (exit 0)
+
+exit 0
