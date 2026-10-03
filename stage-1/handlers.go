@@ -736,31 +736,6 @@ func (sv *Server) handleSplits(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *Store) pairHasPrivatePayment(u1, u2 string) bool {
-	for _, p := range s.Payments {
-		if p.Visibility != "private" {
-			continue
-		}
-		if (p.FromUserID == u1 && p.ToUserID == u2) || (p.FromUserID == u2 && p.ToUserID == u1) {
-			return true
-		}
-	}
-	return false
-}
-
-func paymentVisibleTo(p Payment, viewerID string, store *Store) bool {
-	if p.FromUserID == viewerID || p.ToUserID == viewerID {
-		return true
-	}
-	if p.Visibility != "public" {
-		return false
-	}
-	if store.pairHasPrivatePayment(p.FromUserID, p.ToUserID) {
-		return false
-	}
-	return true
-}
-
 func (sv *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
 	u, ok := sv.requireAuth(w, r)
 	if !ok {
@@ -775,7 +750,7 @@ func (sv *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
 	defer sv.store.mu.Unlock()
 	var visible []Payment
 	for _, p := range sv.store.Payments {
-		if paymentVisibleTo(p, u.ID, sv.store) {
+		if p.Visibility == "public" || p.FromUserID == u.ID || p.ToUserID == u.ID {
 			visible = append(visible, p)
 		}
 	}
