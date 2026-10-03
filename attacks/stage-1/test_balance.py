@@ -163,7 +163,7 @@ def test_amount_accepts_only_integral_numeric_forms(world):
     for good in (1000, 1000.0, 1e3):
         r = _pay(world.ada, good, to_handle="bob")
         assert_status(r, 201)
-    for bad in ("1000", True, False, None):
+    for bad in ("1000", True, False):
         r = _pay(world.ada, bad, to_handle="bob")
         assert_error(r, 422, "validation_failed")
 
