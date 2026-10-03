@@ -823,13 +823,13 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 		for _, t := range transfers {
 			fh, ek := stringField(t, "from_handle")
 			if ek != errNone {
-				b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid from_handle")
-				return http.StatusBadRequest, b, f, true
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid from_handle")
+				return http.StatusUnprocessableEntity, b, f, true
 			}
 			th, ek := stringField(t, "to_handle")
 			if ek != errNone {
-				b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid to_handle")
-				return http.StatusBadRequest, b, f, true
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid to_handle")
+				return http.StatusUnprocessableEntity, b, f, true
 			}
 			if fh == th {
 				b, f := errResp(http.StatusUnprocessableEntity, "self_payment", "self payment")
@@ -846,13 +846,13 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 				return http.StatusUnprocessableEntity, b, f, true
 			}
 			if ek == errMalformed {
-				b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid note")
-				return http.StatusBadRequest, b, f, true
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid note")
+				return http.StatusUnprocessableEntity, b, f, true
 			}
 			vis, ek := optionalStringField(t, "visibility", "public")
 			if ek == errMalformed {
-				b, f := errResp(http.StatusBadRequest, "malformed_request", "invalid visibility")
-				return http.StatusBadRequest, b, f, true
+				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid visibility")
+				return http.StatusUnprocessableEntity, b, f, true
 			}
 			if vis != "public" && vis != "private" {
 				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid visibility")
