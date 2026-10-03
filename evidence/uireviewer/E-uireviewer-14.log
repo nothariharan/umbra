@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File evidence/uireviewer/run_auth_ui_subset.ps1
+..................                                                       [100%]
+18 passed in 36.18s
+
+exit 0
