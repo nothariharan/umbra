@@ -22,7 +22,7 @@ CHECKS = [
     ("S1-C15", "S1-R35", "decline/cancel idempotent with forbidden and not_pending cases"),
     ("S1-C16", "S1-R36,S1-R23", "GET /requests filters, pagination, bad integer queries"),
     ("S1-C17", "S1-R37,S1-R38", "POST /splits shares and rounding table"),
-    ("S1-C18", "S1-R20,S1-R21,S1-R39", "GET /activity visibility and pagination"),
+    ("S1-C18", "S1-R20,S1-R21,S1-R39", "GET /activity: cy keeps public after private ada-bob pay (S1-U9); parties see both; pagination"),
     ("S1-C20", "S1-R22", "4xx/5xx error envelope code and message"),
     ("S1-C21", "S1-R23,S1-R29", "Idempotency-Key length and limit/offset ranges"),
     ("S1-C22", "S1-R29", "idempotency replay, reuse, post-4xx reuse on POST /payments"),

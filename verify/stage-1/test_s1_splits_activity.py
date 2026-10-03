@@ -44,11 +44,20 @@ def test_s1_c17_split_rounding_table(reset, api, amount, n, expected):
 
 
 def test_s1_c18_activity_visibility(world, pay):
-    assert_status(pay(world.ada, to_handle="bob", amount=100, visibility="public"), 201)
+    """S1-U9: cy keeps the public ada→bob payment after a later private one."""
+    pub = assert_status(pay(world.ada, to_handle="bob", amount=100, visibility="public"), 201).json()
     assert len(world.cy.get("/activity").json()["payments"]) == 1
-    assert_status(pay(world.ada, to_handle="bob", amount=50, visibility="private"), 201)
-    assert world.cy.get("/activity").json()["payments"] == []
-    assert len(world.ada.get("/activity").json()["payments"]) == 2
+    priv = assert_status(pay(world.ada, to_handle="bob", amount=50, visibility="private"), 201).json()
+    cy_feed = world.cy.get("/activity").json()["payments"]
+    assert len(cy_feed) == 1, "third party sees public only, not the private payment"
+    assert cy_feed[0]["payment_id"] == pub["payment_id"]
+    assert cy_feed[0]["visibility"] == "public" and cy_feed[0]["amount"] == 100
+    ada_feed = world.ada.get("/activity").json()["payments"]
+    assert len(ada_feed) == 2
+    assert len(world.bob.get("/activity").json()["payments"]) == 2
+    by_id = {p["payment_id"]: p for p in ada_feed}
+    assert by_id[pub["payment_id"]]["visibility"] == "public"
+    assert by_id[priv["payment_id"]]["visibility"] == "private"
 
 
 def test_s1_c18_requests_never_in_activity(world, ask):
