@@ -1,7 +1,14 @@
+diff --git a/stage-1/handlers.go b/stage-1/handlers.go
+index 94f359f..d8f21df 100644
 --- a/stage-1/handlers.go
 +++ b/stage-1/handlers.go
-@@ -749,6 +749,20 @@
- 	sv.store.mu.Lock()
+@@ -1,4 +1,4 @@
+-﻿package main
++package main
+ 
+ import (
+ 	"encoding/json"
+@@ -750,6 +750,22 @@ func (sv *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
  	defer sv.store.mu.Unlock()
  	var visible []Payment
  	for _, p := range sv.store.Payments {

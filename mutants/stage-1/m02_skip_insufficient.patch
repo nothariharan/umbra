@@ -1,6 +1,14 @@
+diff --git a/stage-1/handlers.go b/stage-1/handlers.go
+index 94f359f..5784441 100644
 --- a/stage-1/handlers.go
 +++ b/stage-1/handlers.go
-@@ -356,7 +356,7 @@
+@@ -1,4 +1,4 @@
+-﻿package main
++package main
+ 
+ import (
+ 	"encoding/json"
+@@ -356,7 +356,7 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
  			b, f := errResp(http.StatusUnprocessableEntity, "self_payment", "self payment")
  			return http.StatusUnprocessableEntity, b, f, true
  		}

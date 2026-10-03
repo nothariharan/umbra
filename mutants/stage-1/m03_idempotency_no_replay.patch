@@ -1,10 +1,11 @@
+diff --git a/stage-1/idempotency.go b/stage-1/idempotency.go
+index 7f37e62..d5d2a9a 100644
 --- a/stage-1/idempotency.go
 +++ b/stage-1/idempotency.go
-@@ -38,6 +38,8 @@
+@@ -38,6 +38,7 @@ type idemResult struct {
  
  func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int, []byte, bool), bool) {
  	s.mu.Lock()
-+	// mutant: drop stored successes so replays re-execute the handler
 +	delete(s.Idempotency, fullKey)
  	rec, ok := s.Idempotency[fullKey]
  	if ok {
