@@ -30,7 +30,8 @@ def test_s1_c9_signup_short_password_and_bad_email(world):
 
 
 def test_s1_c9_handle_taken_on_signup(world, api):
-    assert_error(world.ada.signup("ada@example.com", "correct horse", "Ada2"), 409, "handle_taken")
+    # New email whose derived handle collides with seeded ada, without email_taken.
+    assert_error(world.ada.signup("Ada@other.example.com", "correct horse", "Ada2"), 409, "handle_taken")
 
 
 def test_s1_c9_login_success_and_unauthenticated(world, api):

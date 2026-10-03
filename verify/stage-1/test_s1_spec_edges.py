@@ -52,10 +52,9 @@ def test_s1_c14_pay_body_empty_vs_public_are_distinct(world, ask):
     rq = assert_status(ask(amount=40), 201).json()["request_id"]
     key = new_key()
     assert_status(world.ada.post(f"/requests/{rq}/pay", json={}, idempotency_key=key), 201)
-    rq2 = assert_status(ask(amount=41), 201).json()["request_id"]
     assert_error(
         world.ada.post(
-            f"/requests/{rq2}/pay",
+            f"/requests/{rq}/pay",
             json={"visibility": "public"},
             idempotency_key=key,
         ),

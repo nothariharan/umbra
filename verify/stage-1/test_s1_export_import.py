@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pytest
 
+from lib import fixtures as fx
 from lib.http import assert_error, assert_status, new_key
 
 pytestmark = pytest.mark.stage(1)
@@ -20,10 +21,12 @@ def test_s1_c23_import_round_trip_preserves_payment(world, pay, reset):
     token = world.ada.token
     snap = world.ada.get("/_test/export", token=None).json()
     reset(world.fixture)
-    assert world.ada.get("/activity").json()["payments"] == []
-    assert_status(world.ada.post("/_test/import", json=snap, token=None), 204)
-    world.ada.token = token
-    feed = world.ada.get("/activity").json()["payments"]
+    ada = world.ada.__class__(world.ada.base_url)
+    ada.authenticate(fx.ADA["email"], fx.ADA["password"])
+    assert ada.get("/activity").json()["payments"] == []
+    assert_status(ada.post("/_test/import", json=snap, token=None), 204)
+    ada.token = token
+    feed = ada.get("/activity").json()["payments"]
     assert feed and feed[0]["payment_id"] == receipt["payment_id"]
     assert feed[0]["note"] == "keep"
 

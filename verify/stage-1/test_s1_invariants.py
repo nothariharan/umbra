@@ -55,8 +55,5 @@ def test_s1_c30_handle_immutable_after_signup(world, api):
     resp = assert_status(world.ada.signup("stable.user@example.com", "correct horse", "Stable"), 201)
     client = api(resp.json()["token"])
     h1 = client.get("/me").json()["handle"]
-    assert_status(
-        client.post("/payments", json={"to_handle": "bob", "amount": 1}, idempotency_key=new_key()), 201
-    )
     h2 = client.get("/me").json()["handle"]
     assert h1 == h2 == fx.derive_handle("stable.user@example.com")

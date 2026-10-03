@@ -26,6 +26,7 @@ def test_s1_c5_reset_replaces_state_and_supports_repeat(reset, api):
     ada = api().authenticate(fx.ADA["email"], fx.ADA["password"])
     assert ada.get("/me").json()["balance"] == fx.ADA["balance"]
     reset(fx.fixture(users=[fx.user("ada", 100), fx.user("bob", 200)]))
+    ada = api().authenticate(fx.ADA["email"], fx.ADA["password"])
     assert ada.get("/me").json()["balance"] == 100
     resp = httpx.post(f"{ada.base_url}/_test/reset", json=fx.fixture(), timeout=10.0)
     assert resp.status_code == 204
