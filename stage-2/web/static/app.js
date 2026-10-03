@@ -357,6 +357,8 @@
         body = out.body;
       } catch (_) {
         showError("pay-uncertain", "payment outcome unknown");
+        await refreshWallet();
+        await loadActivity();
         return;
       }
       if (res.ok) {
