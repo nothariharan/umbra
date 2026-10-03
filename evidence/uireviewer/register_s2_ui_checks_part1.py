@@ -57,7 +57,17 @@ CHECKS = [
     (
         "S2-UI-C10",
         "S2-R29",
-        "Playwright: capture/void controls on permitted open auths; authorization-error path reserved",
+        "Playwright: capture/void controls; captured fields; authorization-error on refused capture",
+    ),
+    (
+        "S2-UI-C11",
+        "S2-R28",
+        "Playwright: authorization-amount/expires on items; authorize-error on insufficient available",
+    ),
+    (
+        "S2-UI-C12",
+        "S2-R28,S2-R29",
+        "Playwright: wallet-held absent at zero; empty-authorizations when list empty",
     ),
 ]
 

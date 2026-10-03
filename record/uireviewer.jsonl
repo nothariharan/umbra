@@ -8,3 +8,5 @@
 {"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:47+00:00", "id": "S2-UI-C8", "req": ["S2-R12"], "text": "Playwright: split-* testids; split-preview shares match equal-split rule before POST"}
 {"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:48+00:00", "id": "S2-UI-C9", "req": ["S2-R28"], "text": "Playwright: /authorizations wallet-available headline, wallet-held when nonzero, authorize form"}
 {"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:02:48+00:00", "id": "S2-UI-C10", "req": ["S2-R29"], "text": "Playwright: capture/void controls on permitted open auths; authorization-error path reserved"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:04:02+00:00", "id": "S2-UI-C11", "req": ["S2-R28"], "text": "Playwright: authorization-amount/expires; authorize-error insufficient"}
+{"type": "check", "seat": "uireviewer", "at": "2026-10-03T15:04:03+00:00", "id": "S2-UI-C12", "req": ["S2-R28", "S2-R29"], "text": "Playwright: wallet-held absent at zero; empty-authorizations"}
