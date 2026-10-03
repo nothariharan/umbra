@@ -1,0 +1,57 @@
+$ powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C24
+.F                                                                       [100%]
+================================== FAILURES ===================================
+________________________ test_s1_c24_settlement_errors ________________________
+
+reset = <function reset.<locals>._reset at 0x00000229FFDC0220>
+api = <function api.<locals>._api at 0x00000229FFDC0040>
+
+    def test_s1_c24_settlement_errors(reset, api):
+        fixture = fx.fixture(settlement_operator_ids=[fx.ADA["id"]])
+        reset(fixture)
+        ada = api().authenticate(fx.ADA["email"], fx.ADA["password"])
+        assert_error(
+            ada.post(
+                "/settlements",
+                json={"transfers": [{"from_handle": "ada", "to_handle": "missing_x", "amount": 1}]},
+                idempotency_key=new_key(),
+            ),
+            404,
+            "not_found",
+        )
+>       assert_error(
+            ada.post(
+                "/settlements",
+                json={"transfers": [{"from_handle": "ada", "to_handle": "ada", "amount": 1}]},
+                idempotency_key=new_key(),
+            ),
+            422,
+            "self_payment",
+        )
+
+verify\stage-1\test_s1_settlements.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [422 Unprocessable Entity]>, status = 422
+code = 'self_payment'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 self_payment, got 422 validation_failed. POST /settlements -> 422 '{"error":{"code":"validation_failed","message":"self payment"}}'
+
+verify\stage-1\lib\http.py:114: AssertionError
+============================== warnings summary ===============================
+verify\stage-1\test_s1_settlements.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_settlements.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED verify/stage-1/test_s1_settlements.py::test_s1_c24_settlement_errors
+1 failed, 1 passed, 1 deselected, 1 warning in 2.86s
+
+exit 1

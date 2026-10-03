@@ -1,0 +1,26 @@
+$ powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C35
+.....                                                                    [100%]
+============================== warnings summary ===============================
+verify\stage-1\test_s1_spec_edges.py:10
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+5 passed, 1 warning in 22.26s
+Traceback (most recent call last):
+  File "C:\Users\HARIHARAN\Desktop\Band\band-work\result\scripts\lever.py", line 390, in <module>
+    main()
+  File "C:\Users\HARIHARAN\Desktop\Band\band-work\result\scripts\lever.py", line 386, in main
+    args.handler(args)
+  File "C:\Users\HARIHARAN\Desktop\Band\band-work\result\scripts\lever.py", line 259, in cmd_stop
+    state = json.loads(path.read_text())
+                       ^^^^^^^^^^^^^^^^
+  File "C:\Users\HARIHARAN\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HARIHARAN\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\HARIHARAN\\Desktop\\Band\\band-work\\result\\.umbra\\umbra-s2-04fc7c.json'
+
+exit 0
