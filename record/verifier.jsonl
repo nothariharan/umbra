@@ -99,3 +99,14 @@
 {"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:44+00:00", "id": "S2-C15", "req": ["S2-R17"], "text": "total conservation with holds and captures"}
 {"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:46+00:00", "id": "S2-C16", "req": ["S2-R20"], "text": "GET /me total, available, held fields"}
 {"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:47+00:00", "id": "S2-C17", "req": ["S2-R18", "S2-R21"], "text": "available funds gate; POST /authorizations idempotent hold"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:49+00:00", "id": "S2-C18", "req": ["S2-R19", "S2-R22"], "text": "capture idempotency and payment shape"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:51+00:00", "id": "S2-C19", "req": ["S2-R23"], "text": "capture/void error codes per spec table"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:54+00:00", "id": "S2-C20", "req": ["S2-R24"], "text": "POST void payer-only idempotent"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:56+00:00", "id": "S2-C21", "req": ["S2-R25"], "text": "GET /authorizations filters and party scope"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:58+00:00", "id": "S2-C22", "req": ["S2-R26"], "text": "authorization_ttl_seconds default and validation"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:57:59+00:00", "id": "S2-C23", "req": ["S2-R27"], "text": "expiry releases holds on read"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:58:01+00:00", "id": "S2-C24", "req": ["S2-R28"], "text": "authorizations UI wallet-available headline testids"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:58:02+00:00", "id": "S2-C25", "req": ["S2-R29"], "text": "capture/void controls and authorization-error"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:58:04+00:00", "id": "S2-C26", "req": ["S2-R1"], "text": "stage-1 API regression via bundled official+verifier stage 1 at SUBMIT"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:58:05+00:00", "id": "S2-C27", "req": ["S2-R30"], "text": "concurrent API correctness and invariants"}
+{"type": "check", "seat": "verifier", "at": "2026-10-03T14:58:07+00:00", "id": "S2-C32", "req": ["S2-R1", "S2-R2", "S2-R3", "S2-R4", "S2-R5", "S2-R6", "S2-R7", "S2-R8", "S2-R9", "S2-R10", "S2-R11", "S2-R12", "S2-R13", "S2-R14", "S2-R15", "S2-R16", "S2-R17", "S2-R18", "S2-R19", "S2-R20", "S2-R21", "S2-R22", "S2-R23", "S2-R24", "S2-R25", "S2-R26", "S2-R27", "S2-R28", "S2-R29", "S2-R30", "S2-R31"], "text": "official harness stage 2 isolated on SUBMIT"}
