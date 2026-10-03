@@ -1,0 +1,11 @@
+$ powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C33
+....                                                                     [100%]
+============================== warnings summary ===============================
+verify\stage-1\test_s1_spec_edges.py:10
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 1 warning in 17.60s
+
+exit 0
