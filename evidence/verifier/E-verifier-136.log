@@ -1,0 +1,176 @@
+$ powershell -NoProfile -File evidence/verifier/repro_s2_submit_r22_r23_r28.ps1
+......FFFF...............F                                               [100%]
+================================== FAILURES ===================================
+___________ test_s2_c19_capture_invalid_amount_validation_failed[0] ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001D04C580320>, bob=<s2lib.http.Api object at 0x000001D04C63D970>, cy=<s2lib.http.Api object at 0x000001D04C666150>)
+authorize = <function authorize.<locals>._auth at 0x000001D04C65E340>
+bad_amount = 0
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_261f365d35fb6780dddf7b6a573ca7cd/capture -> 201 '{"payment_id":"p_194e96d9e7715c83c45b22744e110b78","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_261f365d35fb6780dddf7b6a573ca7cd","created_at":"2026-10-03T21:29:20+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+__________ test_s2_c19_capture_invalid_amount_validation_failed[-1] ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001D04C675D90>, bob=<s2lib.http.Api object at 0x000001D04C677860>, cy=<s2lib.http.Api object at 0x000001D04C677560>)
+authorize = <function authorize.<locals>._auth at 0x000001D04C6A85E0>
+bad_amount = -1
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_180402a3d0355f75c70aff30a224bf02/capture -> 201 '{"payment_id":"p_1a4f9a0687a88394e8b11e16392cee46","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_180402a3d0355f75c70aff30a224bf02","created_at":"2026-10-03T21:29:24+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+__________ test_s2_c19_capture_invalid_amount_validation_failed[1.5] __________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001D04C664A10>, bob=<s2lib.http.Api object at 0x000001D04C6678F0>, cy=<s2lib.http.Api object at 0x000001D04C677980>)
+authorize = <function authorize.<locals>._auth at 0x000001D04C6A8AE0>
+bad_amount = 1.5
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_93f869a751f359190244fa788ab86fd5/capture -> 201 '{"payment_id":"p_0426290735268687ffaca1927c95f428","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_93f869a751f359190244fa788ab86fd5","created_at":"2026-10-03T21:29:27+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+___________ test_s2_c19_capture_invalid_amount_validation_failed[x] ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001D04C63FA10>, bob=<s2lib.http.Api object at 0x000001D04C677920>, cy=<s2lib.http.Api object at 0x000001D04C666360>)
+authorize = <function authorize.<locals>._auth at 0x000001D04C6A9080>
+bad_amount = 'x'
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_fbd5177d536b19a7377c90768ae74c89/capture -> 201 '{"payment_id":"p_26e5843fc0b6a019e3834090ce7d4bf6","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_fbd5177d536b19a7377c90768ae74c89","created_at":"2026-10-03T21:29:30+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+__________________ test_s2_c25_authorizations_screen_testids __________________
+
+browser_base = (<Browser type=<BrowserType name=chromium executable_path=C:\Users\HARIHARAN\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe> version=153.0.8010.12>, 'http://127.0.0.1:52774')
+
+    def test_s2_c25_authorizations_screen_testids(browser_base):
+        browser, base_url = browser_base
+        page = browser.new_page()
+        _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+        for tid in (
+            "wallet-available",
+            "authorize-handle",
+            "authorize-amount",
+            "authorize-submit",
+            "authorization-list",
+            "empty-authorizations",
+        ):
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: authorize-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:52774/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:52774/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'> = get_by_test_id('authorize-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:52774/authorizations'>.get_by_test_id
+
+verify\stage-2\test_s2_ui_testids.py:92: AssertionError
+============================== warnings summary ===============================
+verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[0]
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[-1]
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[1.5]
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[x]
+FAILED verify/stage-2/test_s2_ui_testids.py::test_s2_c25_authorizations_screen_testids
+5 failed, 21 passed, 3 warnings in 71.02s (0:01:11)
+
+exit 1

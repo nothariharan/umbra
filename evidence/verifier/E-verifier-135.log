@@ -1,0 +1,324 @@
+$ powershell -NoProfile -File evidence/verifier/repro_s2_verifier_suite.ps1
+........................................................................ [ 60%]
+............FFFF................FsssF.F........                          [100%]
+================================== FAILURES ===================================
+___________ test_s2_c19_capture_invalid_amount_validation_failed[0] ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001BD42848DD0>, bob=<s2lib.http.Api object at 0x000001BD4182C7A0>, cy=<s2lib.http.Api object at 0x000001BD4182C860>)
+authorize = <function authorize.<locals>._auth at 0x000001BD41825940>
+bad_amount = 0
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_e944787da41c53ff18f0483d62c1c5fc/capture -> 201 '{"payment_id":"p_c0f7ff6467d6a2f9046acf51e72e3855","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_e944787da41c53ff18f0483d62c1c5fc","created_at":"2026-10-03T21:27:21+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+__________ test_s2_c19_capture_invalid_amount_validation_failed[-1] ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001BD4180FC80>, bob=<s2lib.http.Api object at 0x000001BD4184A0C0>, cy=<s2lib.http.Api object at 0x000001BD42831220>)
+authorize = <function authorize.<locals>._auth at 0x000001BD428C62A0>
+bad_amount = -1
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_15160534058c07658f4e5c36b414bd5e/capture -> 201 '{"payment_id":"p_0e1519ae024bd7de925bf2ffd77b733b","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_15160534058c07658f4e5c36b414bd5e","created_at":"2026-10-03T21:27:24+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+__________ test_s2_c19_capture_invalid_amount_validation_failed[1.5] __________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001BD428305F0>, bob=<s2lib.http.Api object at 0x000001BD41849E80>, cy=<s2lib.http.Api object at 0x000001BD4180FEC0>)
+authorize = <function authorize.<locals>._auth at 0x000001BD428C6840>
+bad_amount = 1.5
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_b341b45ff53add7610d41401df246614/capture -> 201 '{"payment_id":"p_1b99ead4da457cd9c90ef56636797056","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_b341b45ff53add7610d41401df246614","created_at":"2026-10-03T21:27:27+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+___________ test_s2_c19_capture_invalid_amount_validation_failed[x] ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001BD4184B020>, bob=<s2lib.http.Api object at 0x000001BD41849820>, cy=<s2lib.http.Api object at 0x000001BD428A2090>)
+authorize = <function authorize.<locals>._auth at 0x000001BD428C6980>
+bad_amount = 'x'
+
+    @pytest.mark.parametrize("bad_amount", [0, -1, 1.5, "x"])
+    def test_s2_c19_capture_invalid_amount_validation_failed(world, authorize, bad_amount):
+        auth = assert_status(authorize(amount=500), 201).json()
+        aid = auth["authorization_id"]
+        resp = world.bob.post(
+            f"/authorizations/{aid}/capture",
+            json={"amount": bad_amount},
+            idempotency_key=new_key(),
+        )
+>       assert_error(resp, 422, "validation_failed")
+
+verify\stage-2\test_s2_authorization_spec.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_2bd07ef5a9a4bf59c1b46b3e334e0715/capture -> 201 '{"payment_id":"p_e07067e1e0cd350feb492c40bc40cbaf","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":500,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_2bd07ef5a9a4bf59c1b46b3e334e0715","created_at":"2026-10-03T21:27:30+00:00"}'
+
+verify\stage-2\s2lib\http.py:114: AssertionError
+_____________ test_s2_c6_pay_form_no_double_submit_without_change _____________
+
+base_url = 'http://127.0.0.1:58386'
+
+    @pytest.mark.skipif(not delivery.stage_dir_exists(), reason="stage-2 not present")
+    def test_s2_c6_pay_form_no_double_submit_without_change(base_url):
+        from playwright.sync_api import sync_playwright
+    
+        from s2lib import fixtures as fx
+    
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(f"{base_url}/login")
+            page.get_by_test_id("login-email").fill(fx.ADA["email"])
+            page.get_by_test_id("login-password").fill(fx.ADA["password"])
+            page.get_by_test_id("login-submit").click()
+            page.get_by_test_id("current-user").wait_for(state="visible", timeout=10_000)
+            page.goto(f"{base_url}/")
+            page.get_by_test_id("pay-handle").wait_for(state="visible", timeout=10_000)
+            page.get_by_test_id("pay-handle").fill("bob")
+            page.get_by_test_id("pay-amount").fill("1.00")
+            page.get_by_test_id("pay-submit").click()
+            bal1 = page.get_by_test_id("wallet-balance").get_attribute("data-amount")
+            page.get_by_test_id("pay-submit").click()
+            bal2 = page.get_by_test_id("wallet-balance").get_attribute("data-amount")
+>           assert bal1 == bal2
+E           AssertionError: assert '10000' == '9900'
+E             
+E             - 9900
+E             + 10000
+
+verify\stage-2\test_s2_ui_flows.py:35: AssertionError
+___________________ test_s2_c4_home_wallet_and_pay_testids ____________________
+
+browser_base = (<Browser type=<BrowserType name=chromium executable_path=C:\Users\HARIHARAN\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe> version=153.0.8010.12>, 'http://127.0.0.1:58386')
+
+    def test_s2_c4_home_wallet_and_pay_testids(browser_base):
+        browser, base_url = browser_base
+        page = browser.new_page(viewport={"width": 375, "height": 812})
+        _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/")
+        page.get_by_test_id("wallet-balance").wait_for(state="visible", timeout=10_000)
+        for tid in (
+            "wallet-balance",
+            "pay-handle",
+            "pay-amount",
+            "pay-note",
+            "pay-visibility",
+            "pay-submit",
+            "request-handle",
+            "request-amount",
+            "request-note",
+            "request-submit",
+            "activity-list",
+            "current-user",
+            "current-handle",
+            "logout-button",
+            "wallet-refresh",
+        ):
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: request-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:58386/'> selector='internal:testid=[data-testid="request-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:58386/'> selector='internal:testid=[data-testid="request-handle"s]'> = get_by_test_id('request-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:58386/'>.get_by_test_id
+
+verify\stage-2\test_s2_ui_testids.py:63: AssertionError
+__________________ test_s2_c25_authorizations_screen_testids __________________
+
+browser_base = (<Browser type=<BrowserType name=chromium executable_path=C:\Users\HARIHARAN\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe> version=153.0.8010.12>, 'http://127.0.0.1:58386')
+
+    def test_s2_c25_authorizations_screen_testids(browser_base):
+        browser, base_url = browser_base
+        page = browser.new_page()
+        _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+        page.goto(f"{base_url}/authorizations")
+        for tid in (
+            "wallet-available",
+            "authorize-handle",
+            "authorize-amount",
+            "authorize-submit",
+            "authorization-list",
+            "empty-authorizations",
+        ):
+>           assert page.get_by_test_id(tid).count() >= 1, tid
+E           AssertionError: authorize-handle
+E           assert 0 >= 1
+E            +  where 0 = count()
+E            +    where count = <Locator frame=<Frame name= url='http://127.0.0.1:58386/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'>.count
+E            +      where <Locator frame=<Frame name= url='http://127.0.0.1:58386/authorizations'> selector='internal:testid=[data-testid="authorize-handle"s]'> = get_by_test_id('authorize-handle')
+E            +        where get_by_test_id = <Page url='http://127.0.0.1:58386/authorizations'>.get_by_test_id
+
+verify\stage-2\test_s2_ui_testids.py:92: AssertionError
+============================== warnings summary ===============================
+verify\stage-1\test_s1_auth.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_auth.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_delivery.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_differential.py:12
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_differential.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_errors_load.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_errors_load.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_export_import.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_export_import.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_idempotency.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_idempotency.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_invariants.py:10
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_invariants.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_payments.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_payments.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_requests.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_requests.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_runtime.py:13
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_runtime.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_settlements.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_settlements.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_spec_edges.py:10
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-1\test_s1_splits_activity.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_concurrent_auth.py:9
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_concurrent_auth.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_delivery.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_differential.py:11
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_differential.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_regression_stage1.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_regression_stage1.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_routes_negotiation.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_routes_negotiation.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_ui_flows.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[0]
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[-1]
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[1.5]
+FAILED verify/stage-2/test_s2_authorization_spec.py::test_s2_c19_capture_invalid_amount_validation_failed[x]
+FAILED verify/stage-2/test_s2_ui_flows.py::test_s2_c6_pay_form_no_double_submit_without_change
+FAILED verify/stage-2/test_s2_ui_testids.py::test_s2_c4_home_wallet_and_pay_testids
+FAILED verify/stage-2/test_s2_ui_testids.py::test_s2_c25_authorizations_screen_testids
+7 failed, 109 passed, 3 skipped, 22 warnings in 378.61s (0:06:18)
+
+exit 1
