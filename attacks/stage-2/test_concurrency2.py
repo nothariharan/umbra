@@ -77,7 +77,7 @@ def test_concurrent_partial_captures_never_exceed_authorized(world, conservation
     conservation()
 
 
-def test_concurrent_authorizations_cannot_overspend_available(boot, conservation):
+def test_concurrent_authorizations_cannot_overspend_available(boot):
     ns = boot(fixture2(users=[s1_user("ada", 1_000), s1_user("bob", 0),
                               s1_user("cy", 0)]), handles=("ada", "bob", "cy"))
     n = 40
@@ -93,10 +93,11 @@ def test_concurrent_authorizations_cannot_overspend_available(boot, conservation
     ada = wallet(ns.ada)
     assert ada["available"] >= 0, "available went negative"
     assert ada["held"] == 100 * len(ok)
-    conservation()
+    got = sum(c.me_full()["total"] for c in ns.all)
+    assert got == ns.total, f"money created or destroyed: {got} != {ns.total}"
 
 
-def test_payment_and_authorization_race_uses_available_once(boot, conservation):
+def test_payment_and_authorization_race_uses_available_once(boot):
     ns = boot(fixture2(users=[s1_user("ada", 1_000), s1_user("bob", 0),
                               s1_user("cy", 0)]), handles=("ada", "bob", "cy"))
 
@@ -119,7 +120,8 @@ def test_payment_and_authorization_race_uses_available_once(boot, conservation):
         assert (ada["total"], ada["held"], ada["available"]) == (400, 0, 400)
     else:
         assert (ada["total"], ada["held"], ada["available"]) == (1_000, 600, 400)
-    conservation()
+    got = sum(c.me_full()["total"] for c in ns.all)
+    assert got == ns.total, f"money created or destroyed: {got} != {ns.total}"
 
 
 def test_capture_and_void_race_is_serialisable(world, conservation):

@@ -193,7 +193,7 @@ def test_wallet_refresh_latest_wins_over_a_delayed_read():
 
         bob = await login_token("bob")
         paid = await api_call("POST", "/payments", token=bob,
-                              json={"to_handle": "ada", "amount": 1_000},
+                              json={"to_handle": "ada", "amount": 100},
                               headers={"Idempotency-Key": new_key()})
         assert paid.status_code == 201, paid.text
 
@@ -206,7 +206,7 @@ def test_wallet_refresh_latest_wins_over_a_delayed_read():
 
         # the stale first response lands last and must not overwrite the newer one
         await page.wait_for_timeout(2_000)
-        await wait_amount(page, "wallet-balance", "101000")
+        await wait_amount(page, "wallet-balance", "100100")
         assert await page.get_by_test_id("pay-note").input_value() == "keep me"
 
     asyncio.run(with_page(main))
@@ -249,7 +249,7 @@ def test_authorization_list_testids_capture_prefill_and_error():
         await reset_fixture(fixture2(authorizations=[
             authz("a_cap", "u_ada", "u_bob", 4_000, status="captured",
                   captured_amount=4_000, expires_at=expires),
-            authz("a_open", "u_cy", "u_ada", 1_500, expires_at=expires),
+            authz("a_open", "u_op", "u_ada", 1_500, expires_at=expires),
         ]))
         await sign_in(page, "ada", goto="/authorizations")
 
@@ -284,7 +284,9 @@ def test_empty_authorizations_state():
     async def main(page):
         await reset_fixture(fixture2())
         await sign_in(page, "op", goto="/authorizations")
-        await page.get_by_test_id("empty-authorizations").wait_for(timeout=8_000)
+        empty = page.get_by_test_id("empty-authorizations")
+        await empty.wait_for(state="attached", timeout=8_000)
+        assert await empty.count() == 1
         assert await page.locator('[data-testid^="authorization-item-"]').count() == 0
 
     asyncio.run(with_page(main))

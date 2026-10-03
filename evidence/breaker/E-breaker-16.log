@@ -1,0 +1,765 @@
+$ python scripts/lever.py checks --suite breaker --stage 2 --rev a094b09847ed
+........................................................................ [ 48%]
+...................F............F...FF............................FFF.FF [ 96%]
+FFF...                                                                   [100%]
+================================== FAILURES ===================================
+_____________________ test_capture_invalid_amount_is_422 ______________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C6455850>, <attacklib2.AuthClient object at 0x00000219C63CE990>, <attacklib2.AuthClient object at 0x00000219C63CCF80>])
+
+    def test_capture_invalid_amount_is_422(world):
+        aid = open_authz(world, amount=2_000)
+        for amount in (0, -1, 1.5, "100"):
+            resp = world.bob.post(f"/authorizations/{aid}/capture",
+                                  json={"amount": amount},
+                                  headers={"Idempotency-Key": new_key()})
+>           assert_error(resp, 422, "validation_failed")
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_capture.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 422 validation_failed, got 201 None. POST /authorizations/a_3fa8efaf26fe20531200e4cbf17a2fcf/capture -> 201 '{"payment_id":"p_14f3c0723a7a515a9c5fb2e86ccb26ee","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":2000,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":"a_3fa8efaf26fe20531200e4cbf17a2fcf","created_at":"2026-10-03T15:57:54+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-1\attacklib.py:105: AssertionError
+________________ test_authorization_listing_scope_and_filters _________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...C60E4290>, <attacklib2.AuthClient object at 0x00000219C640F110>, <attacklib2.AuthClient object at 0x00000219C607DC70>])
+
+    def test_authorization_listing_scope_and_filters(world):
+        a_out = open_authz(world, frm="ada", to="bob", amount=1_000)
+>       a_in = open_authz(world, frm="cy", to="ada", amount=2_000)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_capture.py:224: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_capture.py:31: in open_authz
+    assert_status(resp, 201)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 201
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 201. POST /authorizations -> 409 '{"error":{"code":"insufficient_funds","message":"insufficient funds"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-1\attacklib.py:82: AssertionError
+__________ test_concurrent_authorizations_cannot_overspend_available __________
+
+boot = <function boot.<locals>._boot at 0x00000219C609C040>
+conservation = <function conservation.<locals>._check at 0x00000219C5E8DBC0>
+
+    def test_concurrent_authorizations_cannot_overspend_available(boot, conservation):
+        ns = boot(fixture2(users=[s1_user("ada", 1_000), s1_user("bob", 0),
+                                  s1_user("cy", 0)]), handles=("ada", "bob", "cy"))
+        n = 40
+    
+        def attempt(_i):
+            return ns.ada.authorize("bob", 100, key=new_key())
+    
+        results = race(attempt, n)
+        assert all(r.status_code < 500 for r in results), \
+            f"5xx under concurrent authorize: {[r.status_code for r in results]}"
+        ok = [r for r in results if r.status_code == 201]
+        assert len(ok) <= 10, f"holds {len(ok) * 100} exceeded total 1000"
+        ada = wallet(ns.ada)
+        assert ada["available"] >= 0, "available went negative"
+        assert ada["held"] == 100 * len(ok)
+>       conservation()
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_concurrency2.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\conftest.py:105: in _check
+    got = sum(c.me_full().get("total", c.me_full()["balance"]) for c in world.all)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\conftest.py:105: in <genexpr>
+    got = sum(c.me_full().get("total", c.me_full()["balance"]) for c in world.all)
+              ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <attacklib2.AuthClient object at 0x00000219C5D31640>
+
+    def me_full(self) -> dict:
+        resp = self.get("/me")
+>       assert resp.status_code == 200, describe(resp)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: GET /me -> 401 '{"error":{"code":"unauthenticated","message":"authentication required"}}\n'
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\attacklib2.py:113: AssertionError
+___________ test_payment_and_authorization_race_uses_available_once ___________
+
+boot = <function boot.<locals>._boot at 0x00000219C5E8D8A0>
+conservation = <function conservation.<locals>._check at 0x00000219C5E8F920>
+
+    def test_payment_and_authorization_race_uses_available_once(boot, conservation):
+        ns = boot(fixture2(users=[s1_user("ada", 1_000), s1_user("bob", 0),
+                                  s1_user("cy", 0)]), handles=("ada", "bob", "cy"))
+    
+        def pay(_i):
+            return ns.ada.post("/payments", json={"to_handle": "bob", "amount": 600},
+                               headers={"Idempotency-Key": new_key()})
+    
+        def hold(_i):
+            return ns.ada.authorize("cy", 600, key=new_key())
+    
+        results = race(lambda i: pay(i) if i == 0 else hold(i), 2)
+        assert all(r.status_code < 500 for r in results)
+        codes = sorted(r.status_code for r in results)
+        assert codes == [201, 409], f"exactly one of payment/hold may win: {codes}"
+        ada = wallet(ns.ada)
+        assert ada["available"] >= 0
+        payment_won = any(r.status_code == 201 and r.request.url.path == "/payments"
+                          for r in results)
+        if payment_won:
+            assert (ada["total"], ada["held"], ada["available"]) == (400, 0, 400)
+        else:
+            assert (ada["total"], ada["held"], ada["available"]) == (1_000, 600, 400)
+>       conservation()
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_concurrency2.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\conftest.py:105: in _check
+    got = sum(c.me_full().get("total", c.me_full()["balance"]) for c in world.all)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\conftest.py:105: in <genexpr>
+    got = sum(c.me_full().get("total", c.me_full()["balance"]) for c in world.all)
+              ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <attacklib2.AuthClient object at 0x00000219C60A0F20>
+
+    def me_full(self) -> dict:
+        resp = self.get("/me")
+>       assert resp.status_code == 200, describe(resp)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: GET /me -> 401 '{"error":{"code":"unauthenticated","message":"authentication required"}}\n'
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\attacklib2.py:113: AssertionError
+_____ test_lost_payment_response_is_uncertain_then_retry_moves_money_once _____
+
+    def test_lost_payment_response_is_uncertain_then_retry_moves_money_once():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+    
+            state = {"n": 0}
+    
+            async def handler(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    await route.fetch()      # the server commits
+                    await route.abort()      # ... but the browser never sees the response
+                else:
+                    await route.continue_()
+    
+            await page.route("**/payments", handler)
+            await page.get_by_test_id("pay-handle").fill("bob")
+            await page.get_by_test_id("pay-amount").fill("1.00")
+            await page.get_by_test_id("pay-submit").click()
+    
+            uncertain = page.get_by_test_id("pay-uncertain")
+            await uncertain.wait_for(timeout=8_000)
+            assert (await uncertain.inner_text()).strip() != "", "pay-uncertain must be nonempty"
+            assert await page.get_by_test_id("pay-error").count() == 0, \
+                "an unknown outcome is not a confirmed rejection"
+    
+            # unchanged retry with the same key and body
+            await page.get_by_test_id("pay-submit").click()
+            await uncertain.wait_for(state="detached", timeout=10_000)
+            await wait_amount(page, "wallet-balance", "99000")
+            assert await page.locator('[data-testid^="activity-item-"]').count() == 1
+    
+            bob = await login_token("bob")
+            feed = await api_call("GET", "/activity", token=bob)
+            assert len(feed.json()["payments"]) == 1, "money must move exactly once"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:76: in main
+    await uncertain.wait_for(timeout=8_000)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\async_api\_generated.py:20672: in wait_for
+    await self._impl_obj.wait_for(timeout=to_milliseconds(timeout), state=state)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:752: in wait_for
+    await self._frame.wait_for_selector(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:395: in wait_for_selector
+    await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000219C642BE00>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000219C84AC360>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 8000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("pay-uncertain") to be visible
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+____ test_remote_spend_shows_pay_error_and_refreshes_without_clearing_form ____
+
+    def test_remote_spend_shows_pay_error_and_refreshes_without_clearing_form():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+    
+            ada = await login_token("ada")
+            spent = await api_call("POST", "/payments", token=ada,
+                                   json={"to_handle": "bob", "amount": 99_000},
+                                   headers={"Idempotency-Key": new_key()})
+            assert spent.status_code == 201, spent.text
+    
+            await page.get_by_test_id("pay-handle").fill("bob")
+            await page.get_by_test_id("pay-amount").fill("50.00")
+            await page.get_by_test_id("pay-submit").click()
+            await page.get_by_test_id("pay-error").wait_for(timeout=8_000)
+            await wait_amount(page, "wallet-balance", "1000")
+            assert await page.get_by_test_id("pay-handle").input_value() == "bob"
+            assert await page.get_by_test_id("pay-amount").input_value() == "50.00"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:110: in main
+    await wait_amount(page, "wallet-balance", "1000")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:56620/'>, testid = 'wallet-balance'
+value = '1000', timeout = 8000
+
+    async def wait_amount(page, testid: str, value: str, timeout: float = 8_000):
+        loc = page.get_by_test_id(testid)
+        await loc.wait_for(timeout=timeout)
+        for _ in range(int(timeout / 100)):
+            if await loc.get_attribute("data-amount") == value:
+                return
+            await page.wait_for_timeout(100)
+        got = await loc.get_attribute("data-amount")
+>       raise AssertionError(f"{testid} data-amount is {got!r}, expected {value!r}")
+E       AssertionError: wallet-balance data-amount is '100000', expected '1000'
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:73: AssertionError
+______ test_remotely_cancelled_request_shows_error_and_drops_pay_button _______
+
+    def test_remotely_cancelled_request_shows_error_and_drops_pay_button():
+        async def main(page):
+            await reset_fixture(fixture2())
+            bob = await login_token("bob")
+            made = await api_call("POST", "/requests", token=bob,
+                                  json={"payer_handle": "ada", "amount": 500},
+                                  headers={"Idempotency-Key": new_key()})
+            assert made.status_code == 201, made.text
+            rid = made.json()["request_id"]
+    
+            await sign_in(page, "ada", goto="/requests")
+            await page.get_by_test_id(f"request-pay-{rid}").wait_for(timeout=8_000)
+    
+            cancelled = await api_call("POST", f"/requests/{rid}/cancel", token=bob)
+            assert cancelled.status_code == 200, cancelled.text
+    
+            await page.get_by_test_id(f"request-pay-{rid}").click()
+            await page.get_by_test_id("request-error").wait_for(timeout=8_000)
+            await page.get_by_test_id(f"request-pay-{rid}").wait_for(state="detached",
+                                                                     timeout=8_000)
+            status = await page.get_by_test_id(f"request-item-{rid}").get_attribute("data-status")
+            assert status == "cancelled", f"stale pay button survived; status={status}"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:135: in main
+    await page.get_by_test_id(f"request-pay-{rid}").wait_for(state="detached",
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\async_api\_generated.py:20672: in wait_for
+    await self._impl_obj.wait_for(timeout=to_milliseconds(timeout), state=state)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:752: in wait_for
+    await self._frame.wait_for_selector(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:395: in wait_for_selector
+    await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000219C607E630>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000219C84AC7C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 8000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("request-pay-rq_f7373e27f75b1f469bd188d5e7f8a483") to be detached
+E               19 � locator resolved to visible <button type="button" data-testid="request-pay-rq_f7373e27f75b1f469bd188d5e7f8a483">Pay</button>
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_____________ test_wallet_refresh_latest_wins_over_a_delayed_read _____________
+
+    def test_wallet_refresh_latest_wins_over_a_delayed_read():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+            await page.get_by_test_id("pay-note").fill("keep me")
+    
+            state = {"n": 0}
+    
+            async def handler(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    resp = await route.fetch()
+                    state["fetched"] = True
+                    await asyncio.sleep(1.5)
+                    await route.fulfill(response=resp)
+                else:
+                    await route.continue_()
+    
+            await page.route("**/me", handler)
+            await page.get_by_test_id("wallet-refresh").click()
+            for _ in range(50):
+                if state.get("fetched"):
+                    break
+                await page.wait_for_timeout(100)
+            assert state.get("fetched"), "the refresh button did not issue a /me read"
+    
+            bob = await login_token("bob")
+            paid = await api_call("POST", "/payments", token=bob,
+                                  json={"to_handle": "ada", "amount": 1_000},
+                                  headers={"Idempotency-Key": new_key()})
+            assert paid.status_code == 201, paid.text
+    
+            await page.get_by_test_id("wallet-refresh").click()
+            for _ in range(50):
+                if state["n"] >= 2:
+                    break
+                await page.wait_for_timeout(100)
+            assert state["n"] >= 2, "the refresh button did not issue a read"
+    
+            # the stale first response lands last and must not overwrite the newer one
+            await page.wait_for_timeout(2_000)
+            await wait_amount(page, "wallet-balance", "101000")
+            assert await page.get_by_test_id("pay-note").input_value() == "keep me"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:56620/'>
+
+    async def main(page):
+        await reset_fixture(fixture2())
+        await sign_in(page, "ada", goto="/")
+        await wait_amount(page, "wallet-balance", "100000")
+        await page.get_by_test_id("pay-note").fill("keep me")
+    
+        state = {"n": 0}
+    
+        async def handler(route):
+            state["n"] += 1
+            if state["n"] == 1:
+                resp = await route.fetch()
+                state["fetched"] = True
+                await asyncio.sleep(1.5)
+                await route.fulfill(response=resp)
+            else:
+                await route.continue_()
+    
+        await page.route("**/me", handler)
+        await page.get_by_test_id("wallet-refresh").click()
+        for _ in range(50):
+            if state.get("fetched"):
+                break
+            await page.wait_for_timeout(100)
+        assert state.get("fetched"), "the refresh button did not issue a /me read"
+    
+        bob = await login_token("bob")
+        paid = await api_call("POST", "/payments", token=bob,
+                              json={"to_handle": "ada", "amount": 1_000},
+                              headers={"Idempotency-Key": new_key()})
+>       assert paid.status_code == 201, paid.text
+E       AssertionError: {"error":{"code":"insufficient_funds","message":"insufficient funds"}}
+E       assert 409 == 201
+E        +  where 409 = <Response [409 Conflict]>.status_code
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:198: AssertionError
+__ test_authorizations_page_shows_available_headline_and_permitted_controls ___
+
+    def test_authorizations_page_shows_available_headline_and_permitted_controls():
+        async def main(page):
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+            await sign_in(page, "ada", goto="/authorizations")
+    
+            await wait_amount(page, "wallet-available", "98000")
+            await wait_amount(page, "wallet-balance", "100000")
+            await wait_amount(page, "wallet-held", "2000")
+            for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                        "authorize-visibility", "authorize-submit"):
+                assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+    
+            item = page.get_by_test_id("authorization-item-a_seed")
+            await item.wait_for(timeout=8_000)
+            assert await item.get_attribute("data-status") == "open"
+            assert await page.get_by_test_id("authorization-void-a_seed").count() == 1, \
+                "the payer must see a void control on an open outgoing authorization"
+            assert await page.get_by_test_id("authorization-capture-a_seed").count() == 0, \
+                "the payer must not see a capture control"
+    
+            # creating a hold through the UI updates the headline
+            await page.get_by_test_id("authorize-handle").fill("bob")
+            await page.get_by_test_id("authorize-amount").fill("5.00")
+            await page.get_by_test_id("authorize-submit").click()
+            await wait_amount(page, "wallet-held", "2500")
+            assert await page.get_by_test_id("authorization-error").count() == 0
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:56620/authorizations'>
+
+    async def main(page):
+        await reset_fixture(fixture2(authorizations=[
+            authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+        await sign_in(page, "ada", goto="/authorizations")
+    
+        await wait_amount(page, "wallet-available", "98000")
+        await wait_amount(page, "wallet-balance", "100000")
+        await wait_amount(page, "wallet-held", "2000")
+        for tid in ("authorize-handle", "authorize-amount", "authorize-note",
+                    "authorize-visibility", "authorize-submit"):
+>           assert await page.get_by_test_id(tid).count() >= 1, f"missing {tid}"
+E           AssertionError: missing authorize-handle
+E           assert 0 >= 1
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:226: AssertionError
+__________ test_authorization_list_testids_capture_prefill_and_error __________
+
+    def test_authorization_list_testids_capture_prefill_and_error():
+        async def main(page):
+            expires = future_iso(7200)
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_cap", "u_ada", "u_bob", 4_000, status="captured",
+                      captured_amount=4_000, expires_at=expires),
+                authz("a_open", "u_cy", "u_ada", 1_500, expires_at=expires),
+            ]))
+            await sign_in(page, "ada", goto="/authorizations")
+    
+            cap = page.get_by_test_id("authorization-item-a_cap")
+            await cap.wait_for(timeout=8_000)
+            assert await cap.get_attribute("data-status") == "captured"
+            assert await page.get_by_test_id("authorization-captured-a_cap").count() == 1, \
+                "authorization-captured must be present on a captured authorization"
+    
+            token = await login_token("ada")
+            listing = await api_call("GET", "/authorizations", token=token)
+            server_expires = next(a["expires_at"] for a in listing.json()["authorizations"]
+                                  if a["authorization_id"] == "a_cap")
+            assert await page.get_by_test_id("authorization-expires-a_cap").inner_text() == \
+                server_expires, "authorization-expires must echo the API expires_at"
+    
+            # an incoming open authorization offers a prefilled capture amount
+            amount = page.get_by_test_id("authorization-capture-amount-a_open")
+            await amount.wait_for(timeout=8_000)
+            assert (await amount.input_value()) == "15.00", \
+                "the capture input must be prefilled with the remaining decimal amount"
+    
+            # over-capturing is refused and surfaces authorization-error
+            await amount.fill("20.00")
+            await page.get_by_test_id("authorization-capture-a_open").click()
+            await page.get_by_test_id("authorization-error").wait_for(timeout=8_000)
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:249: in main
+    await reset_fixture(fixture2(authorizations=[
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+body = {'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'password': 'correct horse...'id': 'u_op', 'email': 'op@example.com', 'password': 'correct horse', 'display_name': 'Op', ...}], 'payments': [], ...}
+
+    async def reset_fixture(body: dict) -> None:
+        resp = await api_call("POST", "/_test/reset", json=body)
+>       assert resp.status_code == 204, resp.text
+               ^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {"error":{"code":"validation_failed","message":"authorization holds exceed balance"}}
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:58: AssertionError
+_______________________ test_empty_authorizations_state _______________________
+
+    def test_empty_authorizations_state():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "op", goto="/authorizations")
+            await page.get_by_test_id("empty-authorizations").wait_for(timeout=8_000)
+            assert await page.locator('[data-testid^="authorization-item-"]').count() == 0
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:290: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:287: in main
+    await page.get_by_test_id("empty-authorizations").wait_for(timeout=8_000)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\async_api\_generated.py:20672: in wait_for
+    await self._impl_obj.wait_for(timeout=to_milliseconds(timeout), state=state)
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:752: in wait_for
+    await self._frame.wait_for_selector(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:395: in wait_for_selector
+    await self._channel.send(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000219C6427260>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000219CDDCBF60>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 8000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("empty-authorizations") to be visible
+E               18 � locator resolved to hidden <div data-testid="empty-authorizations"></div>
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+_________ test_receiver_sees_capture_not_void_and_decimal_validation __________
+
+    def test_receiver_sees_capture_not_void_and_decimal_validation():
+        async def main(page):
+            await reset_fixture(fixture2(authorizations=[
+                authz("a_seed", "u_ada", "u_bob", 2_000, expires_at=future_iso(7200))]))
+            await sign_in(page, "bob", goto="/authorizations")
+    
+            item = page.get_by_test_id("authorization-item-a_seed")
+            await item.wait_for(timeout=8_000)
+            assert await page.get_by_test_id("authorization-capture-a_seed").count() == 1, \
+                "the receiver must see a capture control"
+            assert await page.get_by_test_id("authorization-void-a_seed").count() == 0
+    
+            # a decimal with more places than minor_units must not be submitted
+            before = await page.locator('[data-testid^="authorization-item-"]').count()
+            await page.get_by_test_id("authorize-handle").fill("cy")
+            await page.get_by_test_id("authorize-amount").fill("1.005")
+            await page.get_by_test_id("authorize-submit").click()
+            await page.get_by_test_id("authorize-error").wait_for(timeout=8_000)
+            after = await page.locator('[data-testid^="authorization-item-"]').count()
+            assert before == after, "an invalid decimal created a hold"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py:307: in main
+    await page.get_by_test_id("authorize-handle").fill("cy")
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\async_api\_generated.py:18412: in fill
+    await self._impl_obj.fill(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_locator.py:219: in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:637: in fill
+    await self._fill(**locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_frame.py:649: in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:76: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x00000219C640A270>
+cb = <function Channel.send.<locals>.<lambda> at 0x00000219CDD451C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        parsed_st = _attach_api_call_information(
+            getattr(task, "__pw_stack__", None) or _capture_stack_trace(),
+            is_internal,
+            title,
+        )
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for get_by_test_id("authorize-handle")
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\playwright\_impl\_connection.py:632: TimeoutError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_capture.py::test_capture_invalid_amount_is_422
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_capture.py::test_authorization_listing_scope_and_filters
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_concurrency2.py::test_concurrent_authorizations_cannot_overspend_available
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_concurrency2.py::test_payment_and_authorization_race_uses_available_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_lost_payment_response_is_uncertain_then_retry_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_remote_spend_shows_pay_error_and_refreshes_without_clearing_form
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_remotely_cancelled_request_shows_error_and_drops_pay_button
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_wallet_refresh_latest_wins_over_a_delayed_read
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_authorizations_page_shows_available_headline_and_permitted_controls
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_authorization_list_testids_capture_prefill_and_error
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_empty_authorizations_state
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-a094b098-uuudnv5x\repo\attacks\stage-2\test_ui_race.py::test_receiver_sees_capture_not_void_and_decimal_validation
+12 failed, 138 passed in 1195.22s (0:19:55)
+breaker stage 2: FAIL (exit 1)
+
+timed out after 900s
+exit 124

@@ -221,7 +221,7 @@ def test_void_after_partial_capture_releases_only_remainder(world, conservation)
 
 def test_authorization_listing_scope_and_filters(world):
     a_out = open_authz(world, frm="ada", to="bob", amount=1_000)
-    a_in = open_authz(world, frm="cy", to="ada", amount=2_000)
+    a_in = open_authz(world, frm="cy", to="ada", amount=200)  # cy holds only 250
     a_void = open_authz(world, frm="ada", to="cy", amount=3_000)
     assert_status(world.ada.void(a_void), 200)
 
