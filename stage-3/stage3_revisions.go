@@ -303,8 +303,6 @@ func (s *Store) applyCorrectionLocked(pid string, u *User, expectedRev int, amou
 	from.Balance -= delta
 	to.Balance += delta
 	s.PaymentRevisions[pid] = append(s.PaymentRevisions[pid], newRev)
-	p.Amount = amount
-	s.Payments[idx] = p
 	return newRev, httpStatusCreated, ""
 }
 
