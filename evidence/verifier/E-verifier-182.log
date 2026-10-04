@@ -1,0 +1,59 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_pytest.ps1 -Node verify/stage-3/test_s3_spec_part2.py::test_s3_c22_snapshot_has_more_and_unknown_token
+F                                                                        [100%]
+================================== FAILURES ===================================
+_______________ test_s3_c22_snapshot_has_more_and_unknown_token _______________
+
+reset = <function reset.<locals>._reset at 0x0000018CA09B11C0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000018CA09BC3B0>, bob=<s3lib.http.Api object at 0x0000018C9FFAF9E0>, cy=<s3lib.http.Api object at 0x0000018CA0A7A720>)
+
+    def test_s3_c22_snapshot_has_more_and_unknown_token(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": f"p{i}",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10 + i,
+                    "visibility": "private",
+                    "created_at": f"2026-09-20T{10+i:02d}:00:00+00:00",
+                }
+                for i in range(3)
+            ]
+        )
+        reset(fx_body)
+        first = assert_status(world.ada.get("/statement"), 200).json()
+        token = first["snapshot"]
+        page0 = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 2, "offset": 0}),
+            200,
+        ).json()
+        assert page0.get("has_more") is True
+        page2 = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 2, "offset": 2}),
+            200,
+        ).json()
+        assert page2.get("has_more") is False
+        past = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 10, "offset": 99}),
+            200,
+        ).json()
+        assert past["entries"] == []
+        assert past.get("has_more") is False
+        assert_error(world.ada.get("/statement", params={"snapshot": "bogus-token"}), 404, "not_found")
+        assert_error(world.bob.get("/statement", params={"snapshot": token}), 404, "not_found")
+        ignored = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "foo": "bar"}),
+            200,
+        ).json()
+>       assert ignored["entries"] == page0["entries"]
+E       AssertionError: assert [{'payment': ...fter': 10000}] == [{'payment': ...fter': 10012}]
+E         
+E         Left contains one more item: {'payment': {'payment_id': 'p2', 'from_user_id': 'u_ada', 'from_handle': 'ada', 'to_user_id': 'u_bob', ...}, 'delta': -12, 'balance_after': 10000}
+E         Use -v to get more diff
+
+verify\stage-3\test_s3_spec_part2.py:163: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c22_snapshot_has_more_and_unknown_token
+1 failed in 1.93s
+
+exit 1

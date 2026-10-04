@@ -1,0 +1,58 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_pytest.ps1 -Node verify/stage-3/test_s3_settlement_holds.py::test_s3_c24_settlement_member_immutable
+F                                                                        [100%]
+================================== FAILURES ===================================
+___________________ test_s3_c24_settlement_member_immutable ___________________
+
+reset = <function reset.<locals>._reset at 0x0000028BE9D0C2C0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000028BE9CDA810>, bob=<s3lib.http.Api object at 0x0000028BE9AEF9E0>, cy=<s3lib.http.Api object at 0x0000028BE9AEC9B0>)
+
+    def test_s3_c24_settlement_member_immutable(reset, world):
+        fx_body = fx.fixture(
+            settlement_operator_ids=[fx.ADA["id"]],
+            payments=[
+                {
+                    "id": "settle_p",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 100,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                    "settlement_id": "s1",
+                }
+            ],
+        )
+        reset(fx_body)
+>       assert_error(
+            world.ada.post(
+                "/payments/settle_p/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 90,
+                    "effective_at": "2026-09-20T12:00:00+00:00",
+                    "reason": "nope",
+                },
+                idempotency_key=new_key(),
+            ),
+            422,
+            "linked_payment_immutable",
+        )
+
+verify\stage-3\test_s3_settlement_holds.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'linked_payment_immutable'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 linked_payment_immutable, got 201 None. POST /payments/settle_p/corrections -> 201 '{"amount":90,"effective_at":"2026-09-20T12:00:00+00:00","payment_id":"settle_p","reason":"nope","recorded_at":"2026-10-04T06:02:06+00:00","revision":2}'
+
+verify\stage-3\s3lib\http.py:114: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_settlement_holds.py::test_s3_c24_settlement_member_immutable
+1 failed in 1.85s
+
+exit 1

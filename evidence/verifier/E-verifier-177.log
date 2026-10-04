@@ -1,97 +1,296 @@
-$ python scripts/lever.py checks --suite verifier --stage 2 --rev b013f5e17143 --isolated
-........................................................................ [ 62%]
-.............................sss...........                              [100%]
-============================== warnings summary ===============================
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_auth.py:11
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_auth.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+$ python scripts/lever.py checks --suite verifier --stage 3 --rev 475ca690ab88 --isolated
+........................................................................ [ 44%]
+..................................sss.....................F...........F. [ 89%]
+.......FF..F..F..                                                        [100%]
+================================== FAILURES ===================================
+____________________ test_s3_c21_corrected_statement_order ____________________
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_delivery.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+reset = <function reset.<locals>._reset at 0x000002A20ACC6660>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002A2099A6FF0>, bob=<s3lib.http.Api object at 0x000002A209511A30>, cy=<s3lib.http.Api object at 0x000002A2099E3680>)
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_differential.py:12
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_differential.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+    def test_s3_c21_corrected_statement_order(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 500,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ]
+        )
+        reset(fx_body)
+        assert_status(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 0,
+                    "effective_at": "2026-09-19T12:00:00+00:00",
+                    "reason": "zero out",
+                },
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+        st = assert_status(
+            world.ada.get("/statement", params={"known_at": "2026-09-21T00:00:00+00:00"}),
+            200,
+        ).json()
+        if st["entries"]:
+            entry = st["entries"][0]
+>           assert entry["payment"]["amount"] == 0
+E           assert 500 == 0
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_errors_load.py:11
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_errors_load.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_known_at_snapshots.py:66: AssertionError
+___________________ test_s3_c24_settlement_member_immutable ___________________
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_export_import.py:9
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_export_import.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+reset = <function reset.<locals>._reset at 0x000002A20AA7DB20>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002A2092AEF60>, bob=<s3lib.http.Api object at 0x000002A20982AA50>, cy=<s3lib.http.Api object at 0x000002A20AA83800>)
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_idempotency.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_idempotency.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+    def test_s3_c24_settlement_member_immutable(reset, world):
+        fx_body = fx.fixture(
+            settlement_operator_ids=[fx.ADA["id"]],
+            payments=[
+                {
+                    "id": "settle_p",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 100,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                    "settlement_id": "s1",
+                }
+            ],
+        )
+        reset(fx_body)
+>       assert_error(
+            world.ada.post(
+                "/payments/settle_p/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 90,
+                    "effective_at": "2026-09-20T12:00:00+00:00",
+                    "reason": "nope",
+                },
+                idempotency_key=new_key(),
+            ),
+            422,
+            "linked_payment_immutable",
+        )
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_invariants.py:10
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_invariants.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_settlement_holds.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_payments.py:9
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_payments.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+resp = <Response [201 Created]>, status = 422, code = 'linked_payment_immutable'
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_requests.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_requests.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 linked_payment_immutable, got 201 None. POST /payments/settle_p/corrections -> 201 '{"amount":90,"effective_at":"2026-09-20T12:00:00+00:00","payment_id":"settle_p","reason":"nope","recorded_at":"2026-10-04T06:00:25+00:00","revision":2}'
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_runtime.py:13
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_runtime.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\s3lib\http.py:114: AssertionError
+_____________ test_s3_c21_statement_entry_includes_revision_times _____________
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_settlements.py:9
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_settlements.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+reset = <function reset.<locals>._reset at 0x000002A20AA7C860>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002A2099D1430>, bob=<s3lib.http.Api object at 0x000002A2099E0680>, cy=<s3lib.http.Api object at 0x000002A2099E0740>)
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_spec_edges.py:10
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+    def test_s3_c21_statement_entry_includes_revision_times(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 500,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ]
+        )
+        reset(fx_body)
+        assert_status(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 450,
+                    "effective_at": "2026-09-19T10:00:00+00:00",
+                    "reason": "backdate",
+                },
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+        st = assert_status(
+            world.ada.get("/statement", params={"known_at": "2026-09-21T00:00:00+00:00"}),
+            200,
+        ).json()
+        assert len(st["entries"]) == 1
+        entry = st["entries"][0]
+        for field in ("revision", "effective_at", "recorded_at"):
+            assert field in entry
+>       assert entry["payment"]["amount"] == 450
+E       assert 500 == 450
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_splits_activity.py:9
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(1)
+..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_spec_part2.py:119: AssertionError
+_______________ test_s3_c22_snapshot_has_more_and_unknown_token _______________
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_authorization_spec.py:11
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+reset = <function reset.<locals>._reset at 0x000002A20AA7D940>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002A209513140>, bob=<s3lib.http.Api object at 0x000002A209838C50>, cy=<s3lib.http.Api object at 0x000002A2099D89B0>)
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_concurrent_auth.py:9
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_concurrent_auth.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+    def test_s3_c22_snapshot_has_more_and_unknown_token(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": f"p{i}",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10 + i,
+                    "visibility": "private",
+                    "created_at": f"2026-09-20T{10+i:02d}:00:00+00:00",
+                }
+                for i in range(3)
+            ]
+        )
+        reset(fx_body)
+        first = assert_status(world.ada.get("/statement"), 200).json()
+        token = first["snapshot"]
+        page0 = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 2, "offset": 0}),
+            200,
+        ).json()
+        assert page0.get("has_more") is True
+        page2 = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 2, "offset": 2}),
+            200,
+        ).json()
+        assert page2.get("has_more") is False
+        past = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 10, "offset": 99}),
+            200,
+        ).json()
+        assert past["entries"] == []
+        assert past.get("has_more") is False
+        assert_error(world.ada.get("/statement", params={"snapshot": "bogus-token"}), 404, "not_found")
+        assert_error(world.bob.get("/statement", params={"snapshot": token}), 404, "not_found")
+        ignored = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "foo": "bar"}),
+            200,
+        ).json()
+>       assert ignored["entries"] == page0["entries"]
+E       AssertionError: assert [{'payment': ...fter': 10000}] == [{'payment': ...fter': 10012}]
+E         
+E         Left contains one more item: {'payment': {'payment_id': 'p2', 'from_user_id': 'u_ada', 'from_handle': 'ada', 'to_user_id': 'u_bob', ...}, 'delta': -12, 'balance_after': 10000}
+E         Use -v to get more diff
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_delivery.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_spec_part2.py:163: AssertionError
+_________________ test_s3_c17_historical_overdraft_precedence _________________
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_differential.py:11
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_differential.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+reset = <function reset.<locals>._reset at 0x000002A20AA7ECA0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002A2099BD6A0>, bob=<s3lib.http.Api object at 0x000002A2099BDA60>, cy=<s3lib.http.Api object at 0x000002A2095107A0>)
+me_wallet = <function me_wallet.<locals>._read at 0x000002A20AA7CAE0>
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_regression_stage1.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_regression_stage1.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+    def test_s3_c17_historical_overdraft_precedence(reset, world, me_wallet):
+        fx_body = fx.fixture(
+            users=[
+                {**fx.ADA, "balance": 100},
+                {**fx.BOB, "balance": 100},
+                fx.CY,
+            ],
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 90,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ],
+        )
+        reset(fx_body)
+>       assert_error(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 200,
+                    "effective_at": "2026-09-19T00:00:00+00:00",
+                    "reason": "backdated overdraft",
+                },
+                idempotency_key=new_key(),
+            ),
+            409,
+            "historical_overdraft",
+        )
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_routes_negotiation.py:6
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_routes_negotiation.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_spec_part2.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_ui_flows.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+resp = <Response [409 Conflict]>, status = 409, code = 'historical_overdraft'
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_ui_testids.py:6
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 409 historical_overdraft, got 409 insufficient_funds. POST /payments/pay1/corrections -> 409 '{"error":{"code":"insufficient_funds","message":"insufficient_funds"}}'
 
-..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_wallet_authorizations.py:8
-  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-9iidzbw4\repo\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    pytestmark = pytest.mark.stage(2)
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\s3lib\http.py:114: AssertionError
+__________________ test_s3_c3_activity_ordered_by_created_at __________________
 
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-112 passed, 3 skipped, 22 warnings in 458.05s (0:07:38)
-verifier stage 2: PASS (exit 0)
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002A2099A7D70>, bob=<s3lib.http.Api object at 0x000002A2099BE120>, cy=<s3lib.http.Api object at 0x000002A2099CD940>)
+reset = <function reset.<locals>._reset at 0x000002A20AA7E700>
+pay = <function pay.<locals>._pay at 0x000002A20AC5C400>
 
-exit 0
+    def test_s3_c3_activity_ordered_by_created_at(world, reset, pay):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "p_old",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10,
+                    "visibility": "public",
+                    "created_at": "2026-09-20T10:00:00+00:00",
+                },
+                {
+                    "id": "p_new",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 20,
+                    "visibility": "public",
+                    "created_at": "2026-09-21T10:00:00+00:00",
+                },
+            ]
+        )
+        reset(fx_body)
+        act = world.ada.get("/activity")
+        assert_status(act, 200)
+        ids = [p["payment_id"] for p in act.json()["payments"]]
+>       assert ids.index("p_old") < ids.index("p_new")
+E       AssertionError: assert 1 < 0
+E        +  where 1 = <built-in method index of list object at 0x000002A20AA72900>('p_old')
+E        +    where <built-in method index of list object at 0x000002A20AA72900> = ['p_new', 'p_old'].index
+E        +  and   0 = <built-in method index of list object at 0x000002A20AA72900>('p_new')
+E        +    where <built-in method index of list object at 0x000002A20AA72900> = ['p_new', 'p_old'].index
+
+..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_timestamps.py:52: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_known_at_snapshots.py::test_s3_c21_corrected_statement_order
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_settlement_holds.py::test_s3_c24_settlement_member_immutable
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_spec_part2.py::test_s3_c21_statement_entry_includes_revision_times
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_spec_part2.py::test_s3_c22_snapshot_has_more_and_unknown_token
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_spec_part2.py::test_s3_c17_historical_overdraft_precedence
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-475ca690-pxsr0_m1\repo\verify\stage-3\test_s3_timestamps.py::test_s3_c3_activity_ordered_by_created_at
+6 failed, 152 passed, 3 skipped in 507.92s (0:08:27)
+verifier stage 3: FAIL (exit 1)
+
+exit 1

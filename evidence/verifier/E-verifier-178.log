@@ -1,0 +1,47 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_pytest.ps1 -Node verify/stage-3/test_s3_timestamps.py::test_s3_c3_activity_ordered_by_created_at
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_s3_c3_activity_ordered_by_created_at __________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000002742FC505F0>, bob=<s3lib.http.Api object at 0x0000027431E2F9E0>, cy=<s3lib.http.Api object at 0x0000027431E78BC0>)
+reset = <function reset.<locals>._reset at 0x000002743203C0E0>
+pay = <function pay.<locals>._pay at 0x0000027432115800>
+
+    def test_s3_c3_activity_ordered_by_created_at(world, reset, pay):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "p_old",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10,
+                    "visibility": "public",
+                    "created_at": "2026-09-20T10:00:00+00:00",
+                },
+                {
+                    "id": "p_new",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 20,
+                    "visibility": "public",
+                    "created_at": "2026-09-21T10:00:00+00:00",
+                },
+            ]
+        )
+        reset(fx_body)
+        act = world.ada.get("/activity")
+        assert_status(act, 200)
+        ids = [p["payment_id"] for p in act.json()["payments"]]
+>       assert ids.index("p_old") < ids.index("p_new")
+E       AssertionError: assert 1 < 0
+E        +  where 1 = <built-in method index of list object at 0x000002743212DB80>('p_old')
+E        +    where <built-in method index of list object at 0x000002743212DB80> = ['p_new', 'p_old'].index
+E        +  and   0 = <built-in method index of list object at 0x000002743212DB80>('p_new')
+E        +    where <built-in method index of list object at 0x000002743212DB80> = ['p_new', 'p_old'].index
+
+verify\stage-3\test_s3_timestamps.py:52: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_timestamps.py::test_s3_c3_activity_ordered_by_created_at
+1 failed in 1.75s
+
+exit 1

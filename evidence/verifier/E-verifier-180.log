@@ -1,0 +1,62 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_pytest.ps1 -Node verify/stage-3/test_s3_spec_part2.py::test_s3_c17_historical_overdraft_precedence
+F                                                                        [100%]
+================================== FAILURES ===================================
+_________________ test_s3_c17_historical_overdraft_precedence _________________
+
+reset = <function reset.<locals>._reset at 0x000001FEDCD211C0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001FED9B59340>, bob=<s3lib.http.Api object at 0x000001FEDC31F9E0>, cy=<s3lib.http.Api object at 0x000001FEDCDEA630>)
+me_wallet = <function me_wallet.<locals>._read at 0x000001FEDCDE5EE0>
+
+    def test_s3_c17_historical_overdraft_precedence(reset, world, me_wallet):
+        fx_body = fx.fixture(
+            users=[
+                {**fx.ADA, "balance": 100},
+                {**fx.BOB, "balance": 100},
+                fx.CY,
+            ],
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 90,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ],
+        )
+        reset(fx_body)
+>       assert_error(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 200,
+                    "effective_at": "2026-09-19T00:00:00+00:00",
+                    "reason": "backdated overdraft",
+                },
+                idempotency_key=new_key(),
+            ),
+            409,
+            "historical_overdraft",
+        )
+
+verify\stage-3\test_s3_spec_part2.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, status = 409, code = 'historical_overdraft'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 409 historical_overdraft, got 409 insufficient_funds. POST /payments/pay1/corrections -> 409 '{"error":{"code":"insufficient_funds","message":"insufficient_funds"}}'
+
+verify\stage-3\s3lib\http.py:114: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c17_historical_overdraft_precedence
+1 failed in 2.00s
+
+exit 1

@@ -1,0 +1,52 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_pytest.ps1 -Node verify/stage-3/test_s3_spec_part2.py::test_s3_c21_statement_entry_includes_revision_times
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_s3_c21_statement_entry_includes_revision_times _____________
+
+reset = <function reset.<locals>._reset at 0x000001D08F4D11C0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001D08F3D4C50>, bob=<s3lib.http.Api object at 0x000001D08BF7C9B0>, cy=<s3lib.http.Api object at 0x000001D08F59E960>)
+
+    def test_s3_c21_statement_entry_includes_revision_times(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 500,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ]
+        )
+        reset(fx_body)
+        assert_status(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 450,
+                    "effective_at": "2026-09-19T10:00:00+00:00",
+                    "reason": "backdate",
+                },
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+        st = assert_status(
+            world.ada.get("/statement", params={"known_at": "2026-09-21T00:00:00+00:00"}),
+            200,
+        ).json()
+        assert len(st["entries"]) == 1
+        entry = st["entries"][0]
+        for field in ("revision", "effective_at", "recorded_at"):
+            assert field in entry
+>       assert entry["payment"]["amount"] == 450
+E       assert 500 == 450
+
+verify\stage-3\test_s3_spec_part2.py:119: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c21_statement_entry_includes_revision_times
+1 failed in 1.99s
+
+exit 1
