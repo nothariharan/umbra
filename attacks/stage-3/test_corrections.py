@@ -179,6 +179,18 @@ def test_activity_shows_original_payment_only(world3):
     assert after[0]["visibility"] == before[0]["visibility"]
 
 
+def test_correction_replaces_revision_without_a_second_entry(world3):
+    made = _make_payment(world3, 100)
+    pid = made["payment_id"]
+    base = [e["payment"]["payment_id"] for e in
+            assert_status(world3.ada.get("/statement", params={"limit": 200}), 200).json()["entries"]]
+    assert_status(world3.ada.correct(pid, _valid_body(made, 400)), 201)
+    after = assert_status(world3.ada.get("/statement", params={"limit": 200}), 200).json()["entries"]
+    assert after.count and sum(1 for e in after if e["payment"]["payment_id"] == pid) == 1, \
+        "the corrected revision must replace the original entry, not add a second"
+    assert base.count(pid) == 1
+
+
 def test_capture_correction_is_linked_payment_immutable(boot3):
     world = boot3(fixture3(users=_users(1000, 0), operators=[], authorizations=[
         authz("a_seed", "u_ada", "u_bob", 300, expires_at=future_iso(7200)),

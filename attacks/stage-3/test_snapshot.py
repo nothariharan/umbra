@@ -68,6 +68,18 @@ def test_snapshot_bad_wrong_user_and_pre_reset_tokens_are_404(world3, reset):
     assert_error(world3.ada.statement(snapshot=token), 404, "not_found")
 
 
+def test_snapshot_ignores_unknown_params_and_reports_has_more(boot3):
+    world = _world(boot3)
+    whole, token = _snapshot(world)
+    extra = world.ada.statement(snapshot=token, limit=1, offset=0, nonsense="1")
+    assert extra.status_code == 200, "unknown params alongside a snapshot must be ignored"
+    assert extra.json()["has_more"] is True
+    final = assert_status(world.ada.statement(snapshot=token, limit=1, offset=2), 200).json()
+    assert final["has_more"] is False, "the final snapshot page must clear has_more"
+    beyond = assert_status(world.ada.statement(snapshot=token, limit=10, offset=50), 200).json()
+    assert beyond["entries"] == [] and beyond["has_more"] is False
+
+
 def test_snapshot_is_stable_through_concurrent_writes(boot3):
     world = _world(boot3)
     before, token = _snapshot(world)

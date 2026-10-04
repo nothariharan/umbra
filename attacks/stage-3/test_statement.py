@@ -18,7 +18,7 @@ T2 = "2026-09-24T07:00:00+00:00"
 T3 = "2026-09-24T08:00:00+00:00"
 
 
-def _users(ada=1000, bob=500, cy=0):
+def _users(ada=1000, bob=500, cy=0, op=0):
     return [
         {"id": "u_ada", "email": "ada@example.com", "password": PASSWORD,
          "display_name": "Ada", "handle": "ada", "balance": ada},
@@ -26,6 +26,8 @@ def _users(ada=1000, bob=500, cy=0):
          "display_name": "Bob", "handle": "bob", "balance": bob},
         {"id": "u_cy", "email": "cy@example.com", "password": PASSWORD,
          "display_name": "Cy", "handle": "cy", "balance": cy},
+        {"id": "u_op", "email": "op@example.com", "password": PASSWORD,
+         "display_name": "Op", "handle": "op", "balance": op},
     ]
 
 
@@ -128,6 +130,47 @@ def test_zero_amount_revision_appears_with_zero_delta(world3):
                  if e["payment"]["payment_id"] == made["payment_id"])
     assert entry["delta"] == 0, "a zero-amount revision must reverse the payment"
     assert entry["payment"]["amount"] == 0
+
+
+def test_statement_has_more_across_pages_and_beyond_end(boot3):
+    world = _seeded_world(boot3)
+    first = assert_status(world.ada.statement(limit=1, offset=0), 200).json()
+    assert first["has_more"] is True, "a partial page with more entries must set has_more"
+    last = assert_status(world.ada.statement(limit=1, offset=2), 200).json()
+    assert last["has_more"] is False, "the final page must clear has_more"
+    beyond = assert_status(world.ada.statement(limit=10, offset=50), 200).json()
+    assert beyond["entries"] == []
+    assert beyond["has_more"] is False, "an offset beyond the end must not claim has_more"
+
+
+def test_statement_ignores_unknown_query_parameters(world3):
+    body = assert_status(world3.ada.statement(nonsense="1", extra="x"), 200).json()
+    assert "entries" in body
+
+
+def test_statement_and_revisions_require_a_token(world3):
+    from attacklib3 import Client
+    anon = Client()
+    try:
+        assert_error(anon.get("/statement"), 401, "unauthenticated")
+        assert_error(anon.get("/payments/p_x/revisions"), 401, "unauthenticated")
+    finally:
+        anon.close()
+
+
+def test_settlement_member_uses_committed_at_as_effective_and_recorded(boot3):
+    world = boot3(fixture3(users=_users(1000, 0, 0, 0), operators=["u_op"]))
+    settled = assert_status(world.op.post(
+        "/settlements", json={"transfers": [
+            {"from_handle": "ada", "to_handle": "bob", "amount": 100}]},
+        headers={"Idempotency-Key": new_key()}), 201).json()
+    committed = settled.get("committed_at")
+    assert committed, "a settlement must report committed_at"
+    member = settled["payments"][0]["payment_id"]
+    entry = next(e for e in entries_of(world.ada.statement(limit=200))
+                 if e["payment"]["payment_id"] == member)
+    assert parse_ts(entry.get("effective_at")) == parse_ts(committed)
+    assert parse_ts(entry.get("recorded_at")) == parse_ts(committed)
 
 
 def test_capture_appears_once_with_link_and_no_auth_rows(boot3):

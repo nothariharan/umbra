@@ -105,3 +105,40 @@ def test_correction_known_at_not_yet_recorded_omits_payment(boot3):
     opening = assert_status(world.ada.me_at(as_of=minus(7200), known_at=minus(7200)), 200)
     assert opening.json()["balance"] == 1000, \
         "a payment recorded after known_at must not affect a known_at view"
+
+
+def test_future_query_instants_are_allowed(world3):
+    as_of = plus(3600)
+    known_at = plus(7200)
+    view = world3.ada.me_at(as_of=as_of, known_at=known_at)
+    assert view.status_code == 200, "future as_of/known_at must be accepted, not 422"
+    body = view.json()
+    assert body["balance"] == 100000, "a future read returns the current balance"
+    assert body.get("as_of") == as_of
+    assert body.get("known_at") == known_at
+
+
+def test_known_at_is_echoed_exactly(world3):
+    given = "2026-09-24T13:20:00+02:00"
+    body = assert_status(world3.ada.me_at(known_at=given), 200).json()
+    assert body.get("known_at") == given, \
+        f"known_at must be echoed exactly, got {body.get('known_at')!r}"
+
+
+def test_authorization_closed_at_tracks_lifecycle(boot3):
+    world = boot3(fixture3(users=_users(1000, 0), operators=[], authorizations=[
+        authz("a_seed", "u_ada", "u_bob", 300, expires_at=future_iso(7200)),
+    ]))
+    listing = assert_status(world.ada.list_authorizations(limit=50), 200).json()
+    items = listing.get("authorizations") if isinstance(listing, dict) else listing
+    item = next(a for a in items if (a.get("authorization_id") or a.get("id")) == "a_seed")
+    assert "closed_at" in item, "authorizations must expose closed_at"
+    assert item["closed_at"] is None, "an open authorization must have closed_at null"
+
+    assert_status(world.ada.void("a_seed"), 200)
+    listing = assert_status(world.ada.list_authorizations(limit=50), 200).json()
+    items = listing.get("authorizations") if isinstance(listing, dict) else listing
+    item = next(a for a in items if (a.get("authorization_id") or a.get("id")) == "a_seed")
+    assert item["closed_at"] is not None, "a closed authorization must carry its event time"
+    from attacklib3 import parse_ts
+    parse_ts(item["closed_at"])
