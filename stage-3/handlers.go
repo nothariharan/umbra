@@ -355,7 +355,7 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 		from.Balance -= amount
 		to.Balance += amount
 		pid := newID("p_")
-		created := nowRFC3339()
+		created := sv.store.nextEventTimeRFC3339Locked()
 		p := Payment{
 			PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 			ToUserID: to.ID, ToHandle: to.Handle, Amount: amount,

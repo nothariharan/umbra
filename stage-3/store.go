@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"sync"
+	"time"
 	"unicode/utf8"
 
 	"golang.org/x/crypto/bcrypt"
@@ -77,7 +78,17 @@ type Store struct {
 	ImmutablePayments         map[string]struct{}           `json:"immutable_payments"`
 	StatementSnapshots        map[string]*statementSnapshot `json:"-"`
 	ResetAt                   string                        `json:"reset_at"`
+	lastMonotonicTime         time.Time
 	idempotencyInProgress     map[string]chan struct{}
+}
+
+func (s *Store) nextEventTimeRFC3339Locked() string {
+	t := now()
+	if !s.lastMonotonicTime.IsZero() && !t.After(s.lastMonotonicTime) {
+		t = s.lastMonotonicTime.Add(time.Second)
+	}
+	s.lastMonotonicTime = t
+	return formatTime(t)
 }
 
 func NewStore() *Store {
@@ -474,6 +485,9 @@ func (s *Store) applyFixture(f fixture) error {
 
 	resetAt := nowRFC3339()
 	s.ResetAt = resetAt
+	if rt, ok := parseTime(resetAt); ok {
+		s.lastMonotonicTime = rt
+	}
 	netOriginal := map[string]int64{}
 	for _, p := range f.Payments {
 		netOriginal[p.FromUserID] -= p.Amount
