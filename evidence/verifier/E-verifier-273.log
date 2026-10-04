@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_pytest_55207f5fd143.ps1 -Node verify/stage-3
+.........................................                                [100%]
+41 passed in 290.11s (0:04:50)
+
+exit 0
