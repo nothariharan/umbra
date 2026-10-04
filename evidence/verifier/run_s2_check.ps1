@@ -63,8 +63,9 @@ switch ($Check) {
                 'S2-C11' { Invoke-PytestNodes @('verify/stage-2/test_s2_ui_flows.py::test_s2_c11_balance_feed_refresh_after_pay') }
                 'S2-C12' { Invoke-PytestNodes @('verify/stage-2/test_s2_ui_flows.py::test_s2_c12_wallet_refresh_latest_wins') }
                 'S2-C13' {
-                    & $PSScriptRoot/repro_s2_c6.ps1
-                    exit $LASTEXITCODE
+                    Invoke-PytestNodes @(
+                        'verify/stage-2/test_s2_c13_competing_clients.py::test_s2_c13_competing_clients_ui'
+                    )
                 }
                 'S2-C14' { Invoke-PytestNodes @('verify/stage-2/test_s2_ui_flows.py::test_s2_c14_stage1_export_import_session_survives') }
                 'S2-C15' { Invoke-PytestNodes @('verify/stage-2/test_s2_differential.py::test_s2_c28_differential_payments_and_holds') }
