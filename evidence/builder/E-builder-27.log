@@ -1,0 +1,3531 @@
+$ python scripts/lever.py reexec --evidence E-verifier-243
+...........EEEEEEEEEEFEEEEEEEEEEEEFEEEEEE                                [100%]
+=================================== ERRORS ====================================
+_____________ ERROR at setup of test_s3_c22_snapshot_token_paging _____________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:103: in handle_request
+    return self._connection.handle_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:136: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:106: in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:177: in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <HTTP11Connection ['http://127.0.0.1:63528', CLOSED, Request Count: 1]>
+timeout = 5.0
+
+    def _receive_event(
+        self, timeout: float | None = None
+    ) -> h11.Event | type[h11.PAUSED]:
+        while True:
+            with map_exceptions({h11.RemoteProtocolError: RemoteProtocolError}):
+                event = self._h11_state.next_event()
+    
+            if event is h11.NEED_DATA:
+                data = self._network_stream.read(
+                    self.READ_NUM_BYTES, timeout=timeout
+                )
+    
+                # If we feed this case through h11 we'll raise an exception like:
+                #
+                #     httpcore.RemoteProtocolError: can't handle event type
+                #     ConnectionClosed when role=SERVER and state=SEND_RESPONSE
+                #
+                # Which is accurate, but not very informative from an end-user
+                # perspective. Instead we handle this case distinctly and treat
+                # it as a ConnectError.
+                if data == b"" and self._h11_state.their_state == h11.SEND_RESPONSE:
+                    msg = "Server disconnected without sending a response."
+>                   raise RemoteProtocolError(msg)
+E                   httpcore.RemoteProtocolError: Server disconnected without sending a response.
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:231: RemoteProtocolError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4D0AD40>
+api = <function api.<locals>._api at 0x000001F8E4D0B9C0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+        reset(fixture)
+        return SimpleNamespace(
+            fixture=fixture,
+            total=fx.seeded_total(fixture),
+            currency=fixture["currency"],
+            minor_units=fixture["minor_units"],
+            ada=api().authenticate(fx.ADA["email"], fx.ADA["password"]),
+            bob=api().authenticate(fx.BOB["email"], fx.BOB["password"]),
+>           cy=api().authenticate(fx.CY["email"], fx.CY["password"]),
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        )
+
+verify\stage-3\conftest.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\s3lib\http.py:81: in authenticate
+    resp = self.login(email, password)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+verify\stage-3\s3lib\http.py:78: in login
+    return self.post("/auth/login", json={"email": email, "password": password}, token=None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+verify\stage-3\s3lib\http.py:68: in post
+    return self.request("POST", path, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+verify\stage-3\s3lib\http.py:62: in request
+    return self._client.request(method, path, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.RemoteProtocolError: Server disconnected without sending a response.
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: RemoteProtocolError
+_________ ERROR at setup of test_s3_c23_snapshot_stable_under_writes __________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4C345E0>
+api = <function api.<locals>._api at 0x000001F8E4D0B600>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+________ ERROR at setup of test_s3_c6_invalid_as_of_validation_failed _________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4D0B4C0>
+api = <function api.<locals>._api at 0x000001F8E4D0AE80>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+______________ ERROR at setup of test_s3_c7_as_of_balance_edges _______________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4CE6F20>
+api = <function api.<locals>._api at 0x000001F8E4CFFBA0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+___________________ ERROR at setup of test_s3_c8_as_of_echo ___________________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4D0ADE0>
+api = <function api.<locals>._api at 0x000001F8E4D0B560>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_________ ERROR at setup of test_s3_c9_statement_defaults_and_window __________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4D0B7E0>
+api = <function api.<locals>._api at 0x000001F8E4D0ACA0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_____________ ERROR at setup of test_s3_c10_statement_entry_shape _____________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4D0ADE0>
+api = <function api.<locals>._api at 0x000001F8E4D0B740>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_________ ERROR at setup of test_s3_c11_statement_balances_reconcile __________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D52980>
+api = <function api.<locals>._api at 0x000001F8E5D52AC0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_________ ERROR at setup of test_s3_c12_pagination_preserves_balances _________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D53060>
+api = <function api.<locals>._api at 0x000001F8E5D531A0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+____ ERROR at setup of test_s3_c13_statement_party_visibility_not_activity ____
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D53740>
+api = <function api.<locals>._api at 0x000001F8E5D53560>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+__________ ERROR at setup of test_s3_c24_settlement_member_immutable __________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D52700>
+api = <function api.<locals>._api at 0x000001F8E5D51120>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_______ ERROR at setup of test_s3_c25_capture_linked_payment_immutable ________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D53BA0>
+api = <function api.<locals>._api at 0x000001F8E5D53A60>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+___________ ERROR at setup of test_s3_c26_historical_me_hold_fields ___________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D53F60>
+api = <function api.<locals>._api at 0x000001F8E5D53EC0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+__________ ERROR at setup of test_s3_c27_closed_at_on_authorization ___________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D89620>
+api = <function api.<locals>._api at 0x000001F8E5D89440>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_____ ERROR at setup of test_s3_c28_statement_payments_only_no_auth_rows ______
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D898A0>
+api = <function api.<locals>._api at 0x000001F8E5D899E0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+__ ERROR at setup of test_s3_c19_revisions_shape_auth_and_public_third_party __
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D89F80>
+api = <function api.<locals>._api at 0x000001F8E5D89DA0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_ ERROR at setup of test_s3_c19_idempotent_payment_response_unchanged_after_correction _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D8A480>
+api = <function api.<locals>._api at 0x000001F8E5D8A0C0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+__________ ERROR at setup of test_s3_c20_known_at_invalid_and_future __________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D8A340>
+api = <function api.<locals>._api at 0x000001F8E5D8AC00>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+______ ERROR at setup of test_s3_c20_payment_omitted_when_not_yet_known _______
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D889A0>
+api = <function api.<locals>._api at 0x000001F8E5D89080>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+____ ERROR at setup of test_s3_c21_statement_entry_includes_revision_times ____
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4C345E0>
+api = <function api.<locals>._api at 0x000001F8E4D0AF20>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+______ ERROR at setup of test_s3_c22_snapshot_has_more_and_unknown_token ______
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4BDF100>
+api = <function api.<locals>._api at 0x000001F8E4D0B920>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_ ERROR at setup of test_s3_c23_concurrent_corrections_same_expected_revision _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E4D0B4C0>
+api = <function api.<locals>._api at 0x000001F8E4D0AE80>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+________ ERROR at setup of test_s3_c17_historical_overdraft_precedence ________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D51DA0>
+api = <function api.<locals>._api at 0x000001F8E5D532E0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+___________ ERROR at setup of test_s3_c27_closed_at_set_after_void ____________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D53880>
+api = <function api.<locals>._api at 0x000001F8E5D52C00>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+________ ERROR at setup of test_s3_c2_created_at_on_payment_endpoints _________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D8A2A0>
+api = <function api.<locals>._api at 0x000001F8E5D8A340>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_________ ERROR at setup of test_s3_c3_activity_ordered_by_created_at _________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D89F80>
+api = <function api.<locals>._api at 0x000001F8E5D89620>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_______ ERROR at setup of test_s3_c4_future_seeded_created_at_rejected ________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D8B420>
+api = <function api.<locals>._api at 0x000001F8E5D88220>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+_______ ERROR at setup of test_s3_c5_seeded_payments_preserve_balances ________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D8B6A0>
+api = <function api.<locals>._api at 0x000001F8E5D8B7E0>
+
+    @pytest.fixture
+    def world(reset, api):
+        fixture = fx.fixture()
+>       reset(fixture)
+
+verify\stage-3\conftest.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+================================== FAILURES ===================================
+________________ test_s3_c30_stage12_ui_checks_on_stage3_build ________________
+
+    def test_s3_c30_stage12_ui_checks_on_stage3_build():
+        base = os.environ.get("BASE_URL")
+        if not base:
+            pytest.skip("BASE_URL required for UI regression on running stage-3 service")
+        repo = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        py = sys.executable
+        stage2 = os.path.join(repo, "verify", "stage-2")
+        nodes = [
+            "test_s2_ui_testids.py::test_s2_c4_home_wallet_and_pay_testids",
+            "test_s2_ui_flows.py::test_s2_c11_balance_feed_refresh_after_pay",
+        ]
+        env = {**os.environ, "BASE_URL": base}
+        proc = subprocess.run(
+            [py, "-m", "pytest", "-q", "-p", "no:cacheprovider", *nodes],
+            cwd=stage2,
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+>       assert proc.returncode == 0, proc.stdout + proc.stderr
+E       AssertionError: Fs                                                                       [100%]
+E         ================================== FAILURES ===================================
+E         ___________________ test_s2_c4_home_wallet_and_pay_testids ____________________
+E         
+E             @contextlib.contextmanager
+E             def map_httpcore_exceptions() -> typing.Iterator[None]:
+E                 global HTTPCORE_EXC_MAP
+E                 if len(HTTPCORE_EXC_MAP) == 0:
+E                     HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+E                 try:
+E         >           yield
+E         
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+E         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+E             resp = self._pool.handle_request(req)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+E             raise exc from None
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+E             response = connection.handle_request(
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+E             raise exc
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+E             stream = self._connect(request)
+E                      ^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+E             stream = self._network_backend.connect_tcp(**kwargs)
+E                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+E             with map_exceptions(exc_map):
+E                  ^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+E             self.gen.throw(value)
+E         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+E         
+E         map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+E         
+E             @contextlib.contextmanager
+E             def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+E                 try:
+E                     yield
+E                 except Exception as exc:  # noqa: PIE786
+E                     for from_exc, to_exc in map.items():
+E                         if isinstance(exc, from_exc):
+E         >                   raise to_exc(exc) from exc
+E         E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+E         
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+E         
+E         The above exception was the direct cause of the following exception:
+E         
+E         browser_base = (<Browser type=<BrowserType name=chromium executable_path=C:\Users\HARIHARAN\AppData\Local\ms-playwright\chromium-1243\chrome-win64\chrome.exe> version=153.0.8010.12>, 'http://127.0.0.1:63528')
+E         
+E             def test_s2_c4_home_wallet_and_pay_testids(browser_base):
+E                 browser, base_url = browser_base
+E                 page = browser.new_page(viewport={"width": 375, "height": 812})
+E         >       _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+E         
+E         test_s2_ui_testids.py:43: 
+E         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+E         test_s2_ui_testids.py:32: in _login
+E             _reset(base_url)
+E         test_s2_ui_testids.py:28: in _reset
+E             httpx.post(f"{base_url}/_test/reset", json=fx.fixture(), timeout=10.0).raise_for_status()
+E             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+E             return request(
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+E             return client.request(
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+E             return self.send(request, auth=auth, follow_redirects=follow_redirects)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+E             response = self._send_handling_auth(
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+E             response = self._send_handling_redirects(
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+E             response = self._send_single_request(request)
+E                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+E             response = transport.handle_request(request)
+E                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+E             with map_httpcore_exceptions():
+E                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+E         ..\..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+E             self.gen.throw(value)
+E         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+E         
+E             @contextlib.contextmanager
+E             def map_httpcore_exceptions() -> typing.Iterator[None]:
+E                 global HTTPCORE_EXC_MAP
+E                 if len(HTTPCORE_EXC_MAP) == 0:
+E                     HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+E                 try:
+E                     yield
+E                 except Exception as exc:
+E                     mapped_exc = None
+E             
+E                     for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+E                         if not isinstance(exc, from_exc):
+E                             continue
+E                         # We want to map to the most specific exception we can find.
+E                         # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+E                         # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+E                         if mapped_exc is None or issubclass(to_exc, mapped_exc):
+E                             mapped_exc = to_exc
+E             
+E                     if mapped_exc is None:  # pragma: no cover
+E                         raise
+E             
+E                     message = str(exc)
+E         >           raise mapped_exc(message) from exc
+E         E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+E         
+E         ..\..\..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+E         ============================== warnings summary ===============================
+E         test_s2_ui_testids.py:6
+E           C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+E             pytestmark = pytest.mark.stage(2)
+E         
+E         test_s2_ui_flows.py:8
+E           C:\Users\HARIHARAN\Desktop\Band\band-work\result\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+E             pytestmark = pytest.mark.stage(2)
+E         
+E         -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+E         =========================== short test summary info ===========================
+E         FAILED test_s2_ui_testids.py::test_s2_c4_home_wallet_and_pay_testids - httpx....
+E         1 failed, 1 skipped, 2 warnings in 4.57s
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\HARIHARAN\\Desktop\\Band\\dark-factory-wearedevs\\.venv\\Scripts\\python.exe', '-m'...testids.py::test_s2_c4_home_wallet_and_pay_testids - httpx....\n1 failed, 1 skipped, 2 warnings in 4.57s\n', stderr='').returncode
+
+verify\stage-3\test_s3_regression.py:32: AssertionError
+_____________________ test_s3_c24_export_import_roundtrip _____________________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:101: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:78: in handle_request
+    stream = self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:124: in _connect
+    stream = self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_backends\sync.py:207: in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+map = {<class 'TimeoutError'>: <class 'httpcore.ConnectTimeout'>, <class 'OSError'>: <class 'httpcore.ConnectError'>}
+
+    @contextlib.contextmanager
+    def map_exceptions(map: ExceptionMapping) -> typing.Iterator[None]:
+        try:
+            yield
+        except Exception as exc:  # noqa: PIE786
+            for from_exc, to_exc in map.items():
+                if isinstance(exc, from_exc):
+>                   raise to_exc(exc) from exc
+E                   httpcore.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_exceptions.py:14: ConnectError
+
+The above exception was the direct cause of the following exception:
+
+reset = <function reset.<locals>._reset at 0x000001F8E5D522A0>
+api = <function api.<locals>._api at 0x000001F8E5D51440>
+base_url = 'http://127.0.0.1:63528'
+
+    def test_s3_c24_export_import_roundtrip(reset, api, base_url):
+        fx_body = fx.fixture()
+>       reset(fx_body)
+
+verify\stage-3\test_s3_spec_part2.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+verify\stage-3\conftest.py:34: in _reset
+    resp = httpx.post(f"{base_url}/_test/reset", json=fixture, timeout=RESET_TIMEOUT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:304: in post
+    return request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_api.py:109: in request
+    return client.request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: ConnectError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_regression.py::test_s3_c30_stage12_ui_checks_on_stage3_build
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c24_export_import_roundtrip
+ERROR verify/stage-3/test_s3_known_at_snapshots.py::test_s3_c22_snapshot_token_paging
+ERROR verify/stage-3/test_s3_known_at_snapshots.py::test_s3_c23_snapshot_stable_under_writes
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c6_invalid_as_of_validation_failed
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c7_as_of_balance_edges
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c8_as_of_echo - httpx.C...
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c9_statement_defaults_and_window
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c10_statement_entry_shape
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c11_statement_balances_reconcile
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c12_pagination_preserves_balances
+ERROR verify/stage-3/test_s3_me_statement.py::test_s3_c13_statement_party_visibility_not_activity
+ERROR verify/stage-3/test_s3_settlement_holds.py::test_s3_c24_settlement_member_immutable
+ERROR verify/stage-3/test_s3_settlement_holds.py::test_s3_c25_capture_linked_payment_immutable
+ERROR verify/stage-3/test_s3_settlement_holds.py::test_s3_c26_historical_me_hold_fields
+ERROR verify/stage-3/test_s3_settlement_holds.py::test_s3_c27_closed_at_on_authorization
+ERROR verify/stage-3/test_s3_settlement_holds.py::test_s3_c28_statement_payments_only_no_auth_rows
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c19_revisions_shape_auth_and_public_third_party
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c19_idempotent_payment_response_unchanged_after_correction
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c20_known_at_invalid_and_future
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c20_payment_omitted_when_not_yet_known
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c21_statement_entry_includes_revision_times
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c22_snapshot_has_more_and_unknown_token
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c23_concurrent_corrections_same_expected_revision
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c17_historical_overdraft_precedence
+ERROR verify/stage-3/test_s3_spec_part2.py::test_s3_c27_closed_at_set_after_void
+ERROR verify/stage-3/test_s3_timestamps.py::test_s3_c2_created_at_on_payment_endpoints
+ERROR verify/stage-3/test_s3_timestamps.py::test_s3_c3_activity_ordered_by_created_at
+ERROR verify/stage-3/test_s3_timestamps.py::test_s3_c4_future_seeded_created_at_rejected
+ERROR verify/stage-3/test_s3_timestamps.py::test_s3_c5_seeded_payments_preserve_balances
+2 failed, 11 passed, 28 errors in 151.95s (0:02:31)
+E-verifier-243: recorded exit 0, re-executed exit 1 -> DIVERGED
+
+exit 1
