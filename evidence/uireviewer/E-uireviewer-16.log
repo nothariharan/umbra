@@ -1,0 +1,3 @@
+$ python scripts/lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143
+
+exit 1

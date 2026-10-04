@@ -1,0 +1,6 @@
+$ python scripts/lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143
+........................................................................ [100%]
+72 passed in 103.40s (0:01:43)
+uireviewer stage 2: PASS (exit 0)
+
+exit 0
