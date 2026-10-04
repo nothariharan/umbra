@@ -1,0 +1,10 @@
+$ set SUBMIT_REV=1ad60682143ca2b25131240135d7c9b5b17ea15a && powershell -NoProfile -File attacks/stage-3/run_breaker_s3.ps1
+python.exe : fatal: not a valid object name: 1ad60682143ca2b25131240135d7c9b5b17ea15a 
+At C:\Users\HARIHARAN\Desktop\Band\band-work\result\attacks\stage-3\run_breaker_s3.ps1:8 char:9
++ $boot = & $py scripts/lever.py boot --stage 3 --rev $rev 2>&1 | Out-S ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (fatal: not a va...d7c9b5b17ea15a :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+exit 1

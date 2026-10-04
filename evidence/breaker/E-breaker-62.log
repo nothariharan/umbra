@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File attacks/stage-3/run_breaker_s3.ps1 -Rev 1ad60682143ca2b25131240135d7c9b5b17ea15a
+.....................................................                    [100%]
+53 passed in 424.05s (0:07:04)
+
+exit 0
