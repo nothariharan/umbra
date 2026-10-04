@@ -1,0 +1,5 @@
+$ set BASE_URL=http://127.0.0.1:52462 && C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-3/test_snapshot.py
+......                                                                   [100%]
+6 passed in 27.83s
+
+exit 0
