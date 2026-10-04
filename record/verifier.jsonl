@@ -252,3 +252,33 @@
 {"type": "evidence", "seat": "verifier", "at": "2026-10-04T02:56:53+00:00", "id": "E-verifier-174", "check": "S2-C13", "run": "powershell -NoProfile -File evidence/verifier/repro_s2_c6.ps1", "rev": "b013f5e17143", "dirty": false, "exit": 0, "seconds": 8.8, "sha": "10555dae69a00a06", "log": "evidence/verifier/E-verifier-174.log"}
 {"type": "evidence", "seat": "verifier", "at": "2026-10-04T02:59:21+00:00", "id": "E-verifier-175", "check": "S2-C13", "run": "powershell -NoProfile -File evidence/verifier/run_s2_check.ps1 -Check S2-C13", "rev": "b013f5e17143", "dirty": false, "exit": 0, "seconds": 9.5, "sha": "c9ea5aadf85595c2", "log": "evidence/verifier/E-verifier-175.log"}
 {"type": "evidence", "seat": "verifier", "at": "2026-10-04T03:55:18+00:00", "id": "E-verifier-176", "check": "S2-C4", "run": "python scripts/lever.py checks --suite verifier --stage 2 --rev b013f5e17143 --isolated", "rev": "b013f5e17143", "dirty": false, "exit": 0, "seconds": 317.2, "sha": "c9b32e32ff9f1549", "log": "evidence/verifier/E-verifier-176.log"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:35+00:00", "id": "S3-C1", "req": ["S3-R1"], "text": "prior stage requirements continue on stage-3 build"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:36+00:00", "id": "S3-C2", "req": ["S3-R2"], "text": "created_at with offset on payment-returning endpoints"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:37+00:00", "id": "S3-C3", "req": ["S3-R3"], "text": "activity ordered by created_at"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:38+00:00", "id": "S3-C4", "req": ["S3-R4"], "text": "future seeded created_at rejected on reset"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:39+00:00", "id": "S3-C5", "req": ["S3-R5"], "text": "seeded payments preserve fixture balances"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:40+00:00", "id": "S3-C6", "req": ["S3-R6"], "text": "GET /me as_of validation"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:41+00:00", "id": "S3-C7", "req": ["S3-R7"], "text": "as_of balance edges and inclusion"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:42+00:00", "id": "S3-C8", "req": ["S3-R8"], "text": "as_of echo"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:43+00:00", "id": "S3-C9", "req": ["S3-R9"], "text": "statement params and defaults"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:44+00:00", "id": "S3-C10", "req": ["S3-R10"], "text": "statement entry shape and ordering"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:45+00:00", "id": "S3-C11", "req": ["S3-R11"], "text": "opening/closing reconcile with deltas"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:46+00:00", "id": "S3-C12", "req": ["S3-R12"], "text": "statement pagination preserves balances"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:47+00:00", "id": "S3-C13", "req": ["S3-R13"], "text": "statement party visibility"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:48+00:00", "id": "S3-C14", "req": ["S3-R14"], "text": "revision 1 effective/recorded times"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:49+00:00", "id": "S3-C15", "req": ["S3-R15"], "text": "opening balances unchanged by corrections"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:50+00:00", "id": "S3-C16", "req": ["S3-R16"], "text": "correction auth validation and errors"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:51+00:00", "id": "S3-C17", "req": ["S3-R17"], "text": "correction wallet delta failures"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:52+00:00", "id": "S3-C18", "req": ["S3-R18"], "text": "correction idempotency and stale revision"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:53+00:00", "id": "S3-C19", "req": ["S3-R19"], "text": "activity original amount; revisions read ACL"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:54+00:00", "id": "S3-C20", "req": ["S3-R20"], "text": "known_at selection and echo"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:56+00:00", "id": "S3-C21", "req": ["S3-R21"], "text": "corrected statement ordering and zero revisions"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:57+00:00", "id": "S3-C22", "req": ["S3-R22"], "text": "statement snapshot token paging rules"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:57+00:00", "id": "S3-C23", "req": ["S3-R23"], "text": "snapshot stability under concurrent writes"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:58:58+00:00", "id": "S3-C24", "req": ["S3-R24"], "text": "settlement member immutable"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:59:00+00:00", "id": "S3-C25", "req": ["S3-R25"], "text": "capture correction immutable"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:59:01+00:00", "id": "S3-C26", "req": ["S3-R26"], "text": "historical me hold fields"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:59:02+00:00", "id": "S3-C27", "req": ["S3-R27"], "text": "authorization closed_at exposure"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:59:03+00:00", "id": "S3-C28", "req": ["S3-R28"], "text": "statement lists payments only"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:59:05+00:00", "id": "S3-C29", "req": ["S3-R29"], "text": "stage-3 delivery artifacts"}
+{"type": "check", "seat": "verifier", "at": "2026-10-04T03:59:06+00:00", "id": "S3-C30", "req": ["S3-R30"], "text": "stage 1-2 UI regression on stage 3"}
