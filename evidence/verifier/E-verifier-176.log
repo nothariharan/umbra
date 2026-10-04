@@ -1,0 +1,97 @@
+$ python scripts/lever.py checks --suite verifier --stage 2 --rev b013f5e17143 --isolated
+........................................................................ [ 62%]
+.............................sss...........                              [100%]
+============================== warnings summary ===============================
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_auth.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_auth.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_delivery.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_differential.py:12
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_differential.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_errors_load.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_errors_load.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_export_import.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_export_import.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_idempotency.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_idempotency.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_invariants.py:10
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_invariants.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_payments.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_payments.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_requests.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_requests.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_runtime.py:13
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_runtime.py:13: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_settlements.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_settlements.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_spec_edges.py:10
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_spec_edges.py:10: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_splits_activity.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-1\test_s1_splits_activity.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(1)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_authorization_spec.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_authorization_spec.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_concurrent_auth.py:9
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_concurrent_auth.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_delivery.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_delivery.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_differential.py:11
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_differential.py:11: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_regression_stage1.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_regression_stage1.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_routes_negotiation.py:6
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_routes_negotiation.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_ui_flows.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_ui_flows.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_ui_testids.py:6
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_ui_testids.py:6: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+..\..\..\..\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_wallet_authorizations.py:8
+  C:\Users\HARIHARAN\AppData\Local\Temp\umbra-b013f5e1-08pgo953\repo\verify\stage-2\test_s2_wallet_authorizations.py:8: PytestUnknownMarkWarning: Unknown pytest.mark.stage - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = pytest.mark.stage(2)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+112 passed, 3 skipped, 22 warnings in 305.83s (0:05:05)
+verifier stage 2: PASS (exit 0)
+
+exit 0
