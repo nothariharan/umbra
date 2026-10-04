@@ -1,0 +1,268 @@
+$ powershell -NoProfile -File evidence/certifier/reexec_accept_s3_1d758.ps1
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-1d75850a-bghx4wzd/repo/stage-3 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/229e0cff06/stage-1.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-1d75850a-bghx4wzd/repo/stage-1 ...
+  stage 2: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/229e0cff06/stage-2.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-1d75850a-bghx4wzd/repo/stage-2 ...
+  stage 3: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/229e0cff06/stage-3.log)
+  stage 4: fail  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/229e0cff06/stage-4.log)
+highest contiguous stage: 3
+claimed stage: 3 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/229e0cff06/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\229e0cff06\report.json
+official stage 3: PASS (exit 0)
+E-verifier-240: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..........F...........F........FF..F.....                                [100%]
+================================== FAILURES ===================================
+____________________ test_s3_c21_corrected_statement_order ____________________
+
+reset = <function reset.<locals>._reset at 0x0000024BC33BB560>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000024BC3349BB0>, bob=<s3lib.http.Api object at 0x0000024BC33E1F70>, cy=<s3lib.http.Api object at 0x0000024BC02D9DC0>)
+
+    def test_s3_c21_corrected_statement_order(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 500,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ]
+        )
+        reset(fx_body)
+        assert_status(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 0,
+                    "effective_at": "2026-09-19T12:00:00+00:00",
+                    "reason": "zero out",
+                },
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+        st = assert_status(
+            world.ada.get("/statement", params={"known_at": "2026-09-21T00:00:00+00:00"}),
+            200,
+        ).json()
+        if st["entries"]:
+            entry = st["entries"][0]
+>           assert entry["payment"]["amount"] == 0
+E           assert 500 == 0
+
+verify\stage-3\test_s3_known_at_snapshots.py:66: AssertionError
+___________________ test_s3_c24_settlement_member_immutable ___________________
+
+reset = <function reset.<locals>._reset at 0x0000024BC4404900>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000024BC340ED80>, bob=<s3lib.http.Api object at 0x0000024BC33CEF30>, cy=<s3lib.http.Api object at 0x0000024BC340C4A0>)
+
+    def test_s3_c24_settlement_member_immutable(reset, world):
+        fx_body = fx.fixture(
+            settlement_operator_ids=[fx.ADA["id"]],
+            payments=[
+                {
+                    "id": "settle_p",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 100,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                    "settlement_id": "s1",
+                }
+            ],
+        )
+        reset(fx_body)
+>       assert_error(
+            world.ada.post(
+                "/payments/settle_p/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 90,
+                    "effective_at": "2026-09-20T12:00:00+00:00",
+                    "reason": "nope",
+                },
+                idempotency_key=new_key(),
+            ),
+            422,
+            "linked_payment_immutable",
+        )
+
+verify\stage-3\test_s3_settlement_holds.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'linked_payment_immutable'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 linked_payment_immutable, got 201 None. POST /payments/settle_p/corrections -> 201 '{"amount":90,"effective_at":"2026-09-20T12:00:00+00:00","payment_id":"settle_p","reason":"nope","recorded_at":"2026-10-04T09:05:32+00:00","revision":2}'
+
+verify\stage-3\s3lib\http.py:114: AssertionError
+_____________ test_s3_c21_statement_entry_includes_revision_times _____________
+
+reset = <function reset.<locals>._reset at 0x0000024BC4404A40>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000024BC33E8500>, bob=<s3lib.http.Api object at 0x0000024BC33EB830>, cy=<s3lib.http.Api object at 0x0000024BC33FD250>)
+
+    def test_s3_c21_statement_entry_includes_revision_times(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 500,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ]
+        )
+        reset(fx_body)
+        assert_status(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 450,
+                    "effective_at": "2026-09-19T10:00:00+00:00",
+                    "reason": "backdate",
+                },
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+        st = assert_status(
+            world.ada.get("/statement", params={"known_at": "2026-09-21T00:00:00+00:00"}),
+            200,
+        ).json()
+        assert len(st["entries"]) == 1
+        entry = st["entries"][0]
+        for field in ("revision", "effective_at", "recorded_at"):
+            assert field in entry
+>       assert entry["payment"]["amount"] == 450
+E       assert 500 == 450
+
+verify\stage-3\test_s3_spec_part2.py:119: AssertionError
+_______________ test_s3_c22_snapshot_has_more_and_unknown_token _______________
+
+reset = <function reset.<locals>._reset at 0x0000024BC44067A0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000024BC33E1D60>, bob=<s3lib.http.Api object at 0x0000024BC3412120>, cy=<s3lib.http.Api object at 0x0000024BC33E2960>)
+
+    def test_s3_c22_snapshot_has_more_and_unknown_token(reset, world):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": f"p{i}",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10 + i,
+                    "visibility": "private",
+                    "created_at": f"2026-09-20T{10+i:02d}:00:00+00:00",
+                }
+                for i in range(3)
+            ]
+        )
+        reset(fx_body)
+        first = assert_status(world.ada.get("/statement"), 200).json()
+        token = first["snapshot"]
+        page0 = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 2, "offset": 0}),
+            200,
+        ).json()
+        assert page0.get("has_more") is True
+        page2 = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 2, "offset": 2}),
+            200,
+        ).json()
+        assert page2.get("has_more") is False
+        past = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "limit": 10, "offset": 99}),
+            200,
+        ).json()
+        assert past["entries"] == []
+        assert past.get("has_more") is False
+        assert_error(world.ada.get("/statement", params={"snapshot": "bogus-token"}), 404, "not_found")
+        assert_error(world.bob.get("/statement", params={"snapshot": token}), 404, "not_found")
+        ignored = assert_status(
+            world.ada.get("/statement", params={"snapshot": token, "foo": "bar"}),
+            200,
+        ).json()
+>       assert ignored["entries"] == page0["entries"]
+E       AssertionError: assert [{'payment': ...fter': 10000}] == [{'payment': ...fter': 10012}]
+E         
+E         Left contains one more item: {'payment': {'payment_id': 'p2', 'from_user_id': 'u_ada', 'from_handle': 'ada', 'to_user_id': 'u_bob', ...}, 'delta': -12, 'balance_after': 10000}
+E         Use -v to get more diff
+
+verify\stage-3\test_s3_spec_part2.py:163: AssertionError
+_________________ test_s3_c17_historical_overdraft_precedence _________________
+
+reset = <function reset.<locals>._reset at 0x0000024BC44053A0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0000024BC3413890>, bob=<s3lib.http.Api object at 0x0000024BC32CB800>, cy=<s3lib.http.Api object at 0x0000024BC33CD430>)
+me_wallet = <function me_wallet.<locals>._read at 0x0000024BC44079C0>
+
+    def test_s3_c17_historical_overdraft_precedence(reset, world, me_wallet):
+        fx_body = fx.fixture(
+            users=[
+                {**fx.ADA, "balance": 100},
+                {**fx.BOB, "balance": 100},
+                fx.CY,
+            ],
+            payments=[
+                {
+                    "id": "pay1",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 90,
+                    "visibility": "private",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ],
+        )
+        reset(fx_body)
+>       assert_error(
+            world.ada.post(
+                "/payments/pay1/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 200,
+                    "effective_at": "2026-09-19T00:00:00+00:00",
+                    "reason": "backdated overdraft",
+                },
+                idempotency_key=new_key(),
+            ),
+            409,
+            "historical_overdraft",
+        )
+
+verify\stage-3\test_s3_spec_part2.py:243: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, status = 409, code = 'historical_overdraft'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 409 historical_overdraft, got 409 insufficient_funds. POST /payments/pay1/corrections -> 409 '{"error":{"code":"insufficient_funds","message":"insufficient_funds"}}'
+
+verify\stage-3\s3lib\http.py:114: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-3/test_s3_known_at_snapshots.py::test_s3_c21_corrected_statement_order
+FAILED verify/stage-3/test_s3_settlement_holds.py::test_s3_c24_settlement_member_immutable
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c21_statement_entry_includes_revision_times
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c22_snapshot_has_more_and_unknown_token
+FAILED verify/stage-3/test_s3_spec_part2.py::test_s3_c17_historical_overdraft_precedence
+5 failed, 36 passed in 158.48s (0:02:38)
+E-verifier-243: recorded exit 0, re-executed exit 1 -> DIVERGED
+
+exit 1
