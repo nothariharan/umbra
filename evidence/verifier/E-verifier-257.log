@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File evidence/verifier/run_s3_check.ps1 -Check S3-C14
+.                                                                        [100%]
+1 passed in 2.70s
+
+exit 0
