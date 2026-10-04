@@ -57,16 +57,42 @@ switch ($Check) {
                 'S4-C10' { Invoke-PytestNodes @('verify/stage-4/test_s4_refunds.py::test_s4_c10_refund_does_not_reopen_request_or_hold') }
                 'S4-C11' { Invoke-PytestNodes @('verify/stage-4/test_s4_corrections.py::test_s4_c11_capture_and_refund_payments_immutable') }
                 'S4-C12' { Invoke-PytestNodes @('verify/stage-4/test_s4_corrections.py::test_s4_c12_correction_below_refunded_amount') }
-                'S4-C13' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c13_batch_auth_like_settlements') }
+                'S4-C13' {
+                    Invoke-PytestNodes @(
+                        'verify/stage-4/test_s4_batches.py::test_s4_c13_batch_auth_like_settlements',
+                        'verify/stage-4/test_s4_spec_part2.py::test_s4_correction_batches_unauthenticated_401'
+                    )
+                }
                 'S4-C14' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c14_batch_body_validation') }
                 'S4-C15' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c15_batch_item_not_found_and_stale') }
                 'S4-C16' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c16_batch_scope_immutable_targets') }
                 'S4-C17' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c17_incomplete_settlement_batch') }
-                'S4-C18' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c18_settlement_effective_instant_mismatch') }
+                'S4-C18' {
+                    Invoke-PytestNodes @(
+                        'verify/stage-4/test_s4_batches.py::test_s4_c18_settlement_effective_instant_mismatch',
+                        'verify/stage-4/test_s4_spec_part2.py::test_s4_batch_settlement_same_instant_different_offset_spelling'
+                    )
+                }
                 'S4-C19' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c19_single_correction_still_available_and_unknown_fields_ignored') }
-                'S4-C20' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c20_batch_rejected_leaves_state_unchanged') }
-                'S4-C21' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c21_batch_success_shape') }
-                'S4-C22' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c22_batch_idempotent_replay') }
+                'S4-C20' {
+                    Invoke-PytestNodes @(
+                        'verify/stage-4/test_s4_batches.py::test_s4_c20_batch_rejected_leaves_state_unchanged',
+                        'verify/stage-4/test_s4_spec_part2.py::test_s4_batch_precedence_item_404_before_incomplete_settlement'
+                    )
+                }
+                'S4-C21' {
+                    Invoke-PytestNodes @(
+                        'verify/stage-4/test_s4_batches.py::test_s4_c21_batch_success_shape',
+                        'verify/stage-4/test_s4_spec_part2.py::test_s4_batch_recorded_at_strictly_after_member_prior'
+                    )
+                }
+                'S4-C22' {
+                    Invoke-PytestNodes @(
+                        'verify/stage-4/test_s4_batches.py::test_s4_c22_batch_idempotent_replay',
+                        'verify/stage-4/test_s4_spec_part2.py::test_s4_batch_snapshot_frozen_and_statement_updates',
+                        'verify/stage-4/test_s4_spec_part2.py::test_s4_batch_does_not_mutate_idempotent_payment_replay'
+                    )
+                }
                 'S4-C23' { Invoke-PytestNodes @('verify/stage-4/test_s4_batches.py::test_s4_c23_batch_future_effective_rejected') }
                 'S4-C24' { Invoke-PytestNodes @('verify/stage-4/test_s4_misc.py::test_s4_c24_settlement_member_refund_keeps_membership') }
                 'S4-C25' { Invoke-PytestNodes @('verify/stage-4/test_s4_misc.py::test_s4_c25_concurrent_corrections_same_revision') }
