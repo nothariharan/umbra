@@ -1,0 +1,7 @@
+$ powershell -NoProfile -File evidence/uireviewer/run_s3_ui_checks.ps1
+........................................................................ [ 96%]
+...                                                                      [100%]
+75 passed in 299.62s (0:04:59)
+uireviewer stage 3: PASS (exit 0)
+
+exit 0

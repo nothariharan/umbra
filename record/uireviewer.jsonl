@@ -54,3 +54,5 @@
 {"type": "check", "seat": "uireviewer", "at": "2026-10-04T03:31:21+00:00", "id": "S3-UI-C11", "req": ["S3-R30"], "text": "Playwright: authorization-amount/expires; authorize-error insufficient"}
 {"type": "check", "seat": "uireviewer", "at": "2026-10-04T03:31:21+00:00", "id": "S3-UI-C12", "req": ["S3-R30"], "text": "Playwright: wallet-held absent at zero; empty-authorizations"}
 {"type": "check", "seat": "uireviewer", "at": "2026-10-04T03:31:22+00:00", "id": "S3-UI-C13", "req": ["S3-R30"], "text": "Playwright: unchanged pay form resubmit must not debit twice"}
+{"type": "evidence", "seat": "uireviewer", "at": "2026-10-04T05:46:45+00:00", "id": "E-uireviewer-24", "check": "S3-UI-C4", "run": "powershell -NoProfile -File evidence/uireviewer/run_s3_ui_checks.ps1", "rev": "475ca690ab88", "dirty": false, "exit": 0, "seconds": 309.2, "sha": "002edde537eff332", "log": "evidence/uireviewer/E-uireviewer-24.log"}
+{"type": "verdict", "seat": "uireviewer", "at": "2026-10-04T05:47:10+00:00", "kind": "ACCEPT", "stage": "3", "rev": "475ca690ab88", "ev": ["E-uireviewer-24"], "note": "75/75 Playwright (review/stage-2 + S3-R30 gate) on stage-3 @ 375+1280"}
