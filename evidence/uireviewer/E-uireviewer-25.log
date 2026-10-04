@@ -1,0 +1,11 @@
+$ powershell -NoProfile -Command " $env:SUBMIT_REV=1d75850acf29
+1d75850acf29 : The term '1d75850acf29' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:18
++  $env:SUBMIT_REV=1d75850acf29
++                  ~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (1d75850acf29:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+exit 1
