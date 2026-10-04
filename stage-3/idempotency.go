@@ -36,7 +36,7 @@ type idemResult struct {
 	replay bool
 }
 
-func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int, []byte, bool), bool) {
+func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int, []byte, bool), func(), bool) {
 	s.mu.Lock()
 	rec, ok := s.Idempotency[fullKey]
 	if ok {
@@ -44,7 +44,7 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 			delete(s.Idempotency, fullKey)
 		} else if rec.BodyHash != bodyHash {
 			s.mu.Unlock()
-			return idemResult{}, nil, false
+			return idemResult{}, nil, nil, false
 		} else {
 			st := rec.StatusCode
 			if st == 201 {
@@ -52,7 +52,7 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 			}
 			body := rec.Response
 			s.mu.Unlock()
-			return idemResult{status: st, body: body, replay: true}, nil, true
+			return idemResult{status: st, body: body, replay: true}, nil, nil, true
 		}
 	}
 	if ch, busy := s.idempotencyInProgress[fullKey]; busy {
@@ -62,22 +62,22 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 		rec2 := s.Idempotency[fullKey]
 		if rec2 == nil {
 			s.mu.Unlock()
-			return idemResult{}, nil, false
+			return idemResult{}, nil, nil, false
 		}
 		if rec2.Failed4xx {
 			if rec2.BodyHash != bodyHash {
 				delete(s.Idempotency, fullKey)
 				s.mu.Unlock()
-				return idemResult{}, nil, false
+				return idemResult{}, nil, nil, false
 			}
 			st := rec2.StatusCode
 			body := rec2.Response
 			s.mu.Unlock()
-			return idemResult{status: st, body: body, replay: true}, nil, true
+			return idemResult{status: st, body: body, replay: true}, nil, nil, true
 		}
 		if rec2.BodyHash != bodyHash {
 			s.mu.Unlock()
-			return idemResult{}, nil, false
+			return idemResult{}, nil, nil, false
 		}
 		st := rec2.StatusCode
 		if st == 201 {
@@ -85,7 +85,7 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 		}
 		body := rec2.Response
 		s.mu.Unlock()
-		return idemResult{status: st, body: body, replay: true}, nil, true
+		return idemResult{status: st, body: body, replay: true}, nil, nil, true
 	}
 	ch := make(chan struct{})
 	s.idempotencyInProgress[fullKey] = ch
@@ -106,7 +106,15 @@ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int
 		close(ch)
 		s.mu.Unlock()
 	}
-	return idemResult{}, commit, true
+	abort := func() {
+		s.mu.Lock()
+		if ch, ok := s.idempotencyInProgress[fullKey]; ok {
+			delete(s.idempotencyInProgress, fullKey)
+			close(ch)
+		}
+		s.mu.Unlock()
+	}
+	return idemResult{}, commit, abort, true
 }
 
 func checkIdempotencyHeader(w http.ResponseWriter, r *http.Request) (string, bool) {

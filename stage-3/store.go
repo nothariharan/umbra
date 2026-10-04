@@ -72,6 +72,11 @@ type Store struct {
 	Authorizations            []Authorization               `json:"authorizations"`
 	SettlementOperators       map[string]struct{}           `json:"settlement_operators"`
 	Idempotency               map[string]*IdempotencyRecord `json:"idempotency"`
+	OpeningBalances           map[string]int64              `json:"opening_balances"`
+	PaymentRevisions          map[string][]PaymentRevision  `json:"payment_revisions"`
+	ImmutablePayments         map[string]struct{}           `json:"immutable_payments"`
+	StatementSnapshots        map[string]*statementSnapshot `json:"-"`
+	ResetAt                   string                        `json:"reset_at"`
 	idempotencyInProgress     map[string]chan struct{}
 }
 
@@ -83,8 +88,12 @@ func NewStore() *Store {
 		UsersByHandle:         make(map[string]string),
 		Tokens:                make(map[string]string),
 		SettlementOperators:   make(map[string]struct{}),
-		Idempotency:           make(map[string]*IdempotencyRecord),
-		idempotencyInProgress: make(map[string]chan struct{}),
+		Idempotency:             make(map[string]*IdempotencyRecord),
+		OpeningBalances:         make(map[string]int64),
+		PaymentRevisions:        make(map[string][]PaymentRevision),
+		ImmutablePayments:       make(map[string]struct{}),
+		StatementSnapshots:      make(map[string]*statementSnapshot),
+		idempotencyInProgress:   make(map[string]chan struct{}),
 	}
 }
 
@@ -111,6 +120,10 @@ type storeSnapshot struct {
 	Authorizations            []Authorization               `json:"authorizations"`
 	SettlementOperators       map[string]struct{}           `json:"settlement_operators"`
 	Idempotency               map[string]*IdempotencyRecord `json:"idempotency"`
+	OpeningBalances           map[string]int64              `json:"opening_balances"`
+	PaymentRevisions          map[string][]PaymentRevision  `json:"payment_revisions"`
+	ImmutablePayments         map[string]struct{}           `json:"immutable_payments"`
+	ResetAt                   string                        `json:"reset_at"`
 }
 
 func (s *Store) snapshot() storeSnapshot {
@@ -128,6 +141,10 @@ func (s *Store) snapshot() storeSnapshot {
 		Authorizations:          s.Authorizations,
 		SettlementOperators:     s.SettlementOperators,
 		Idempotency:             s.Idempotency,
+		OpeningBalances:         s.OpeningBalances,
+		PaymentRevisions:        s.PaymentRevisions,
+		ImmutablePayments:       s.ImmutablePayments,
+		ResetAt:                 s.ResetAt,
 	}
 }
 
@@ -171,6 +188,20 @@ func (s *Store) loadSnapshot(snap storeSnapshot) {
 		s.Idempotency = make(map[string]*IdempotencyRecord)
 	}
 	s.idempotencyInProgress = make(map[string]chan struct{})
+	s.OpeningBalances = snap.OpeningBalances
+	if s.OpeningBalances == nil {
+		s.OpeningBalances = make(map[string]int64)
+	}
+	s.PaymentRevisions = snap.PaymentRevisions
+	if s.PaymentRevisions == nil {
+		s.PaymentRevisions = make(map[string][]PaymentRevision)
+	}
+	s.ImmutablePayments = snap.ImmutablePayments
+	if s.ImmutablePayments == nil {
+		s.ImmutablePayments = make(map[string]struct{})
+	}
+	s.ResetAt = snap.ResetAt
+	s.StatementSnapshots = make(map[string]*statementSnapshot)
 }
 
 func newToken() string {
@@ -204,13 +235,14 @@ type fixtureUser struct {
 }
 
 type fixturePayment struct {
-	ID           string `json:"id"`
-	PaymentID    string `json:"payment_id"`
-	FromUserID   string `json:"from_user_id"`
-	ToUserID     string `json:"to_user_id"`
-	Amount       int64  `json:"amount"`
-	Note         string `json:"note"`
-	Visibility   string `json:"visibility"`
+	ID           string  `json:"id"`
+	PaymentID    string  `json:"payment_id"`
+	FromUserID   string  `json:"from_user_id"`
+	ToUserID     string  `json:"to_user_id"`
+	Amount       int64   `json:"amount"`
+	Note         string  `json:"note"`
+	Visibility   string  `json:"visibility"`
+	CreatedAt    *string `json:"created_at"`
 }
 
 type fixtureRequest struct {
@@ -298,6 +330,7 @@ func (s *Store) applyFixture(f fixture) error {
 		byHandle[u.Handle] = u.ID
 	}
 
+	nowT := now()
 	for _, p := range f.Payments {
 		if _, ok := users[p.FromUserID]; !ok {
 			return errFixture("unknown payment user")
@@ -310,6 +343,18 @@ func (s *Store) applyFixture(f fixture) error {
 		}
 		if p.Visibility != "public" && p.Visibility != "private" {
 			return errFixture("invalid visibility")
+		}
+		if p.CreatedAt != nil {
+			if *p.CreatedAt == "" {
+				return errFixture("invalid payment created_at")
+			}
+			ct, ok := parseTime(*p.CreatedAt)
+			if !ok {
+				return errFixture("invalid payment created_at")
+			}
+			if ct.After(nowT) {
+				return errFixture("future payment created_at")
+			}
 		}
 	}
 
@@ -346,7 +391,6 @@ func (s *Store) applyFixture(f fixture) error {
 		ttl = *f.AuthorizationTTLSeconds
 	}
 
-	nowT := now()
 	heldByUser := map[string]int64{}
 	for _, a := range f.Authorizations {
 		if _, ok := users[a.FromUserID]; !ok {
@@ -407,15 +451,38 @@ func (s *Store) applyFixture(f fixture) error {
 	s.Users = users
 	s.UsersByEmail = byEmail
 	s.UsersByHandle = byHandle
+	prevTokens := s.Tokens
 	s.Tokens = make(map[string]string)
+	for tok, uid := range prevTokens {
+		if users[uid] != nil {
+			s.Tokens[tok] = uid
+		}
+	}
 	s.Idempotency = make(map[string]*IdempotencyRecord)
 	s.idempotencyInProgress = make(map[string]chan struct{})
 	s.SettlementOperators = ops
 	s.Payments = nil
 	s.Requests = nil
 	s.Authorizations = nil
+	s.PaymentRevisions = make(map[string][]PaymentRevision)
+	s.ImmutablePayments = make(map[string]struct{})
+	s.StatementSnapshots = make(map[string]*statementSnapshot)
+	s.OpeningBalances = make(map[string]int64)
+	for uid, u := range users {
+		s.OpeningBalances[uid] = u.Balance
+	}
 
-	created := nowRFC3339()
+	resetAt := nowRFC3339()
+	s.ResetAt = resetAt
+	netOriginal := map[string]int64{}
+	for _, p := range f.Payments {
+		netOriginal[p.FromUserID] -= p.Amount
+		netOriginal[p.ToUserID] += p.Amount
+	}
+	for uid, delta := range netOriginal {
+		s.OpeningBalances[uid] -= delta
+	}
+
 	for _, p := range f.Payments {
 		from := users[p.FromUserID]
 		to := users[p.ToUserID]
@@ -426,12 +493,17 @@ func (s *Store) applyFixture(f fixture) error {
 		if pid == "" {
 			pid = newID("p_")
 		}
-		s.Payments = append(s.Payments, Payment{
+		created := resetAt
+		if p.CreatedAt != nil {
+			created = *p.CreatedAt
+		}
+		pay := Payment{
 			PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 			ToUserID: to.ID, ToHandle: to.Handle, Amount: p.Amount,
 			Currency: f.Currency, Note: p.Note, Visibility: p.Visibility,
 			RequestID: nil, AuthorizationID: nil, CreatedAt: created,
-		})
+		}
+		s.registerPaymentLocked(pay, false)
 	}
 
 	for _, r := range f.Requests {
@@ -448,7 +520,7 @@ func (s *Store) applyFixture(f fixture) error {
 			RequestID: rid, RequesterID: reqr.ID, RequesterHandle: reqr.Handle,
 			PayerID: payer.ID, PayerHandle: payer.Handle, Amount: r.Amount,
 			Currency: f.Currency, Note: r.Note, Status: r.Status,
-			PaymentID: nil, CreatedAt: created,
+			PaymentID: nil, CreatedAt: resetAt,
 		}
 		s.Requests = append(s.Requests, mr)
 	}
@@ -483,7 +555,7 @@ func (s *Store) applyFixture(f fixture) error {
 			AuthorizationID: aid, FromUserID: from.ID, FromHandle: from.Handle,
 			ToUserID: to.ID, ToHandle: to.Handle, Amount: a.Amount,
 			CapturedAmount: capAmt, Note: a.Note, Visibility: vis, Status: st,
-			ExpiresAt: exp, CreatedAt: created, PaymentID: nil, PaymentIDs: []string{},
+			ExpiresAt: exp, CreatedAt: resetAt, PaymentID: nil, PaymentIDs: []string{},
 		})
 	}
 

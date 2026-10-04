@@ -20,6 +20,7 @@ type Authorization struct {
 	CreatedAt       string   `json:"created_at"`
 	PaymentID       *string  `json:"payment_id"`
 	PaymentIDs      []string `json:"payment_ids"`
+	ClosedAt        *string  `json:"closed_at"`
 }
 
 func (a Authorization) remainingAmount() int64 {
@@ -42,6 +43,10 @@ func (s *Store) refreshAuthorizationExpiryLocked() {
 		}
 		if !exp.After(nowT) {
 			a.Status = "expired"
+			if a.ClosedAt == nil || *a.ClosedAt == "" {
+				w := mustFormatTime(exp)
+				a.ClosedAt = &w
+			}
 		}
 	}
 }
@@ -112,6 +117,7 @@ func authResponse(a Authorization, currency string) map[string]any {
 		"payment_id":       a.PaymentID,
 		"payment_ids":      pids,
 		"created_at":       a.CreatedAt,
+		"closed_at":        a.ClosedAt,
 	}
 }
 

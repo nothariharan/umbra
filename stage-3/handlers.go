@@ -52,7 +52,7 @@ func (sv *Server) runIdempotent(w http.ResponseWriter, r *http.Request, u *User,
 	}
 	bodyHash := canonicalBodyHash(raw)
 	fullKey := idempotencyKey(u.ID, r.Method, r.URL.Path, idemKey)
-	res, commit, ok2 := sv.store.beginIdempotency(fullKey, bodyHash)
+	res, commit, abort, ok2 := sv.store.beginIdempotency(fullKey, bodyHash)
 	if !ok2 {
 		writeError(w, http.StatusConflict, "idempotency_key_reuse", "key reused with different body")
 		return
@@ -63,6 +63,9 @@ func (sv *Server) runIdempotent(w http.ResponseWriter, r *http.Request, u *User,
 	}
 	status, resp, failed4xx, done := fn(w, raw)
 	if !done {
+		if abort != nil {
+			abort()
+		}
 		return
 	}
 	commit(status, resp, failed4xx)
@@ -196,6 +199,10 @@ func (sv *Server) handleSignup(w http.ResponseWriter, r *http.Request) {
 	sv.store.Users[id] = u
 	sv.store.UsersByEmail[email] = id
 	sv.store.UsersByHandle[handle] = id
+	if sv.store.OpeningBalances == nil {
+		sv.store.OpeningBalances = make(map[string]int64)
+	}
+	sv.store.OpeningBalances[id] = 0
 	tok := newToken()
 	sv.store.Tokens[tok] = id
 	writeJSON(w, http.StatusCreated, map[string]any{
@@ -273,24 +280,6 @@ func errResp(status int, code, msg string) ([]byte, bool) {
 	e.Error.Message = msg
 	b, _ := json.Marshal(e)
 	return b, status >= 400 && status < 500
-}
-
-func (sv *Server) handleMe(w http.ResponseWriter, r *http.Request) {
-	u, ok := sv.requireAuth(w, r)
-	if !ok {
-		return
-	}
-	sv.store.mu.Lock()
-	cu := sv.store.Users[u.ID]
-	held := sv.store.heldForUserLocked(u.ID)
-	avail := sv.store.availableForUserLocked(u.ID)
-	out := map[string]any{
-		"user_id": cu.ID, "display_name": cu.DisplayName, "handle": cu.Handle,
-		"balance": cu.Balance, "total": cu.Balance, "available": avail, "held": held,
-		"currency": sv.store.Currency, "minor_units": sv.store.MinorUnits,
-	}
-	sv.store.mu.Unlock()
-	writeJSON(w, http.StatusOK, out)
 }
 
 func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
@@ -373,10 +362,22 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 			Currency: sv.store.Currency, Note: note, Visibility: vis,
 			RequestID: nil, AuthorizationID: nil, CreatedAt: created,
 		}
-		sv.store.Payments = append(sv.store.Payments, p)
+		sv.store.registerPaymentLocked(p, false)
 		resp, _ := json.Marshal(p)
 		return http.StatusCreated, resp, false, true
 	})
+}
+
+func paymentCreatedAtDesc(a, b Payment) bool {
+	ta, oka := parseTime(a.CreatedAt)
+	tb, okb := parseTime(b.CreatedAt)
+	if oka && okb {
+		if ta.Equal(tb) {
+			return a.PaymentID > b.PaymentID
+		}
+		return ta.After(tb)
+	}
+	return a.CreatedAt > b.CreatedAt
 }
 
 func (sv *Server) handleCreateRequest(w http.ResponseWriter, r *http.Request) {
@@ -521,7 +522,7 @@ func (sv *Server) handlePayRequest(w http.ResponseWriter, r *http.Request, reqID
 			Currency: sv.store.Currency, Note: mr.Note, Visibility: vis,
 			RequestID: &rid, AuthorizationID: nil, CreatedAt: nowRFC3339(),
 		}
-		sv.store.Payments = append(sv.store.Payments, p)
+		sv.store.registerPaymentLocked(p, false)
 		mr.Status = "paid"
 		mr.PaymentID = &pid
 		resp, _ := json.Marshal(p)
@@ -758,7 +759,7 @@ func (sv *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	sort.Slice(visible, func(i, j int) bool {
-		return visible[i].CreatedAt > visible[j].CreatedAt
+		return paymentCreatedAtDesc(visible[i], visible[j])
 	})
 	hasMore := len(visible) > offset+limit
 	if offset > len(visible) {
@@ -899,7 +900,7 @@ func (sv *Server) handleSettlements(w http.ResponseWriter, r *http.Request) {
 				Currency: sv.store.Currency, Note: x.note, Visibility: x.vis,
 				RequestID: nil, AuthorizationID: nil, SettlementID: &sid, CreatedAt: committed,
 			}
-			sv.store.Payments = append(sv.store.Payments, p)
+			sv.store.registerPaymentLocked(p, false)
 			payments = append(payments, p)
 		}
 		out := map[string]any{

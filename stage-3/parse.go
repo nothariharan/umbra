@@ -14,6 +14,52 @@ const maxAmount int64 = 1000000000
 
 var handleRe = regexp.MustCompile(`^[a-z0-9_]{1,20}$`)
 
+func parseNonNegativeAmount(raw json.RawMessage) (int64, bool, errorKind) {
+	if len(raw) == 0 {
+		return 0, false, errValidation
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		return 0, false, errMalformed
+	}
+	switch x := v.(type) {
+	case string, bool:
+		return 0, false, errValidation
+	case float64:
+		if math.IsNaN(x) || math.IsInf(x, 0) {
+			return 0, false, errValidation
+		}
+		if x != math.Trunc(x) {
+			return 0, false, errValidation
+		}
+		if x < 0 || x > float64(maxAmount) {
+			return 0, false, errValidation
+		}
+		return int64(x), true, errNone
+	default:
+		return 0, false, errMalformed
+	}
+}
+
+func parseExpectedRevision(raw json.RawMessage) (int, bool, errorKind) {
+	if len(raw) == 0 {
+		return 0, false, errValidation
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		return 0, false, errMalformed
+	}
+	switch x := v.(type) {
+	case float64:
+		if x != math.Trunc(x) || x < 1 {
+			return 0, false, errValidation
+		}
+		return int(x), true, errNone
+	default:
+		return 0, false, errValidation
+	}
+}
+
 func parseIntegralAmount(raw json.RawMessage) (int64, bool, errorKind) {
 	if len(raw) == 0 {
 		return 0, false, errValidation

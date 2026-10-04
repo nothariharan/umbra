@@ -88,6 +88,7 @@ func (sv *Server) handleCreateAuthorization(w http.ResponseWriter, r *http.Reque
 			ExpiresAt: expires, CreatedAt: created, PaymentID: nil, PaymentIDs: []string{},
 		}
 		sv.store.Authorizations = append(sv.store.Authorizations, a)
+		// open hold — no closed_at
 		resp, _ := json.Marshal(authResponse(a, sv.store.Currency))
 		return http.StatusCreated, resp, false, true
 	})
@@ -198,7 +199,7 @@ func (sv *Server) handleCaptureAuthorization(w http.ResponseWriter, r *http.Requ
 			Currency: sv.store.Currency, Note: a.Note, Visibility: a.Visibility,
 			RequestID: nil, AuthorizationID: &aid, CreatedAt: nowRFC3339(),
 		}
-		sv.store.Payments = append(sv.store.Payments, p)
+		sv.store.registerPaymentLocked(p, false)
 		a.CapturedAmount += captureAmt
 		a.PaymentID = &pid
 		if a.PaymentIDs == nil {
@@ -211,6 +212,7 @@ func (sv *Server) handleCaptureAuthorization(w http.ResponseWriter, r *http.Requ
 			if a.Status == "open" {
 				a.Status = "captured"
 			}
+			sv.store.setAuthClosedLocked(a, p.CreatedAt)
 		}
 		resp, _ := json.Marshal(p)
 		return http.StatusCreated, resp, false, true
@@ -243,6 +245,8 @@ func (sv *Server) handleVoidAuthorization(w http.ResponseWriter, r *http.Request
 		return
 	}
 	a.Status = "voided"
+	closed := nowRFC3339()
+	sv.store.setAuthClosedLocked(a, closed)
 	writeJSON(w, http.StatusOK, authResponse(*a, sv.store.Currency))
 }
 

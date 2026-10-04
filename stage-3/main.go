@@ -21,7 +21,20 @@ func main() {
 	mux.HandleFunc("POST /auth/signup", sv.handleSignup)
 	mux.HandleFunc("POST /auth/login", sv.handleLogin)
 	mux.HandleFunc("GET /me", sv.withAuth(sv.handleMe))
+	mux.HandleFunc("GET /statement", sv.withAuth(sv.handleStatement))
 	mux.HandleFunc("POST /payments", sv.withAuth(sv.handlePayments))
+	mux.HandleFunc("GET /payments/{id}/revisions", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		sv.withAuth(func(w http.ResponseWriter, r *http.Request) {
+			sv.handlePaymentRevisions(w, r, id)
+		})(w, r)
+	})
+	mux.HandleFunc("POST /payments/{id}/corrections", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		sv.withAuth(func(w http.ResponseWriter, r *http.Request) {
+			sv.handlePaymentCorrection(w, r, id)
+		})(w, r)
+	})
 	mux.HandleFunc("POST /requests", sv.withAuth(sv.handleCreateRequest))
 	mux.HandleFunc("POST /splits", sv.withAuth(sv.handleSplits))
 	mux.HandleFunc("GET /activity", sv.withAuth(sv.handleActivity))
