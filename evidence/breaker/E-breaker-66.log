@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File attacks/stage-3/run_breaker_s3.ps1 -Rev 55207f5fd143abafb601ae8f6114aa8d6e5feb50 -Module test_statement.py
+............                                                             [100%]
+12 passed in 52.08s
+
+exit 0

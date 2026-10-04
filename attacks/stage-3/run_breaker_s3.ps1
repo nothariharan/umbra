@@ -1,4 +1,4 @@
-param([string]$Rev = $env:SUBMIT_REV)
+param([string]$Rev = $env:SUBMIT_REV, [string]$Module = '')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
@@ -8,7 +8,11 @@ $rev = if ($Rev) { $Rev } else { throw 'SUBMIT_REV is required' }
 $boot = & $py scripts/lever.py boot --stage 3 --rev $rev 2>&1 | Out-String
 if ($boot -notmatch 'BASE_URL=(\S+)') { throw "no BASE_URL in boot output: $boot" }
 $env:BASE_URL = $Matches[1]
-& $py -m pytest -q -p no:cacheprovider attacks/stage-3
+if ($Module) {
+  & $py -m pytest -q -p no:cacheprovider "attacks/stage-3/$Module"
+} else {
+  & $py -m pytest -q -p no:cacheprovider attacks/stage-3
+}
 $code = $LASTEXITCODE
 & $py scripts/lever.py stop | Out-Null
 exit $code
