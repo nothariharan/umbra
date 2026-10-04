@@ -1,5 +1,99 @@
-$ powershell -NoProfile -File attacks/stage-4/run_breaker_s4.ps1 -Rev 10d2be5fa9c61614c4b0c8395f55b20ce6bae550 -Module test_concurrency4.py
-...                                                                      [100%]
-3 passed in 8.02s
+$ powershell -NoProfile -File attacks/stage-4/run_breaker_s4.ps1 -Rev b3541f195b66
+..........................F..F..F...                                     [100%]
+================================== FAILURES ===================================
+__________ test_import_preserves_corrections_membership_and_snapshot __________
 
-exit 0
+boot4 = <function boot4.<locals>._boot at 0x0000014064D4DB20>
+
+    def test_import_preserves_corrections_membership_and_snapshot(boot4):
+        world = boot4(fixture3(users=_users(), operators=["u_op"]))
+        made, member = _seed_ledger(world)
+        snapshot = assert_status(world.ada.statement(limit=200), 200).json()
+        token = snapshot.get("snapshot")
+        assert token, "the statement must return a snapshot token"
+    
+        exported = assert_status(_export(), 200).json()
+        from attacklib4 import do_reset
+        do_reset(fixture3(users=_users(9, 9, 9, 9), operators=["u_op"]))
+        assert_status(_import(exported), 204)
+    
+        revs = revisions_of(world.ada.revisions(made["payment_id"]))
+        assert len(revs) == 2 and revs[-1]["amount"] == 150, \
+            f"import must retain corrections: {revs}"
+        entries = {e["payment"]["payment_id"]: e for e in
+                   entries_of(world.ada.statement(limit=200))}
+        assert entries[made["payment_id"]]["payment"]["amount"] == 150
+        # settlement membership survived
+        account = assert_status(world.bob.get("/activity", params={"limit": 200}), 200).json()
+        rows = account.get("payments") if isinstance(account, dict) else account
+        live = [p for p in rows if p["payment_id"] == member["payment_id"]]
+        assert live and live[0].get("settlement_id"), "import must retain settlement membership"
+        # a re-export of the imported state is unchanged, so snapshots/corrections round-trip
+        again = assert_status(_export(), 200).json()
+>       assert again == exported, "import must retain the snapshot-carrying state"
+E       AssertionError: import must retain the snapshot-carrying state
+E       assert {'format_vers...: 'pocketful'} == {'format_vers...: 'pocketful'}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'state': {'authorization_ttl_seconds': 600, 'authorizations': None, 'currency': 'EUR', 'idempotency': {'u_ada\x00POST...xKzAwOjAwIn1dLCJzZXR0bGVtZW50X2lkIjoic3RfYjI5YWJiYTBkZWM5YjlhMGEzYmU1MDAxZGQwYWYyN2EifQ==', 'status_code': 201}}, ...}} != {'state': {'authorization_ttl_seconds': 600, 'authorizations': None, 'currency': 'EUR', 'idempotency': {'u_ada\x00POST...xKzAwOjAwIn1dLCJzZXR0bGVtZW50X2lkIjoic3RfYjI5YWJiYTBkZWM5YjlhMGEzYmU1MDAxZGQwYWYyN2EifQ==', 'status_code': 201}}, ...}}
+E         Use -v to get more diff
+
+attacks\stage-4\test_import4.py:95: AssertionError
+________________ test_refund_target_kinds_and_refund_of_refund ________________
+
+world4 = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...014064C62720>, <attacklib4.S4Client object at 0x0000014064D17380>, <attacklib4.S4Client object at 0x0000014064D6EE40>])
+
+    def test_refund_target_kinds_and_refund_of_refund(world4):
+        direct = _direct(world4, 100)
+        first = assert_status(world4.bob.refund(direct["payment_id"], 40), 201).json()
+        # the refund itself is from bob -> ada: ada is the receiver and reaches the target check
+        # (invalid_refund_target); bob is only the sender and gets 403.
+        assert_error(world4.ada.refund(first["payment_id"], 10), 422, "invalid_refund_target")
+>       assert_error(world4.bob.refund(first["payment_id"], 10), 403, "forbidden")
+
+attacks\stage-4\test_refunds.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [422 Unprocessable Entity]>, status = 403, code = 'forbidden'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 403 forbidden, got 422 invalid_refund_target. POST /payments/p_ee8c691af5c79e1af1e85dacd8ce67ab/refunds -> 422 '{"error":{"code":"invalid_refund_target","message":"invalid_refund_target"}}'
+
+attacks\stage-1\attacklib.py:105: AssertionError
+_____________ test_refund_debits_receiver_available_and_fails_409 _____________
+
+boot4 = <function boot4.<locals>._boot at 0x0000014064D4D940>
+
+    def test_refund_debits_receiver_available_and_fails_409(boot4):
+        world = boot4(fixture3(users=_users(ada=1000, bob=50, cy=1000, op=0), operators=[]))
+        made = _direct(world, 100)  # bob now holds 150 total
+        held = assert_status(world.bob.authorize("cy", 100), 201).json()  # available falls to 50
+        bob_before = world.bob.balance()
+        assert_error(world.bob.refund(made["payment_id"], 60), 409, "insufficient_funds")
+        assert world.bob.balance() == bob_before, "a failed refund must not move money"
+>       ok = assert_status(world.bob.refund(made["payment_id"], 50), 201).json()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+attacks\stage-4\test_refunds.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 201
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 201. POST /payments/p_4bd986bcf8519a3aa2f917b59b01249f/refunds -> 409 '{"error":{"code":"insufficient_funds","message":"insufficient_funds"}}'
+
+attacks\stage-1\attacklib.py:82: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-4/test_import4.py::test_import_preserves_corrections_membership_and_snapshot
+FAILED attacks/stage-4/test_refunds.py::test_refund_target_kinds_and_refund_of_refund
+FAILED attacks/stage-4/test_refunds.py::test_refund_debits_receiver_available_and_fails_409
+3 failed, 33 passed in 72.86s (0:01:12)
+
+exit 1
