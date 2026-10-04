@@ -1,0 +1,51 @@
+$ python scripts/lever.py checks --suite verifier --stage 3 --rev 1d75850acf29
+........................................................................ [ 44%]
+..................................sss................................... [ 89%]
+..............F..                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_s3_c3_activity_ordered_by_created_at __________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001DBE4E81A90>, bob=<s3lib.http.Api object at 0x000001DBE3E9F2F0>, cy=<s3lib.http.Api object at 0x000001DBE39C94F0>)
+reset = <function reset.<locals>._reset at 0x000001DBE5078220>
+pay = <function pay.<locals>._pay at 0x000001DBE4F46020>
+
+    def test_s3_c3_activity_ordered_by_created_at(world, reset, pay):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "p_old",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10,
+                    "visibility": "public",
+                    "created_at": "2026-09-20T10:00:00+00:00",
+                },
+                {
+                    "id": "p_new",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 20,
+                    "visibility": "public",
+                    "created_at": "2026-09-21T10:00:00+00:00",
+                },
+            ]
+        )
+        reset(fx_body)
+        act = world.ada.get("/activity")
+        assert_status(act, 200)
+        ids = [p["payment_id"] for p in act.json()["payments"]]
+>       assert ids.index("p_old") < ids.index("p_new")
+E       AssertionError: assert 1 < 0
+E        +  where 1 = <built-in method index of list object at 0x000001DBE4FE0880>('p_old')
+E        +    where <built-in method index of list object at 0x000001DBE4FE0880> = ['p_new', 'p_old'].index
+E        +  and   0 = <built-in method index of list object at 0x000001DBE4FE0880>('p_new')
+E        +    where <built-in method index of list object at 0x000001DBE4FE0880> = ['p_new', 'p_old'].index
+
+..\..\..\..\AppData\Local\Temp\umbra-1d75850a-lsdt87b7\repo\verify\stage-3\test_s3_timestamps.py:52: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-1d75850a-lsdt87b7\repo\verify\stage-3\test_s3_timestamps.py::test_s3_c3_activity_ordered_by_created_at
+1 failed, 157 passed, 3 skipped in 714.59s (0:11:54)
+verifier stage 3: FAIL (exit 1)
+
+timed out after 600s
+exit 124

@@ -49,7 +49,8 @@ def test_s3_c3_activity_ordered_by_created_at(world, reset, pay):
     act = world.ada.get("/activity")
     assert_status(act, 200)
     ids = [p["payment_id"] for p in act.json()["payments"]]
-    assert ids.index("p_old") < ids.index("p_new")
+    # S3-U3: activity newest-first (descending created_at), same as stages 1–2.
+    assert ids.index("p_new") < ids.index("p_old")
 
 
 def test_s3_c4_future_seeded_created_at_rejected(reset, world):
