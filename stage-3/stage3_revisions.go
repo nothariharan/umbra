@@ -282,11 +282,17 @@ func (s *Store) applyCorrectionLocked(pid string, u *User, expectedRev int, amou
 		Reason: reason,
 	}
 
-	if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
-		return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
+	backdated := hasCurEff && effT.Before(curEffT)
+	if backdated {
+		if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
+			return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
+		}
 	}
 	if delta > 0 && s.availableForUserLocked(from.ID) < delta {
 		return PaymentRevision{}, httpStatusConflict, "insufficient_funds"
+	}
+	if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
+		return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
 	}
 
 	from.Balance -= delta
