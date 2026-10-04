@@ -27,12 +27,7 @@ func (s *Store) latestRevisionLocked(pid string) (PaymentRevision, bool) {
 }
 
 func (s *Store) registerPaymentLocked(p Payment, applyBalance bool) {
-	eff := p.CreatedAt
-	rec := p.CreatedAt
-	if p.SettlementID != nil {
-		eff = p.CreatedAt
-		rec = p.CreatedAt
-	}
+	eff, rec := p.CreatedAt, p.CreatedAt
 	if applyBalance {
 		from := s.Users[p.FromUserID]
 		to := s.Users[p.ToUserID]
@@ -287,17 +282,11 @@ func (s *Store) applyCorrectionLocked(pid string, u *User, expectedRev int, amou
 		Reason: reason,
 	}
 
-	backdated := hasCurEff && effT.Before(curEffT)
-	if backdated {
-		if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
-			return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
-		}
+	if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
+		return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
 	}
 	if delta > 0 && s.availableForUserLocked(from.ID) < delta {
 		return PaymentRevision{}, httpStatusConflict, "insufficient_funds"
-	}
-	if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
-		return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
 	}
 
 	from.Balance -= delta

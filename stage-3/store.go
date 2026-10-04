@@ -211,6 +211,11 @@ func (s *Store) loadSnapshot(snap storeSnapshot) {
 	if s.ImmutablePayments == nil {
 		s.ImmutablePayments = make(map[string]struct{})
 	}
+	for _, p := range s.Payments {
+		if p.SettlementID != nil || p.AuthorizationID != nil {
+			s.ImmutablePayments[p.PaymentID] = struct{}{}
+		}
+	}
 	s.ResetAt = snap.ResetAt
 	s.StatementSnapshots = make(map[string]*statementSnapshot)
 }
