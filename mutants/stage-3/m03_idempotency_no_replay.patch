@@ -1,0 +1,12 @@
+diff --git a/stage-3/idempotency.go b/stage-3/idempotency.go
+index 1111111..2222222 100644
+--- a/stage-3/idempotency.go
++++ b/stage-3/idempotency.go
+@@ -38,6 +38,7 @@ type idemResult struct {
+ 
+ func (s *Store) beginIdempotency(fullKey, bodyHash string) (idemResult, func(int, []byte, bool), func(), bool) {
+ 	s.mu.Lock()
++	delete(s.Idempotency, fullKey)
+ 	rec, ok := s.Idempotency[fullKey]
+ 	if ok {
+ 		if rec.Failed4xx {

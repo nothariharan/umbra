@@ -1,0 +1,28 @@
+diff --git a/stage-3/stage3_revisions.go b/stage-3/stage3_revisions.go
+index 1111111..2222222 100644
+--- a/stage-3/stage3_revisions.go
++++ b/stage-3/stage3_revisions.go
+@@ -58,22 +58,7 @@ func (s *Store) selectedRevisionAtLocked(pid string, knownAt *time.Time) (Paymen
+ 	if len(revs) == 0 {
+ 		return PaymentRevision{}, false
+ 	}
+-	if knownAt == nil {
+-		return revs[len(revs)-1], true
+-	}
+-	var sel *PaymentRevision
+-	for i := range revs {
+-		recT, ok := parseTime(revs[i].RecordedAt)
+-		if !ok || recT.After(*knownAt) {
+-			continue
+-		}
+-		if sel == nil || revs[i].Revision > sel.Revision {
+-			cp := revs[i]
+-			sel = &cp
+-		}
+-	}
+-	if sel == nil {
+-		return PaymentRevision{}, false
+-	}
+-	return *sel, true
++	return revs[len(revs)-1], true
+ }

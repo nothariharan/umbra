@@ -1,0 +1,13 @@
+diff --git a/stage-3/handlers.go b/stage-3/handlers.go
+index 1111111..2222222 100644
+--- a/stage-3/handlers.go
++++ b/stage-3/handlers.go
+@@ -375,7 +375,7 @@ func paymentCreatedAtDesc(a, b Payment) bool {
+ 		if ta.Equal(tb) {
+ 			return a.PaymentID > b.PaymentID
+ 		}
+-		return ta.After(tb)
++		return ta.Before(tb)
+ 	}
+ 	return a.CreatedAt > b.CreatedAt
+ }
