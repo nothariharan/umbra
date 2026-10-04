@@ -18,8 +18,12 @@ def test_s2_ui_r8_pay_no_double_submit_without_change(page, base_url, viewport_w
     page.get_by_test_id("pay-handle").fill("bob")
     page.get_by_test_id("pay-amount").fill("1.00")
     page.get_by_test_id("pay-submit").click()
-    page.get_by_test_id("wallet-balance").wait_for(
-        lambda el: el.get_attribute("data-amount") != "10000", timeout=10_000
+    page.wait_for_function(
+        """() => {
+            const el = document.querySelector('[data-testid="wallet-balance"]');
+            return el && el.getAttribute('data-amount') !== '10000';
+        }""",
+        timeout=10_000,
     )
     bal1 = page.get_by_test_id("wallet-balance").get_attribute("data-amount")
     page.get_by_test_id("pay-submit").click()
