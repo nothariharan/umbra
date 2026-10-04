@@ -67,3 +67,44 @@ python scripts/lever.py checks --suite breaker --stage 2 --rev <REV>
 A failing test that reproduces twice is a REJECT; the protocol line names the class,
 the command, its exit code and the output hash. UI races run Chromium headless inside the
 same suite; a browser launch failure is a real failure, not a skip.
+
+# Breaker attack plan — Pocketful stage 3
+
+Suite: `attacks/stage-3/`, run by `python scripts/lever.py checks --suite breaker --stage 3`
+(which also re-runs `attacks/stage-1` and `attacks/stage-2`, covering the S3-R30 UI regression).
+Every test reads `BASE_URL`; the lever builds and boots the exact revision. For a single module
+that boots its own service, `attacks/stage-2/run_attack.ps1 -Stage 3 -Rev <REV> -Files <file>`
+does the same work and never pins a port.
+
+## Threat model
+
+Stage 3 makes the ledger auditable in time. The ways it breaks are: a correction applied
+twice or not at all, a revision recorded but not applied by effective time, a statement
+whose balances do not add up or shift under pagination, a snapshot that absorbs later
+writes, a `known_at` view that sees the future, an `as_of` that orders by the literal
+offset string instead of the instant, a past boundary that goes negative while the current
+balance does not, and an imported ledger that loses authorizations or lets a linked
+payment be corrected.
+
+## Classes and coverage
+
+| Class | File | Headline attacks |
+|---|---|---|
+| Timestamps / ordering | `test_timestamps.py` | RFC3339+offset on every payment reader; activity newest-first by instant with a mixed-offset string trap; seeded `created_at` ordering and omission; future and malformed seeded times 422 with no state change; seeded balance unchanged |
+| Temporal reads | `test_temporal.py` | `as_of` before earliest / exactly at a payment / after latest; exact echo; invalid forms 422; `known_at` revision selection and echo; historical hold `total`/`available`/`held` consistency |
+| Statement | `test_statement.py` | oldest-first, half-open `[from,to)`, opening+sum(deltas)=closing, pagination invariance, party-only visibility, corrected ordering by `effective_at` with selected `amount`, zero revision, capture once with link |
+| Corrections | `test_corrections.py` | sender-only 403, unknown 404, validation table, replay 200 + key reuse 409, `stale_revision`, strict `recorded_at`, same-party delta and conservation, zero reversal, `insufficient_funds` vs `historical_overdraft` precedence with preserved state, party-only ordered revisions, activity original only, `linked_payment_immutable` for capture/settlement members |
+| Snapshot | `test_snapshot.py` | token on first statement, paging freezes entries and balances, window/`known_at` combos 422, unknown/wrong-user/pre-reset token 404, stability through concurrent writes, concurrent same `expected_revision` cannot both succeed |
+| Concurrency | `test_concurrency3.py` | concurrent distinct corrections conserve the seeded total, 40 concurrent temporal/statement reads never 5xx, concurrent payments keep opening+sum(deltas)=closing |
+| Durability / import | `test_durability3.py` | export-import round trip restores balances, tokens and statement; authorization ledger survives with capture immutable; settlement member immutable after import |
+
+Coverage ledger: `S3-B1..S3-B7`, recorded in `record/breaker.jsonl`.
+
+## Reproduction
+
+```
+python scripts/lever.py checks --suite breaker --stage 3 --rev <REV>
+```
+
+A failing test that reproduces twice is a REJECT; the protocol line names the class,
+the command, its exit code and the output hash.
