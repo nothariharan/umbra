@@ -31,6 +31,7 @@ def test_s3_c14_revision_one_fields(reset, world):
     revs = assert_status(world.ada.get(f"/payments/{pid}/revisions"), 200).json()["revisions"]
     assert revs[0]["revision"] == 1
     assert revs[0]["amount"] == 500
+    assert revs[0]["reason"] == ""
     assert revs[0]["effective_at"] == revs[0]["recorded_at"] == "2026-09-20T12:00:00+00:00"
 
 

@@ -102,5 +102,5 @@ def test_s3_c28_statement_payments_only_no_auth_rows(reset, world, authorize):
         201,
     )
     st = assert_status(world.ada.get("/statement"), 200).json()
-    for entry in st["entries"]:
-        assert "authorization_id" not in entry or entry["payment"].get("authorization_id")
+    assert len(st["entries"]) >= 1
+    assert all("payment" in e and "delta" in e for e in st["entries"])
