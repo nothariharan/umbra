@@ -271,13 +271,16 @@ func (s *Store) nextBatchRecordedAtLocked(items []batchCorrectionItem) string {
 			maxRec = t
 		}
 	}
-	if !maxRec.IsZero() {
-		minNext := maxRec.Add(time.Second)
-		if s.lastMonotonicTime.Before(minNext) {
-			s.lastMonotonicTime = minNext
-		}
+	nowT := now()
+	if maxRec.IsZero() {
+		return formatTime(nowT)
 	}
-	return s.nextEventTimeRFC3339Locked()
+	maxSec, _ := parseTime(formatTime(maxRec))
+	nowSec, _ := parseTime(formatTime(nowT))
+	if nowSec.After(maxSec) {
+		return formatTime(nowT)
+	}
+	return formatTime(maxRec.Add(time.Second))
 }
 
 func clonePaymentRevisions(src map[string][]PaymentRevision) map[string][]PaymentRevision {
