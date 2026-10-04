@@ -261,20 +261,40 @@ func (s *Store) applyCorrectionLocked(pid string, u *User, expectedRev int, amou
 	delta := amount - cur.Amount
 	from := s.Users[p.FromUserID]
 	to := s.Users[p.ToUserID]
-	if delta > 0 && s.availableForUserLocked(from.ID) < delta {
-		return PaymentRevision{}, httpStatusConflict, "insufficient_funds"
-	}
 
 	recorded := nowRFC3339()
-	if lastT, ok := parseTime(cur.RecordedAt); ok {
+	lastT, hasLast := parseTime(cur.RecordedAt)
+	curEffT, hasCurEff := parseTime(cur.EffectiveAt)
+	if hasLast {
 		if recT, ok2 := parseTime(recorded); ok2 && !recT.After(lastT) {
 			recorded = mustFormatTime(lastT.Add(time.Second))
+		}
+		if hasCurEff && effT.Before(curEffT) {
+			bump := lastT.Add(time.Second)
+			nowT := now()
+			if bump.After(nowT) {
+				bump = nowT
+			}
+			if !bump.After(lastT) {
+				bump = lastT.Add(time.Second)
+			}
+			recorded = mustFormatTime(bump)
 		}
 	}
 	newRev := PaymentRevision{
 		Revision: cur.Revision + 1, Amount: amount,
 		EffectiveAt: effectiveAt, RecordedAt: recorded,
 		Reason: reason,
+	}
+
+	backdated := hasCurEff && effT.Before(curEffT)
+	if backdated {
+		if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
+			return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
+		}
+	}
+	if delta > 0 && s.availableForUserLocked(from.ID) < delta {
+		return PaymentRevision{}, httpStatusConflict, "insufficient_funds"
 	}
 	if s.checkHistoricalOverdraftForPaymentLocked(pid, newRev, nil) {
 		return PaymentRevision{}, httpStatusConflict, "historical_overdraft"
@@ -283,6 +303,8 @@ func (s *Store) applyCorrectionLocked(pid string, u *User, expectedRev int, amou
 	from.Balance -= delta
 	to.Balance += delta
 	s.PaymentRevisions[pid] = append(s.PaymentRevisions[pid], newRev)
+	p.Amount = amount
+	s.Payments[idx] = p
 	return newRev, httpStatusCreated, ""
 }
 

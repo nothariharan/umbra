@@ -368,16 +368,16 @@ func (sv *Server) handlePayments(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func paymentCreatedAtDesc(a, b Payment) bool {
+func paymentCreatedAtAsc(a, b Payment) bool {
 	ta, oka := parseTime(a.CreatedAt)
 	tb, okb := parseTime(b.CreatedAt)
 	if oka && okb {
 		if ta.Equal(tb) {
-			return a.PaymentID > b.PaymentID
+			return a.PaymentID < b.PaymentID
 		}
-		return ta.After(tb)
+		return ta.Before(tb)
 	}
-	return a.CreatedAt > b.CreatedAt
+	return a.CreatedAt < b.CreatedAt
 }
 
 func (sv *Server) handleCreateRequest(w http.ResponseWriter, r *http.Request) {
@@ -759,7 +759,7 @@ func (sv *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	sort.Slice(visible, func(i, j int) bool {
-		return paymentCreatedAtDesc(visible[i], visible[j])
+		return paymentCreatedAtAsc(visible[i], visible[j])
 	})
 	hasMore := len(visible) > offset+limit
 	if offset > len(visible) {

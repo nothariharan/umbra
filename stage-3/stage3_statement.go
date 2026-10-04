@@ -134,11 +134,21 @@ func paginateStatementEntries(entries []statementEntry, limit, offset int) ([]st
 	return page, hasMore
 }
 
+func cloneStatementEntries(entries []statementEntry) []statementEntry {
+	if len(entries) == 0 {
+		return emptyJSONArray[statementEntry]()
+	}
+	out := make([]statementEntry, len(entries))
+	copy(out, entries)
+	return out
+}
+
 func (s *Store) getStatementSnapshotLocked(token, userID string) (*statementSnapshot, bool) {
 	snap, ok := s.StatementSnapshots[token]
 	if !ok || snap.UserID != userID || snap.ResetAt != s.ResetAt {
 		return nil, false
 	}
 	cp := *snap
+	cp.Entries = cloneStatementEntries(snap.Entries)
 	return &cp, true
 }

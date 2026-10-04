@@ -67,7 +67,7 @@ func (sv *Server) handleStatement(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusUnprocessableEntity, "validation_failed", "invalid params with snapshot")
 			return
 		}
-		limit, offset, ok2 := parseLimitOffset(q)
+		limit, offset, ok2 := parseStatementLimitOffset(q)
 		if !ok2 {
 			writeError(w, http.StatusUnprocessableEntity, "validation_failed", "invalid pagination")
 			return
@@ -91,7 +91,7 @@ func (sv *Server) handleStatement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit, offset, ok2 := parseLimitOffset(q)
+	limit, offset, ok2 := parseStatementLimitOffset(q)
 	if !ok2 {
 		writeError(w, http.StatusUnprocessableEntity, "validation_failed", "invalid pagination")
 		return
@@ -132,6 +132,7 @@ func (sv *Server) handleStatement(w http.ResponseWriter, r *http.Request) {
 
 	sv.store.mu.Lock()
 	built := sv.store.buildStatementLocked(u.ID, fromT, toT, knownRaw, knownAt)
+	built.Entries = cloneStatementEntries(built.Entries)
 	token := newSnapshotToken()
 	built.Token = token
 	sv.store.StatementSnapshots[token] = &built
