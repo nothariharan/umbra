@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pocketful</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-page="home" data-minor-units="2">
+  <header>
+    <span data-testid="current-user"></span>
+    <span data-testid="current-handle"></span>
+    <button type="button" data-testid="logout-button">Log out</button>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/requests">Requests</a>
+      <a href="/authorizations">Authorizations</a>
+      <a href="/split">Split</a>
+    </nav>
+    <div class="wallet">
+      <div class="wallet-headline" data-testid="wallet-available" data-amount="0">0.00 EUR</div>
+      <div data-testid="wallet-balance" data-amount="0">0.00 EUR</div>
+      <button type="button" data-testid="wallet-refresh">Refresh</button>
+    </div>
+  </header>
+  <main>
+    <section>
+      <h2>Pay</h2>
+      <form data-testid="pay-form">
+        <input data-testid="pay-handle" name="to_handle" placeholder="Handle" required>
+        <input data-testid="pay-amount" name="amount" placeholder="Amount" required>
+        <input data-testid="pay-note" name="note" placeholder="Note">
+        <select data-testid="pay-visibility" name="visibility">
+          <option value="public">public</option>
+          <option value="private">private</option>
+        </select>
+        <button type="submit" data-testid="pay-submit">Pay</button>
+      </form>
+    </section>
+    <section>
+      <h2>Request</h2>
+      <form data-testid="request-form">
+        <input data-testid="request-handle" name="payer_handle" placeholder="Payer handle" required>
+        <input data-testid="request-amount" name="amount" placeholder="Amount" required>
+        <input data-testid="request-note" name="note" placeholder="Note">
+        <button type="submit" data-testid="request-submit">Request</button>
+      </form>
+    </section>
+    <section>
+      <h2>Activity</h2>
+      <div data-testid="activity-host">
+        <div data-testid="empty-activity" class="empty-marker activity-empty-static">&nbsp;</div>
+      </div>
+    </section>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

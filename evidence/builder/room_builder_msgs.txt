@@ -1,0 +1,809 @@
+﻿found 73
+page 1  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] CLOCK (automatic) builder: your runtime stopped responding and was restarted. Messages sent to you since 23:02 UTC were lost. Run `python scripts/record.py status`, then act on the latest REQUEST or SUBMIT addressed to you.
+
+---
+page 1  Certifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **SUBMIT `b013f5e17143` (S2-R28, S2-R29)** ΓÇö certifier lane unchanged: **S2-CC1/2/3** already pass at this rev (`E-certifier-7`, `E-certifier-14`, `E-certifier-10ΓÇª13`). **`E-uireviewer-12`** re-executed earlier ΓåÆ **REPRODUCED**.
+
+**SEAL not issued.** `record.py` still **3/31** at `b013f5e17143`. **S2-R28** unrun: **S2-UI-C11**, **S2-UI-C12**, **S2-C24**; **S2-R29** unrun: **S2-UI-C10**, **S2-UI-C12** ( **`E-uireviewer-12`** is **S2-UI-C9** only). **S2-R4/R5** still **FAILING E-verifier-135**. **ESCALATE** to Lead remains open for record coverage vs scoped seal.
+---
+page 1  Certifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **SUBMIT `b013f5e17143` (S2-R22, S2-R23, S2-R28)** ΓÇö certifier gate at this revision:
+
+| Check | Evidence | Result |
+|--------|-----------|--------|
+| S2-CC1 | E-certifier-7 | isolated official exit 0 |
+| S2-CC2 | E-certifier-14 | scoped ACCEPT reexec exit 0 (`E-verifier-61`, `E-verifier-56`, breaker cites, `E-uireviewer-10/11`; replay host on :50489) |
+| S2-CC3 | E-certifier-10ΓÇª13 | mutation 3/3 (per-mutant + parent) |
+
+**SEAL not issued.** `python scripts/record.py status --stage 2 --rev b013f5e17143` ΓåÆ **3/31** verified. `record.py verdict SEAL` refused. Notable blockers: **S2-R4/S2-R5** failing **E-verifier-135** (S2-C4); **S2-R22/S2-R28** still unrun on **S2-C18**, **S2-C24**, **S2-UI-C11/C12** at this rev despite scoped ACCEPT evidence.
+
+**ESCALATE** sent to Lead for full-record coverage vs scoped seal. Product pin unchanged; certifier lane complete pending record clearance.
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] ACCEPT stage=2 rev=b013f5e17143 ev=E-verifier-140,E-verifier-141,E-verifier-143
+
+Re-ran at **`b013f5e17143`** (not **`a094b09847ed`**). **`a094b09847ed`** REJECT stands for that pin only.
+
+**S2-R22 / S2-R23 / S2-R28** (scoped submit):
+
+| Check | Result | Evidence |
+|--------|--------|----------|
+| **S2-C19** | 26 passed (`repro_s2_submit_r22_r23_r28.ps1`) | **E-verifier-140**, sha `42770144fd1e97e5` |
+| **S2-C32** | official stage 2 isolated pass | **E-verifier-141**, sha `b2e61b398f1bc64a` |
+| **S2-C25** | authorizations UI testids (`repro_s2_c25.ps1`) | **E-verifier-143** |
+
+```powershell
+$env:UMBRA_SEAT='verifier'
+$env:SUBMIT_REV='b013f5e17143'
+powershell -NoProfile -File evidence/verifier/repro_s2_submit_r22_r23_r28.ps1
+```
+
+Capture invalid amount ΓåÆ **422 `validation_failed`** at this rev (contrast **201** at **`a094b09847ed`**). Prior ACCEPTs on record for **`b013f5e17143`** supersede stale **`a094b098`** review for this scope. **Certifier** may proceed on **`b013f5e17143`**.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Duplicate SUBMIT for `b013f5e17143`; already ACCEPTed with E-breaker-28ΓÇª33. No action.
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] ACCEPT stage=1 rev=1125eee49810 ev=E-verifier-138,E-verifier-139
+
+**S1-R42** verified at **`1125eee49810`** (includes **4dc03cb** settlement error-code fix).
+
+**S1-C24:** `POST /settlements` self-payment ΓåÆ **422** with **`error.code` `self_payment`** (not `validation_failed`).
+
+```powershell
+$env:UMBRA_SEAT='verifier'
+$env:SUBMIT_REV='1125eee49810'
+powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C24
+```
+
+- **Exit:** 0  
+- **SHA:** `8e08f6ec36f601dd`  
+- **Log:** `evidence/verifier/E-verifier-138.log`
+
+**S1-C34** settlement batch edge cases also pass at this rev (**E-verifier-139**). Builder **E-builder-13** aligns with verifier run. **`89bbfd52ef55`** correctly rejected earlier (predates fix).
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REJECT stage=2 rev=a094b09847ed check=S2-C19 ev=E-verifier-137
+
+**S2-R23** (check **S2-C19**): `POST /authorizations/{id}/capture` with invalid `amount` (e.g. `0`) returns **201** and creates a payment instead of **422** with `error.code` **`validation_failed`**. Same for `-1`, `1.5`, and `"x"` in `test_s2_c19_capture_invalid_amount_validation_failed`.
+
+Reproduction (from `result` repo root):
+
+```powershell
+$env:UMBRA_SEAT='verifier'
+$env:SUBMIT_REV='a094b09847ed'
+powershell -NoProfile -File evidence/verifier/repro_s2_submit_r22_r23_r28.ps1
+```
+
+- **Exit code:** 1  
+- **Output hash:** `9add447322a5e45e`  
+- **Log:** `evidence/verifier/E-verifier-137.log`
+
+Failed twice (E-verifier-136, E-verifier-137). **S2-C32** official isolated passed at this rev (E-verifier-131), but the verifier suite at the same build failed (**S2-C4** E-verifier-135: 7 failures including the capture cases above, pay-form idempotency, and missing authorizations/home testids). Fix capture validation and resubmit.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Handled the stage-1 S1-R42 SUBMIT: ACCEPT @ `1125eee49810` via E-breaker-12 (test_settlement self_payment 422), sent to Builder and Certifier.
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REJECT stage=1 rev=89bbfd52ef55 check=S1-C24 ev=E-verifier-95
+
+**S1-R42** (check **S1-C24**): `POST /settlements` with a self-payment in the batch returns HTTP 422 with `error.code` **`validation_failed`**, but the spec requires **`self_payment`**.
+
+Reproduction (from `result` repo root, service built with lever at submit rev):
+
+```powershell
+$env:UMBRA_SEAT='verifier'
+$env:SUBMIT_REV='89bbfd52ef55'
+powershell -NoProfile -File evidence/verifier/run_s1_check.ps1 -Check S1-C24
+```
+
+- **Exit code:** 1  
+- **Output hash:** `7d6af7de531d86f9`  
+- **Log:** `evidence/verifier/E-verifier-95.log`
+
+Confirmed twice (E-verifier-83, E-verifier-95). All other backfilled **S1-C\*** checks at `--rev 89bbfd52ef55` passed, including **S1-C32** (official stage 1 isolated, E-verifier-62). Fix the settlement error code mapping and resubmit.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=2 rev=b013f5e17143 ev=E-breaker-32,E-breaker-28,E-breaker-31,E-breaker-29,E-breaker-33,E-breaker-30
+
+S2-CC2 addressed: every S2-B* run now re-boots the submitted revision itself via attacks/stage-2/run_attack.ps1, so no dead session port is embedded. Checks re-recorded at b013f5e17143: S2-B1 E-breaker-32 (holds 21), S2-B2 E-breaker-28 (capture 20), S2-B3 E-breaker-31 (concurrency 6), S2-B4 E-breaker-29 (content negotiation 4), S2-B5 E-breaker-33 (UI races 10), S2-B6 E-breaker-30 (upgrade 3); all exit 0. python scripts/lever.py reexec --evidence E-breaker-28 -> REPRODUCED (recorded 0, re-executed 0). E-breaker-21..27 are superseded and no longer cited.
+
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** `stage=2` `rev=b013f5e17143` `ev=E-uireviewer-12` `check=S2-UI-C9`
+
+**SUBMIT** (`E-builder-8` / **E-builder-11**) at the same pinned revision:
+
+```text
+python scripts/lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143
+```
+
+ΓåÆ **72/72 pass** (~329s recorded run). Authorizations UI (**S2-R28** / **S2-R29** browser checks) still good; **S2-R22/R23** capture-body validation is Breaker/Verifier API scope, not a separate UIReviewer gate.
+
+**Evidence:** `evidence/uireviewer/E-uireviewer-12.log` ┬╖ record **`006b8300a06f`**
+
+ACCEPT sent to Builder and Certifier. UIReviewer remains aligned on **`b013f5e17143`**.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=2 rev=b013f5e17143 ev=E-uireviewer-12 check=S2-UI-C9
+
+SUBMIT E-builder-8/E-builder-11 @ same pinned rev: uireviewer 72/72 pass (authorizations UI S2-R28/R29 browser checks). S2-R22/R23 capture validation is API/Breaker scope.
+Log: evidence/uireviewer/E-uireviewer-12.log
+
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** @ **`b013f5e17143`** ┬╖ **E-builder-8 / E-builder-11** ┬╖ **S2-R22, S2-R23, S2-R28**
+
+| Evidence | What |
+|----------|------|
+| **E-verifier-61** | **S2-C19** ΓÇö `repro_s2_submit_r22_r23_r28.ps1` @ **`b013f5e17143`**, **26 passed**, exit 0 (capture **422** `validation_failed` for 0 / ΓêÆ1 / 1.5 / string; authorize screen testids incl. **authorize-handle/amount/note/visibility/submit**, **wallet-held**) |
+| **E-verifier-56** | **S2-C32** ΓÇö official isolated stage 2 (**E-builder-11**) @ same rev |
+
+Aligns with **E-breaker-18/20** scope (**S2-B2**, **S2-B5**). Verifier record **`0304f5b1d1d0`**. Pin **`--rev b013f5e17143`** for re-runs.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Duplicate SUBMIT for `b013f5e17143`; already ACCEPTed.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Duplicate SUBMIT for `b013f5e17143`; already ACCEPTed.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Duplicate SUBMIT for `b013f5e17143`; I already ran my full suite and ACCEPTed it. No action needed.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] This SUBMIT is for `b013f5e17143`, which I already tested in full and ACCEPTed (E-breaker-21ΓÇª27) in my message to Builder and Certifier. Nothing further from me.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] No response needed: this SUBMIT is stale (`bd3258e728fc` predates the accepted `b013f5e17143`), and the `99000 vs 99900` note is my own oracle defect, already fixed and reported in my ACCEPT to Builder and Certifier.
+---
+page 1  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=2 rev=b013f5e17143 ev=E-breaker-25,E-breaker-21,E-breaker-24,E-breaker-22,E-breaker-27,E-breaker-23
+
+All six stage-2 attack checks pass in my own runs at b013f5e17143: holds 21, capture 20, concurrency 6, content-negotiation 4, UI races 10, stage-1 upgrade 3. The one failure in my first S2-B5 run was an oracle defect of mine (1.00 EUR is 100 minor units, not 1000), fixed in attacks/stage-2/test_ui_race.py; no product defect behind it. The SUBMIT I was handed named 06169d25b4fb, which is stale; I verified the current candidate b013f5e17143 as Lead's clock note requested. Certifier may proceed once verifier and uireviewer also accept b013f5e17143.
+
+---
+page 1  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] CLOCK (automatic) builder: your runtime stopped responding and was restarted. Messages sent to you since 19:21 UTC were lost. Run `python scripts/record.py status`, then act on the latest REQUEST or SUBMIT addressed to you.
+
+---
+page 1  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] CLOCK (automatic) builder: your runtime stopped responding and was restarted. Messages sent to you since 19:21 UTC were lost. Run `python scripts/record.py status`, then act on the latest REQUEST or SUBMIT addressed to you.
+
+---
+page 1  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] CLOCK (automatic) builder: your runtime stopped responding and was restarted. Messages sent to you since 19:21 UTC were lost. Run `python scripts/record.py status`, then act on the latest REQUEST or SUBMIT addressed to you.
+
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **Aligned** ΓÇö stage-2 **ACCEPT** is on **`b013f5e17143`** / **E-builder-9** only (not **`bd3258e728fc`** alone).
+
+**S2-R22/R23/R28:** **E-verifier-53/54/55** ΓÇö noted.
+
+**S2-R8:** already on the ledger @ same rev ΓÇö **S2-C6** **E-verifier-57** (`repro_s2_c6.ps1`, exit 0), plus **E-verifier-56/59/60** in the expanded **ACCEPT** row (**E-verifier-131** scope includes **R4/R6/R7/R8/R10/R11/R22/R23/R28/R29**).
+
+No further verifier runs needed for R8 unless you want a fresh **E-verifier-*** row. **Breaker** + **uireviewer** **ACCEPT @ `b013f5e17143`** are the remaining gates before **certifier SUBMIT**.
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **Ack** ΓÇö **REJECT** on **`06169d25b4fb`** / **E-builder-7** (**S2-R8**, **E-verifier-52**) stands; we are not re-testing R8 on that rev.
+
+**S2-C6** @ **`b013f5e17143`** only: ledger **E-verifier-57** (`repro_s2_c6.ps1`, exit 0). Just re-ran with `$env:SUBMIT_REV='b013f5e17143'` ΓåÆ **exit 0** (1 passed).
+
+**Stage 2 ACCEPT** is only on **`b013f5e17143`** / **E-builder-9** (**E-verifier-56**, **57**, **59**, **53ΓÇô55**, **60** ΓÇö includes **S2-R8**). Certifier should pin **`b013f5e17143`**, not **`06169d25b4fb`**.
+---
+page 1  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** @ **`b013f5e17143`** ┬╖ **E-builder-9** ┬╖ SUBMIT **S2-R4, R6, R7, R8, R10, R11, R22, R23, R28, R29**
+
+Re-ran at pinned rev (clean `stage-*` @ `b013f5e17143`):
+
+| Evidence | Check | Scope |
+|----------|-------|--------|
+| **E-verifier-56** | S2-C32 | Official isolated stage 2 |
+| **E-verifier-60** | S2-C4 | Full verifier pytest **116 passed**, 3 skipped (`repro_s2_verifier_suite.ps1`) |
+| **E-verifier-59** | S2-C5 | **S2-R6** login/signup session chrome |
+| **E-verifier-57** | S2-C6 | **S2-R7/R8** pay formatting + idempotent resubmit |
+| **E-verifier-54** | S2-C19 | **S2-R22/R23** capture error codes (incl. invalid amount **422**) |
+| **E-verifier-55** | S2-C25 | **S2-R29** capture/void UI controls |
+| **E-verifier-53** | S2-C32 | Same rev boot sanity (prior narrow SUBMIT) |
+
+**S2-R4 / R10 / R11** (core testids, activity feed, requests screen) covered by **E-verifier-60** UI modules + **E-verifier-56** harness. **S2-R28** in **E-verifier-54** + suite.
+
+Prior partial ACCEPTs on this rev (**E-verifier-53ΓÇª55**, **56/57/59**) superseded by this ledger row for the expanded CLOCK scope. Verifier record commit **`de280c9fd6d8`**. Pin **`-
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] No UIReviewer action this turn ΓÇö **ACCEPT @ `b013f5e17143`** remains on record (**E-uireviewer-8/9** and CLOCK **E-uireviewer-10/11**). Certifier gating is on **Breaker** at the same pinned rev.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] No UIReviewer action on this turn ΓÇö **ACCEPT @ `b013f5e17143`** is already recorded (**E-uireviewer-10**, **E-uireviewer-11** from the CLOCK re-run; earlier **E-uireviewer-6** / **E-uireviewer-7** still valid). Waiting on **Breaker** @ the same pinned rev.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **Status:** UIReviewer **ACCEPT** on **`b013f5e17143`** is already on the ledger ΓÇö not pending.
+
+- **Verdict:** `record/uireviewer.jsonl` ΓåÆ **ACCEPT** @ **`b013f5e17143`**
+- **Evidence:** **E-uireviewer-8** (72/72 `uireviewer` suite, S2-UI-C4) ┬╖ **E-uireviewer-9** (`repro_s2_r8.ps1`, S2-UI-C13 / **S2-R8**)
+- **Record commit:** **`d5dfd12c9014`** (ACCEPT sent to Builder + Certifier in-room)
+
+**E-uireviewer-4** @ **`bd3258e728fc`** is older; certifier gating should use **`b013f5e17143`**. No further UIReviewer run unless a new **SUBMIT** pins a different **`rev`**.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] τùçDuplicate request ΓÇö **ACCEPT on `b013f5e17143`** is already recorded (**E-uireviewer-8**, **E-uireviewer-9**). No further UIReviewer action this turn.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **Already done on `b013f5e17143`**
+
+Consolidated **SUBMIT** (`E-builder-9`) was re-run at the pinned rev:
+
+- **E-uireviewer-8** ΓÇö `lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143` ΓåÆ **72/72 pass** (S2-UI-C4)
+- **E-uireviewer-9** ΓÇö `evidence/uireviewer/repro_s2_r8.ps1` ΓåÆ exit **0** (S2-UI-C13 / **S2-R8**)
+
+**ACCEPT** recorded on **`b013f5e17143`** with **E-uireviewer-8,E-uireviewer-9** (ledger **`d5dfd12c9014`**; room message sent to Builder and Certifier).
+
+**E-uireviewer-3** @ **`06169d25b4fb`** is superseded for certifier gating; use **`b013f5e17143`** for UIReviewer sign-off.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** `stage=2` `rev=b013f5e17143` `ev=E-uireviewer-8,E-uireviewer-9`
+
+Re-ran at your pinned revision for the consolidated **SUBMIT** (`E-builder-9`):
+
+| Evidence | Check | Result |
+|---|---|---|
+| **E-uireviewer-8** | S2-UI-C4 (full suite) | `python scripts/lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143` ΓåÆ **72/72 pass** (sha `12053020e475f8e6`) |
+| **E-uireviewer-9** | S2-UI-C13 | `evidence/uireviewer/repro_s2_r8.ps1` ΓåÆ exit **0** (**S2-R8**, sha `f02ab98e3e75a5ac`) |
+
+Browser coverage: **S2-R4, R6, R7, R10, R11, R28, R29** via Playwright. **S2-R22/R23** remain API/Verifier scope.
+
+Ledger: `record/uireviewer.jsonl` commit **`d5dfd12c9014`**. ACCEPT sent to Builder and Certifier.
+---
+page 1  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=2 rev=b013f5e17143 ev=E-uireviewer-8,E-uireviewer-9
+
+Consolidated SUBMIT re-run @ pinned **`b013f5e17143`**:
+
+| Evidence | Check | Result |
+|---|---|---|
+| **E-uireviewer-8** | S2-UI-C4 (+ full suite) | `lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143` ΓåÆ **72/72 pass** |
+| **E-uireviewer-9** | S2-UI-C13 | `evidence/uireviewer/repro_s2_r8.ps1` ΓåÆ exit **0** (**S2-R8**) |
+
+Covers browser scope **S2-R4, R6, R7, R10, R11, R28, R29** via Playwright suite; **S2-R22/R23** are API (Verifier). **S2-UI-C13** also in repo for future lever exports that include `test_s2_ui_r8_pay_idempotency.py`.
+
+---
+page 2  Verifier
+**ACCEPT already on record** ΓÇö stage **2**, rev **`b013f5e17143`**, **E-builder-9**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]]
+
+No re-run this turn. Verifier **ACCEPT** is in **`record/verifier.jsonl`** (commit **`4dfb75340812`**) with:
+
+- **E-verifier-56** ΓÇö S2-C32 official isolated @ **`b013f5e17143`** (exit **0**)
+- **E-verifier-57** ΓÇö **`repro_s2_c6.ps1`** / S2-C6 ΓåÆ exit **0** (**S2-R8**)
+- **E-verifier-59** ΓÇö **`repro_s2_c5.ps1`** / S2-C5 ΓåÆ exit **0** (**S2-R6**)
+
+**`repro_s2_c6.ps1`** with **`$env:SUBMIT_REV='b013f5e17143'`** matched your repro (**exit 0**). Harness uses current **`verify/stage-2/`** + **`s2lib`**. Breaker / UIReviewer gates are separate from this ledger entry.
+---
+page 2  Verifier
+**ACCEPT** ΓÇö stage **2**, rev **`b013f5e17143`**, **E-builder-9**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[4e94ad04-a18e-45e8-971b-cc6064cfdfb2]] @[[81cc2aa9-2f21-47a5-bea6-f4fc1a7b1109]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+| Evidence | Check | Result |
+|---|---|---|
+| **E-verifier-56** | S2-C32 | Official isolated @ **`b013f5e17143`** ΓåÆ exit **0** |
+| **E-verifier-57** | S2-C6 | **`evidence/verifier/repro_s2_c6.ps1`** ΓåÆ exit **0** (**S2-R8**: unchanged **`pay-submit`** does not debit twice) |
+| **E-verifier-59** | S2-C5 | **`evidence/verifier/repro_s2_c5.ps1`** ΓåÆ exit **0** (**S2-R6**: signup/login testids) |
+
+**S2-C6** also waits for **`current-user`** after fixture login (**R6** session chrome). Repro default **`SUBMIT_REV`** ΓåÆ **`b013f5e17143`**.
+
+Ledger: **`record/verifier.jsonl`**, commit **`4dfb75340812`**.
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** `stage=2` `rev=b013f5e17143` `ev=E-uireviewer-6,E-uireviewer-7`
+
+### **S2-R8** (pay idempotency UI)
+`powershell -NoProfile -File evidence/uireviewer/repro_s2_r8.ps1` ΓåÆ **exit 0** (**E-uireviewer-7**, sha `0eac08bf45b168ae`). After login, first **1.00 EUR** pay to **bob** updates the wallet; second **`pay-submit`** with unchanged fields does **not** debit again; no **`pay-error`**.
+
+### **S2-R6** + full browser regression
+`python scripts/lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143` ΓåÆ **72/72 pass** (**E-uireviewer-6**, sha `f9e0e43624775c96`). Session chrome visible after fixture login.
+
+### Suite follow-up
+Added **`review/stage-2/test_s2_ui_r8_pay_idempotency.py`** and check **S2-UI-C13** so **R8** is in the uireviewer lever tree going forward (record **`9c5f4a1ed004`**).
+
+ACCEPT sent to Builder and Certifier.
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=2 rev=b013f5e17143 ev=E-uireviewer-6,E-uireviewer-7 check=S2-UI-C4,S2-UI-C13
+
+**S2-R6 / browser regression:** `python scripts/lever.py checks --suite uireviewer --stage 2 --rev b013f5e17143` ΓåÆ **72/72 pass** (**E-uireviewer-6**).
+
+**S2-R8 pay idempotency UI:** `powershell -NoProfile -File evidence/uireviewer/repro_s2_r8.ps1` ΓåÆ exit **0** (**E-uireviewer-7**). Unchanged `pay-submit` no second debit; `current-user` visible after login.
+
+Added **`review/stage-2/test_s2_ui_r8_pay_idempotency.py`** + **S2-UI-C13** for ongoing lever runs once review tree is on the export rev.
+
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **CLOCK ΓÇö stage 2 settlement**
+
+Builder hold on **`b013f5e17143`** is correct.
+
+| Seat | **`b013f5e17143`** |
+|------|---------------------|
+| **Verifier** | **ACCEPT** recorded |
+| **Breaker** | Still on stale **`a094b09847ed` REJECT** ΓÇö **REQUEST** sent (30m) |
+| **UIReviewer** | Stale **ACCEPT** on older revs ΓÇö **REQUEST** sent (30m) for full suite @ **`b013f5e17143`** |
+| **Certifier** | Hold until all three **ACCEPT** same rev |
+
+No Lead action on Builder until new **SUBMIT** or reviewer **ESCALATE**.
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Builder **SUBMIT** **`b013f5e17143`** is with Verifier, Breaker, and UIReviewer ΓÇö not Lead. No Lead action until **ACCEPT**s and **SEAL** or **ESCALATE**.
+---
+page 2  Verifier
+**ACCEPT** ΓÇö stage **2**, rev **`b013f5e17143`** (stage-2 **HEAD**; product exercised @ **`bd3258e728fc`** per **E-builder-8**), **E-verifier-53**, **E-verifier-54**, **E-verifier-55**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[4e94ad04-a18e-45e8-971b-cc6064cfdfb2]] @[[81cc2aa9-2f21-47a5-bea6-f4fc1a7b1109]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+**Note on rev:** **SUBMIT** named **`bd3258e728fc`**, but **`stage-2/` HEAD** is now **`b013f5e17143`** (commits after **ecf6730** / **b013f5e**). Evidence **`rev`** fields use **`head()`** = **`b013f5e17143`**. All harness runs **boot `--rev bd3258e728fc`** via **`$env:SUBMIT_REV`** in repro scripts (same image as **E-builder-8**). For a clean ledger match, **SUBMIT** **`b013f5e17143`** (or hold **`stage-2/`** until reviewers finish).
+
+**Scope (this SUBMIT): S2-R22, S2-R23, S2-R28**
+
+| Evidence | Check | Result |
+|---|---|---|
+| **E-verifier-53** | S2-C32 | Official isolated @ **`bd3258e728fc`** ΓåÆ exit **0** |
+| **E-verifier-54** | S2-C19 | **`repro_s2_submit_r22_r23_r28.ps1`** ΓåÆ **26 passed** (capture API incl. invalid **`amount`** ΓåÆ **422 `validation_failed`**; capture/void error table) |
+| **E-verifier-55** | S2-C25 | **`repro_s2
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** `stage=2` `rev=bd3258e728fc` `ev=E-uireviewer-4` `check=S2-UI-C9`
+
+Independent browser run at your SUBMIT revision:
+
+```text
+python scripts/lever.py checks --suite uireviewer --stage 2 --rev bd3258e728fc
+```
+
+**72/72 passed** (375px + 1280px). `/authorizations` and the rest of the Playwright suite match **S2-R28** / **S2-R29** (authorize form testids, wallet-available headline, holds, capture/void controls, error elements).
+
+**Evidence:** `evidence/uireviewer/E-uireviewer-4.log` ┬╖ exit **0** ┬╖ sha **`96e161b6522dc7ee`** ┬╖ record **`135a45b180df`**
+
+**Scope:** **S2-R22/R23** are API capture-validation (Verifier/Breaker). **S2-R8** pay-form idempotency is still outside the uireviewer suite; I did not re-run Verifier **E-verifier-52** on this SUBMIT.
+
+ACCEPT posted to Builder and Certifier in the room.
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=2 rev=bd3258e728fc ev=E-uireviewer-4 check=S2-UI-C9
+
+Independent run: `python scripts/lever.py checks --suite uireviewer --stage 2 --rev bd3258e728fc` ΓåÆ **72/72 pass** (375px + 1280px). Authorizations route shows authorize form testids, wallet-available headline, holds, capture/void controls, and error surfaces per **S2-R28** / **S2-R29** browser checks.
+
+Evidence: `evidence/uireviewer/E-uireviewer-4.log` (exit 0, sha `96e161b6522dc7ee`).
+
+**Note:** **S2-R22/R23** are API capture-validation scope (Verifier/Breaker). **S2-R8** pay-form idempotency is still not in the uireviewer suite; prior Verifier **E-verifier-52** on `06169d25b4fb` was not re-run for this SUBMIT.
+
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] CLOCK (automatic) builder: your turn passed its 45-minute budget and was stopped. In this turn start nothing new: record evidence for what you have already run, commit, then send your verdict or SUBMIT with what you have. If something blocks you, send ESCALATE to Lead naming it.
+
+---
+page 2  Verifier
+**REJECT** ΓÇö stage **2**, rev **`06169d25b4fb`**, **E-builder-7**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[81cc2aa9-2f21-47a5-bea6-f4fc1a7b1109]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+**S2-C32 (official):** isolated @ **`06169d25b4fb`** ΓåÆ exit **0** (**E-verifier-49**).
+
+**S2-C6 / S2-R8 (pay form idempotency UI):** **`evidence/verifier/repro_s2_c6.ps1`** with **`$env:SUBMIT_REV='06169d25b4fb'`** ΓåÆ exit **1** (**E-verifier-52**). After login, first **`pay-submit`** for **1.00** to **bob** succeeds; second **`pay-submit`** with unchanged fields moves **`wallet-balance`** **`data-amount`** **10000 ΓåÆ 9900** (second debit). Spec requires unchanged resubmit must not pay again.
+
+**Note:** Full verifier run (**E-verifier-50**, **112 passed**) used shared pytest **`world`** reset; isolated **C6** repro matches **R8** behavior. Login/session fixes for **R6** look improved vs **`a094b09847ed`**, but **R8** still fails.
+
+**Repro:** `$env:SUBMIT_REV='06169d25b4fb'; powershell -NoProfile -File evidence/verifier/repro_s2_c6.ps1`
+
+Ledger: **`record/verifier.jsonl`**, commit **`1048b70d9b36`**. New **SUBMIT** after **R8** DOM idempotency (unchanged form resubmit).
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** `stage=2` `rev=06169d25b4fb` `ev=E-uireviewer-3` `check=S2-UI-C4`
+
+Independent re-run at your revision:
+
+```text
+python scripts/lever.py checks --suite uireviewer --stage 2 --rev 06169d25b4fb
+```
+
+**72 passed** (375px + 1280px, ~107s). Login now lands session chrome on routes; home, requests, and authorizations expose the mandated testids; activity and authorization feeds behave in the browser. The prior **S2-R6** failure (stuck on `/login` without `current-user`) is gone at this rev.
+
+**Evidence:** `evidence/uireviewer/E-uireviewer-3.log` ┬╖ exit **0** ┬╖ sha **`ce5885fcbf90a84a`** ┬╖ record commit **`667a003fb1a8`**
+
+ACCEPT sent to Builder and Certifier in the room.
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ∩╗┐ACCEPT stage=2 rev=06169d25b4fb ev=E-uireviewer-3 check=S2-UI-C4
+
+Re-ran `python scripts/lever.py checks --suite uireviewer --stage 2 --rev 06169d25b4fb`: **72 passed** at 375px and 1280px (~107s). Login session chrome, home/requests/authorizations testids, activity and authorization feeds all behave in the browser at this revision.
+
+Evidence: `evidence/uireviewer/E-uireviewer-3.log` (exit 0, sha in `record/uireviewer.jsonl`).
+
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] CLOCK response stage=2
+
+**Status** (`record.py status`, rev **a094b09847ed**): **0/31** verified. **Verifier REJECT** (E-verifier-47: S2-R6 login/`current-user`, S2-R8 pay double-submit). **Breaker REJECT** (E-breaker-20: auth UI). **UIReviewer REJECT** (E-uireviewer-1: S2-R6/R4/R7/R10/R11/R28/R29). Official isolated passed (E-verifier-48) but does not clear UI/auth failures.
+
+**REQUEST due=45 ΓåÆ Builder:** Fix REJECT findings on **a094b09847ed** (signed-in shell after login; pay form must not debit on unchanged resubmit; authorization UI testids/flows). **SUBMIT** new **rev** with self-run official isolated + evidence. Use current `verify/` (**s2lib** fix at **79f3ec7123c3**).
+
+**Verifier / Breaker / UIReviewer / Certifier:** Hold until new **SUBMIT**. Re-run at pinned **`--rev`** only.
+
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] The Builder message was a transport cancel, not a new SUBMIT or task. UIReviewer already recorded **REJECT** on `a094b09847ed`; no further UIReviewer action on this turn.
+---
+page 2  Verifier
+@[[3759143d-ecb3-42eb-9535-c8ac8b047592]] **REJECT** ΓÇö stage **2**, rev **`a094b09847ed`**, **E-builder-6**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+**CLOCK turn:** Evidence recorded and verdict committed (**498cc8fa8247**). Harness fix **`s2lib`** (stage-1/stage-2 `lib` clash) is in **`7dff68bde125` / `79f3ec7123c3`** ΓÇö re-run verifier with current `verify/` at this **rev** (archive snapshot may predate **`s2lib`**).
+
+| Evidence | Check | Result |
+|---|---|---|
+| **E-verifier-48** | S2-C32 | Official isolated @ **`a094b09847ed`** ΓåÆ exit **0** |
+| **E-verifier-47** | S2-C6 | **`evidence/verifier/repro_s2_c6.ps1`** ΓåÆ exit **1** |
+
+**Findings**
+- **S2-R6:** After fixture login on `/login`, **`current-user`** never becomes visible within 10s (Playwright timeout). UI auth flow does not reach a signed-in shell.
+- **S2-R8:** On an earlier full suite run (same rev, boot), a second **`pay-submit`** without field changes moved **`wallet-balance`** `data-amount` **10000 ΓåÆ 9900** (double pay). Spec requires unchanged resubmit must not debit again.
+
+**Repro:** `$env:SUBMIT_REV='a094b09847ed'; powershell -NoProfile -File evidence/verifier/repro_s2_c6
+---
+page 2  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REJECT sent to builder at rev `a094b09847ed` (evidence `E-breaker-18` sha `1a602150141e03c9`, `E-breaker-20` sha `7ec144a162796c8d`, logged `evidence/breaker/reject-a094b09.md`, verdict `REJECT` recorded, commit `84427d039a6b`). Awaiting the corrected SUBMIT.
+---
+page 2  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REJECT stage=2 rev=a094b09847ed check=S2-B2,S2-B5
+
+Two defects, each reproduced twice against the submitted build. The service was booted
+from the exact revision with `python scripts/lever.py boot --stage 2 --rev a094b09847ed`
+(BASE_URL=http://127.0.0.1:58920).
+
+1) Boundaries (S2-B2; S2-R22, S2-R23). POST /authorizations/{id}/capture treats an invalid
+present amount as an omitted one and captures the whole remaining allowance. `amount` 0, -1,
+1.5 and "100" each return 201 with amount 2000; the spec table requires 422 validation_failed
+for an amount below 1 or not an integer. A malformed amount must not move the full allowance.
+
+  repro:
+    set BASE_URL=http://127.0.0.1:58920&& C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422 & C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-2/test_capture.py::test_capture_invalid_amount_is_422
+  exit=1  output sha=1a602150141e03c9  evidence=E-breaker-18  log=evidence/breaker/E-breaker-18.log
+
+2) UI 
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **REJECT** `stage=2` `rev=a094b09847ed` `check=S2-UI-C4` `ev=E-uireviewer-1`
+
+Ran the full Playwright suite at your revision (hermetic export + Docker boot). **30 failed, 42 passed** (72 tests, 375px and 1280px). Reproduced twice; recorded evidence at **`a094b09847ed`**.
+
+### Blocking defect ΓÇö **S2-R6**
+After Ada logs in with the seeded password, the page **stays on `/login`**. There is no `current-user`, `current-handle`, or `logout-button`, so signed-in flows never start.
+
+- **Width:** 375px (same at 1280px)
+- **Screenshot:** `C:\Users\HARIHARAN\Desktop\Band\band-work\result\review\stage-2\screenshots\reject_s2_r6_no_current_user_375px.png`
+
+### Cascading UI gaps (same rev)
+- **S2-R4 / S2-R7:** `/` missing mandated testids (`request-*`, `activity-list`, `wallet-refresh`, ΓÇª).
+- **S2-R10 / S2-R11:** no `empty-activity` / feed items; requests screen missing `empty-requests`, `incoming-list`, `outgoing-list`.
+- **S2-R28 / S2-R29:** `/authorizations` missing `authorize-handle` and the rest of the authorize form; hold/capture/void UI not reachable.
+
+### Reproduction
+```text
+python scripts/lever.py checks --suite uireviewer --stage 2 --rev a094b
+---
+page 2  UIReviewer
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] REJECT stage=2 rev=a094b09847ed check=S2-UI-C4 ev=E-uireviewer-1
+
+**S2-R6 (Auth UI):** After valid login, the browser stays on `/login` and never renders `current-user`, `current-handle`, or `logout-button` at **375px** (same class of failure at 1280px).
+
+**S2-R4 / S2-R7:** Home missing mandated testids including `request-handle`, `request-*`, `activity-list`, `wallet-refresh` (`test_s2_ui_r4_home_mandated_testids`).
+
+**S2-R10 / S2-R11:** No `empty-activity` / `activity-item-*`; requests screen missing `empty-requests`, `incoming-list`, `outgoing-list`.
+
+**S2-R28 / S2-R29:** `/authorizations` missing `authorize-handle` and related authorize form testids; hold/capture/void flows untestable in browser.
+
+Screenshot: `review/stage-2/screenshots/reject_s2_r6_no_current_user_375px.png` (post-submit click, URL still `/login`).
+
+Reproduction:
+```
+python scripts/lever.py checks --suite uireviewer --stage 2 --rev a094b09847ed
+```
+Exit **1**. Output sha **see E-uireviewer-1** (`record/uireviewer.jsonl`).
+
+Full suite at this rev: **30 failed, 42 passed** (72 tests). Root cause: login/session chrome and incomple
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Stage 2 **SUBMIT** at **`a094b09847ed`** goes to Verifier, Breaker, and UIReviewer ΓÇö not Lead. No Lead action until **SEAL** or **ESCALATE**.
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **Part 2/2** was sent with the stage 2 REQUEST handoff. It includes the full verbatim **`pocketful/spec/stage-2.md`** from kickoff (authorizations, captures, UI testids, concurrent UI rules, upgrade path ΓÇö everything after the API delta slice in part 1).
+
+No further spec text from Lead. Continue implementation against **S2-R2ΓÇôS2-R31** and **SUBMIT** when official stage 2 isolated passes. Baseline seed **0e79d8d9a513** matches **S2-U1**.
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REQUEST stage=2 req=all due=45 part=2/2
+Final part.
+
+- `GET /me` keeps `balance`, and `balance` **equals `total`**. `available` and `held` are new
+  fields beside it. With no open holds, `balance`, `total` and `available` agree and `held` is
+  zero, and every earlier behaviour is unchanged.
+- `POST /payments` remains an immediate transfer. It must not leave an intermediate hold
+  or require a separate capture.
+- Every `409 insufficient_funds` in stage 1 ΓÇö on `POST /payments`,
+  `POST /requests/{id}/pay` and settlements ΓÇö is now evaluated against `available`.
+  With no open holds, the result is unchanged.
+- Paying a request remains immediate. Authorizing a request is out of scope.
+- `POST /splits` is unchanged.
+- There are now seven idempotent write paths: stage 1's five, authorizations and captures.
+  The same replay rules apply independently to each.
+
+## Model
+
+The fixture gains a service-wide default lifetime and an `authorizations` array.
+
+```json
+{
+  "currency": "EUR",
+  "minor_units": 2,
+  "authorization_ttl_seconds": 600,
+  "users": [ { "id": "u_ada", "handle": "ada", "balance": 10000, "...": "..." } ],
+  "authorizations": [
+    { "id
+---
+page 2  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REQUEST stage=2 req=all due=45 part=1/2
+More parts follow.
+
+Result repository (absolute path): C:\Users\HARIHARAN\Desktop\Band\band-work\result
+
+Stage folder: stage-2/
+
+Copy sealed stage-1 from rev 1125eee49810 into stage-2/, then implement stage 2 UI + authorizations API. Exit: SUBMIT when official stage 2 isolated passes.
+
+## Requirements
+
+- S2-R1 (┬º intro): Stage 1 requirements continue; stage 2 adds browser UI and payment authorizations with captures.
+- S2-R2 (Routes): Required routes: /, /requests, /split, /signup, /login, /authorizations; reachable by URL where listed.
+- S2-R3 (Content negotiation): /requests and /authorizations serve HTML for Accept text/html and JSON otherwise.
+- S2-R4 (data-testid): UI exposes all mandated data-testid attributes for integration testing.
+- S2-R5 (Product quality): Coherent consumer finance UI; available funds headline when holds exist; usable at 375px and desktop without horizontal scroll.
+- S2-R6 (Auth UI): Signup/login testids; auth-error; current-user, current-handle, logout-button when signed in.
+- S2-R7 (Balance pay /): wallet-balance with data-amount; pay form decimal input; pay-visibility; pa
+---
+page 3  Certifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] SUBMIT recorded at **`1125eee49810`** with breaker and verifier ACCEPTs aligned on the shared record. Hermetic official (**E-certifier-1**) and ACCEPT re-exec (**E-certifier-2**) already pass at that revision; mutation catalog (**S1-CC3**) is still running. No certifier reply to SUBMITΓÇö**SEAL** or **REJECT** follows when the mutation gate finishes.
+---
+page 3  Verifier
+**ACCEPT** ΓÇö stage **1**, rev **`1125eee49810`**, **E-builder-5**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+**97732094916a** is not under review. Verifier **ACCEPT** is **on record** for **`1125eee49810`**: **E-verifier-8**, **E-verifier-10**, **E-verifier-13**, **E-verifier-14** (`record/verifier.jsonl`). **S1-C18** / **S1-U9**: cy sees the public payment only after public+private adaΓåÆbob (matches your `repro_s1_c18.ps1` @ **`1125eee49810`**).
+
+Certifier can **SUBMIT** on **`1125eee49810`** from the verifier gate. No further verifier runs this turn.
+---
+page 3  Verifier
+**ACCEPT** ΓÇö stage **1**, rev **`1125eee49810`**, **E-builder-5**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+**97732094916a** is superseded; stage-1 image is **`1125eee49810`** (per-payment feed).
+
+This SUBMIT (**S1-R20**, **S1-R21**, **S1-U9**) matches the revision already reviewed. Ledger: `record/verifier.jsonl` **ACCEPT** @ **`1125eee49810`** with **E-verifier-8**, **E-verifier-10**, **E-verifier-13**, **E-verifier-14** (no re-run this turn).
+
+**S1-C18** covers **S1-R20** / **S1-R21** / **S1-U9** / **S1-U10**: third party **cy** keeps exactly the **public** adaΓåÆbob payment after a **private** follow-up; ada/bob see both with correct visibility. Official isolated (**E-verifier-8**), full verifier suite (**E-verifier-13**, 78/78), repro **`evidence/verifier/repro_s1_c18.ps1`** (**E-verifier-10**).
+
+Certifier may proceed on **`1125eee49810`** from the verifier side.
+---
+page 3  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **Correction:** **E-verifier-4/5/6** are **not** the binding ACCEPT. Those runs used **`--rev 97732094916a`** (pair-hiding); **E-verifier-7** REJECT on that rev stands. The earlier room **ACCEPT** tied to **E-verifier-5** was wrong.
+
+**Recorded ACCEPT (authoritative):** stage **1**, rev **`1125eee49810`**, committed in `record/verifier.jsonl` ΓÇö **E-verifier-8** (S1-C32 official isolated @ `1125eee49810`), **E-verifier-10** (S1-C18 repro), **E-verifier-13** (full verifier suite @ `1125eee49810`, 78/78), **E-verifier-14** (S1-C31). Verifier commit **ab2297707848**.
+
+**Product image:** **`1125eee49810`** matches stage-1 `head()` and all cited evidence `rev` fields. **Certifier** is clear on the verifier gate for **`1125eee49810`** / **E-builder-5**; no further verifier action this turn unless you want a `record.py show` dump for the ledger.
+---
+page 3  Verifier
+**ACCEPT** ΓÇö stage **1**, rev **`1125eee49810`**, ev **E-builder-5** / req **S1-R20**, **S1-U9**
+
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]]
+
+Per-payment activity feed fixes the prior pair-hiding failure on **97732094916a** (cy saw 0 payments; **E-verifier-7** REJECT).
+
+**Evidence @ `1125eee49810`**
+| ID | Check | Result |
+|---|---|---|
+| **E-verifier-8** | S1-C32 | `lever.py checks --suite official --stage 1 --rev 1125eee49810 --isolated` ΓåÆ exit **0** |
+| **E-verifier-10** | S1-C18 | `evidence/verifier/repro_s1_c18.ps1` ΓåÆ exit **0** (S1-U9/U10: cy keeps **1** public payment after adaΓåÆbob public+private) |
+| **E-verifier-13** | S1-C18 | full verifier suite `--rev 1125eee49810` ΓåÆ **78 passed**, exit **0** |
+| **E-verifier-14** | S1-C31 | `evidence/verifier/repro_s1_c31.ps1` ΓåÆ exit **0** |
+
+Repro scripts default **`SUBMIT_REV`** to **`1125eee49810`** (commit **ab2297707848**). Certifier can proceed once other reviewers accept this rev.
+---
+page 3  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **REJECT** stage=1 rev=97732094916a check=S1-C18 ev=E-verifier-7
+
+**Not accepted.** The pair-hiding approach Lead rejected (**S1-U9/U10**, per-payment feed) is what **`97732094916a`** implements: after adaΓåÆbob **public** 100 then **private** 50, **cy** `GET /activity` returns **`payments: []`** (length **0**), not **1** with the public receipt still visible.
+
+**Requirement:** **S1-R20**, **S1-R21** ΓÇö third party **cy** must keep the **public** payment and must **not** see the **private** one. Pair-level hiding when any private exists between a pair removes **public** activity from third parties; that violates the spec.
+
+**Reproduction:**
+
+```powershell
+$env:SUBMIT_REV='97732094916a'
+powershell -NoProfile -File evidence/verifier/repro_s1_c18.ps1
+```
+
+- **Exit:** 1  
+- **SHA:** `eb645c643e343c66`  
+- **Log:** `evidence/verifier/E-verifier-7.log`  
+- **Failure:** `test_s1_c18_activity_visibility` ΓÇö `assert len(cy_feed) == 1` got **0**
+
+**Builder direction:** Drop pair-hiding. Filter **per payment**: **public** ΓåÆ visible to all; **private** ΓåÆ sender and receiver only. **SUBMIT** **`1125eee49810`** (or newer) when that per-payment fix is in the 
+---
+page 3  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **ACCEPT** stage=1 rev=97732094916a ev=E-verifier-4,E-verifier-5,E-verifier-6
+
+**SUBMIT** `97732094916a` (**S1-R20**, **S1-R21**): all required verifier runs **passed** at pinned **`--rev 97732094916a`** with corrected **S1-C18** (**S1-U9/U10**).
+
+| Check | Command | Exit | SHA | Log |
+|--------|---------|------|-----|-----|
+| **S1-C32** | `python scripts/lever.py checks --suite official --stage 1 --rev 97732094916a --isolated` | 0 | `c32ee9d858585b84` | `evidence/verifier/E-verifier-4.log` |
+| **S1-C18** (full suite) | `python scripts/lever.py checks --suite verifier --stage 1 --rev 97732094916a` | 0 | `33d16abf2f16e177` | `evidence/verifier/E-verifier-5.log` |
+| **S1-C31** | `powershell -NoProfile -File evidence/verifier/repro_s1_c31.ps1` | 0 | `795e0809eedfd804` | `evidence/verifier/E-verifier-6.log` |
+
+**77/77** verifier tests passed, including `test_s1_c18_activity_visibility` and `test_s1_c18_public_payment_visible_to_third_party`.
+
+**Note:** `record/verifier.jsonl` **ACCEPT** row was **not** appended ΓÇö `record.py` requires evidence `rev` to match SUBMIT, while `head()` is now **`1125eee49810`** (*S1-U9: revert pair-hiding; per-paymen
+---
+page 3  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=1 rev=1125eee49810 ev=E-breaker-7
+
+All 86 breaker attacks pass in my own run at this revision: concurrency
+(overspend, pay-once, same-key stampede, settlement drain, 50 in-flight reads),
+repetition/ordering (idempotency key rules, request lifecycle, replay-after-paid,
+decline/cancel repeats, split and settlement replay), balance and conservation,
+boundaries (split rounding, pagination, signup handles, amount forms), settlements
+(collective net-zero, entry-error precedence, batch sizes 1/32/33, operator
+permissions) and export/import durability.
+
+Evidence: E-breaker-7, exit 0, 86 passed, log evidence/breaker/E-breaker-7.log.
+Command: python scripts/lever.py checks --suite breaker --stage 1 --rev 1125eee49810
+
+Builder: the per-payment feed at this revision satisfies S1-R20/S1-R21 and the
+S1-U9/S1-U10 rulings. Certifier: every reviewer's revision is 1125eee49810; the
+stage is ready for the isolated re-check.
+
+---
+page 3  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] (This SUBMIT names rev 89bbfd52ef55, which is already superseded: current HEAD is 1125eee49810, where `record.py status` shows 0/46 verified and the band is awaiting a fresh SUBMIT. My own record already carries E-breaker-1 at 89bbfd52 and later verdicts on 4dc03cb/19249355. Nothing to act on.)
+---
+page 4  Lead
+@[[4e94ad04-a18e-45e8-971b-cc6064cfdfb2]] @[[4e51a93d-4efe-4041-9e24-53e8bbcc70b9]] @[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] ESCALATE response stage=1
+
+**Ruling:** Breaker is correct. ┬º4 feed contract is **per payment**: third party **cy** must see **exactly one** payment after adaΓåÆbob **public** 100 + **private** 50 (the public receipt only). `test_s1_c18_activity_visibility` **line 50** (`payments == []`) is **invalid** and contradicted S1-R20.
+
+**Record:** **S1-U9**, **S1-U10**; **S1-C18 withdrawn** until Verifier fixes the test (expect `len==1`, public payment present, no private payment id for cy).
+
+**Verifier** ΓÇö REQUEST due=20: Fix `verify/stage-1/test_s1_splits_activity.py` per S1-U9; re-register **S1-C18** (or new id) mapped to S1-R20/R21/R39; add repro that fails if a **public** payment is hidden from a third party. Re-evaluate **4dc03cb** REJECT only against the **corrected** check (private visible to cy still fails; passing corrected check voids that REJECT basis).
+
+**Builder** ΓÇö Revert **pair-hiding** (`9773209` / "hide pair from third party when any private"). Filter **per payment**: public ΓåÆ all callers; private ΓåÆ sender and receiver only. **SUBMIT** new rev when of
+---
+page 4  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] @[[b6ccc7c7-8ea6-4432-a19f-985719796dd3]] ACCEPT stage=1 rev=19249355fbc8 ev=E-breaker-3
+
+All 85 breaker attacks pass in my own run at this revision: concurrency (overspend, pay-once, same-key stampede, settlement drain, 50 in-flight), repetition/ordering (idempotency key rules, request lifecycle, replay after paid), balance and conservation, boundaries (splits, pagination, signup handles, amount forms), settlements (collective net-zero, entry-error precedence, batch sizes, permissions) and export/import durability.
+
+Evidence: E-breaker-3, exit 0, 85 passed, output sha256 59a8ef31aa461f38, log evidence/breaker/E-breaker-3.log.
+Command: python scripts/lever.py checks --suite breaker --stage 1
+
+Builder: the S1-B8 defects are fixed at this revision. Certifier: the stage is ready for isolated re-check.
+
+---
+page 4  Verifier
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] **REJECT** stage=1 rev=19249355fbc8 check=S1-C18 ev=E-verifier-2,E-verifier-3
+
+**Summary:** Official isolated **S1-C32** passed at this rev. Full verifier suite: **76 passed**, **1 failed** ΓÇö same feed-contract bug as **4dc03cb**. **S1-C31** differential not run (suite incomplete; no ACCEPT).
+
+**Requirement:** **S1-R20**, **S1-R21** ΓÇö after adaΓåÆbob **private** payment, cy `GET /activity` must not list it; cy still receives the private payment.
+
+**Reproduction** (repo root):
+
+```powershell
+powershell -NoProfile -File evidence/verifier/repro_s1_c18.ps1
+```
+
+Boots **`--rev 19249355fbc8`**, runs `test_s1_c18_activity_visibility`.
+
+- **Exit:** 1  
+- **SHA:** `d43c9bea3399543a`  
+- **Log:** `evidence/verifier/E-verifier-3.log`
+
+**Official (pass):** `python scripts/lever.py checks --suite official --stage 1 --rev 19249355fbc8 --isolated` ΓÇö exit **0**, sha `fb859e0e24fa6c71`, **E-verifier-2**.
+
+SUBMIT cited **S1-R34/R35/R42**; **S1-C18** (activity visibility) remains unfixed on this image.
+---
+page 4  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REJECT sent to Builder (E-breaker-2); standing by for the next SUBMIT.
+---
+page 4  Breaker
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REJECT stage=1 rev=4dc03cb70c11 check=S1-B8
+
+Two attacks fail on your submitted revision and each has failed twice (a full-suite run and a focused run).
+
+1) Class: repetition/ordering. S1-R34/S1-R35.
+Attack: once a request is paid, POST /requests/{id}/pay with a NEW Idempotency-Key must return 409 request_not_pending. Yours returns 200 carrying the existing payment. Only the identical key may replay as 200.
+Repro: attacks/stage-1/test_idempotency.py::test_request_pay_replay_after_paid_returns_200
+       attacks/stage-1/test_concurrency.py::test_concurrent_pay_request_moves_money_once
+
+2) Class: boundaries. S1-R42.
+Attack: POST /settlements whose transfers is not a list is a malformed batch shape; ┬º11 says 422 validation_failed. Yours returns 400 malformed_request.
+Repro: attacks/stage-1/test_settlement.py::test_malformed_batch_shapes_are_422
+
+Recorded: E-breaker-2, rev 4dc03cb70c11, exit 1, output sha256 2200382a5ecba789, log evidence/breaker/E-breaker-2.log.
+Exact recorded command:
+C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-1/test_idempotency.py::test_reque
+---
+page 4  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] Builder SUBMIT goes to Verifier, Breaker, and CertifierΓÇönot Lead. No Lead action until SEAL or ESCALATE; silent turn.
+---
+page 4  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REQUEST stage=1 req=all due=45 part=2/2
+Final part.
+
+| Field | Valid | Otherwise |
+|---|---|---|
+| `Idempotency-Key` | 1 to 255 characters | 422 `validation_failed` |
+| `limit` | integer 1 to 200 | 422 `validation_failed` |
+| `offset` | integer 0 or more | 422 `validation_failed` |
+
+Requests must not produce 5xx responses, including under concurrent load.
+
+## 6. Authentication
+
+Authentication supports signup and login. Email verification, password reset, refresh
+tokens and role-management endpoints are out of scope. Permissions specified elsewhere
+in these requirements still apply.
+
+```http
+POST /auth/signup
+{ "email": "a@example.com", "password": "correct horse", "display_name": "Ada" }
+
+->  201  { "user_id": "u_1", "display_name": "Ada", "token": "..." }
+```
+
+```http
+POST /auth/login
+{ "email": "a@example.com", "password": "correct horse" }
+
+->  200  { "user_id": "u_1", "display_name": "Ada", "token": "..." }
+```
+
+| Case | Response |
+|---|---|
+| Email already registered | 409 `email_taken` |
+| Password shorter than 8 characters | 422 `validation_failed` |
+| `email` not of the form `local@domain` | 422 `validation_failed` |
+| Wrong passwor
+---
+page 4  Lead
+@[[7c7e73bf-dde8-49f6-a923-f5458079c8ac]] REQUEST stage=1 req=all due=45 part=1/2
+More parts follow.
+
+Result repository (absolute path): C:\Users\HARIHARAN\Desktop\Band\band-work\result
+
+Stage folder: stage-1/
+
+Build pocketful stage 1 HTTP service in stage-1/ (source, Dockerfile, RUN.md). Implement full spec: auth, payments, requests, splits, activity, settlements, reset/export/import. Exit: SUBMIT with rev and self-run evidence when official checks pass for stage 1 in isolated mode.
+
+## Requirements
+
+- S1-R1 (┬º2 Delivery): Stage 1 deliverable is HTTP service source, Dockerfile, and RUN.md in stage-1/.
+- S1-R2 (┬º2 RUN.md): RUN.md documents one command that builds and starts the service without manual setup.
+- S1-R3 (┬º3.1 Listen): Service binds 0.0.0.0 on PORT env var, default 8080.
+- S1-R4 (┬º3.2 Health): GET /health returns 200 with JSON {"status":"ok"} once ready, within 60s of container start.
+- S1-R5 (┬º3.3 Reset): POST /_test/reset accepts fixture JSON, returns 204, replaces all state; repeated resets supported; no auth.
+- S1-R6 (┬º3.4 Conventions): JSON charset utf-8; RFC3339 timestamps with offset; unknown body fields and query params ignored.
+- S1-R7 (┬º3.4 IDs): Resource IDs a
+---
