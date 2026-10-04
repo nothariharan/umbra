@@ -104,3 +104,14 @@ def test_batch_ignores_unknown_top_level_fields(world4):
     resp = world4.op.batch(_batch_of([made], amount=0),
                            extra={"surprise": "ignored", "nested": {"a": 1}})
     assert resp.status_code == 201, f"unknown top-level fields must be ignored: {resp.text}"
+
+
+def test_successful_batch_does_not_poison_later_created_at(world4):
+    first = _payer(world4.ada, "bob", 100)
+    assert_status(world4.op.batch(_batch_of([first], amount=90)), 201)
+    later = _payer(world4.ada, "bob", 1)
+    created = later["created_at"]
+    resp = world4.op.batch([batch_item(later["payment_id"], 1, 0, created)])
+    assert resp.status_code == 201, (
+        "after a successful batch, a payment the service just created must accept its own "
+        f"created_at as effective_at, got {resp.status_code} {resp.text} (created_at={created})")

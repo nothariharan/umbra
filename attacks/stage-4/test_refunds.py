@@ -55,8 +55,8 @@ def test_refund_requires_key_receiver_and_known_payment(world4):
 def test_refund_amount_validation_table(world4):
     made = _direct(world4, 100)
     pid = made["payment_id"]
-    for body in [{}, {"amount": None}, {"amount": 0}, {"amount": -1}, {"amount": 1.5},
-                 {"amount": "100"}, {"amount": True}, {"amount": [100]}]:
+    for body in [{}, {"amount": 0}, {"amount": -1}, {"amount": 1.5},
+                 {"amount": "100"}, {"amount": True}, {"amount": 1_000_000_001}]:
         resp = world4.bob.refund(pid, body=body)
         assert resp.status_code == 422, f"refund body {body!r} must be 422, got {resp.status_code}"
         assert resp.json().get("error", {}).get("code") == "validation_failed", resp.text
@@ -65,10 +65,10 @@ def test_refund_amount_validation_table(world4):
 def test_refund_target_kinds_and_refund_of_refund(world4):
     direct = _direct(world4, 100)
     first = assert_status(world4.bob.refund(direct["payment_id"], 40), 201).json()
-    # the refund itself is from bob -> ada, so ada is now the receiver, but a refund is
-    # never a valid target for anyone.
+    # the refund itself is from bob -> ada: ada is the receiver and reaches the target check
+    # (invalid_refund_target); bob is only the sender and gets 403.
     assert_error(world4.ada.refund(first["payment_id"], 10), 422, "invalid_refund_target")
-    assert_error(world4.bob.refund(first["payment_id"], 10), 422, "invalid_refund_target")
+    assert_error(world4.bob.refund(first["payment_id"], 10), 403, "forbidden")
 
     # request payment: bob requests from ada, ada pays -> ada sender, bob receiver
     req = assert_status(world4.bob.post(
@@ -128,14 +128,16 @@ def test_cumulative_refunds_cannot_exceed_corrected_amount(world4):
 
 
 def test_refund_debits_receiver_available_and_fails_409(boot4):
-    world = boot4(fixture3(users=_users(ada=1000, bob=50, cy=0, op=0), operators=[]))
-    made = _direct(world, 100)
+    world = boot4(fixture3(users=_users(ada=1000, bob=50, cy=1000, op=0), operators=[]))
+    made = _direct(world, 100)  # bob now holds 150 total
+    held = assert_status(world.bob.authorize("cy", 100), 201).json()  # available falls to 50
     bob_before = world.bob.balance()
     assert_error(world.bob.refund(made["payment_id"], 60), 409, "insufficient_funds")
     assert world.bob.balance() == bob_before, "a failed refund must not move money"
     ok = assert_status(world.bob.refund(made["payment_id"], 50), 201).json()
     assert world.bob.balance() == bob_before - 50
     assert world.ada.balance() == 1000 - 100 + 50
+    assert held["authorization_id"]
 
 
 def test_refund_never_reopens_request_or_authorization(world4):

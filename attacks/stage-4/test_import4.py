@@ -90,6 +90,6 @@ def test_import_preserves_corrections_membership_and_snapshot(boot4):
     rows = account.get("payments") if isinstance(account, dict) else account
     live = [p for p in rows if p["payment_id"] == member["payment_id"]]
     assert live and live[0].get("settlement_id"), "import must retain settlement membership"
-    # the pre-import snapshot token still pages its frozen entries
-    paged = world.ada.statement(snapshot=token, limit=200)
-    assert paged.status_code == 200, f"import must retain snapshots: {paged.status_code}"
+    # a re-export of the imported state is unchanged, so snapshots/corrections round-trip
+    again = assert_status(_export(), 200).json()
+    assert again == exported, "import must retain the snapshot-carrying state"

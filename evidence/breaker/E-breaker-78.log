@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File attacks/stage-4/run_breaker_s4.ps1 -Rev 10d2be5fa9c61614c4b0c8395f55b20ce6bae550 -Module test_import4.py
+..                                                                       [100%]
+2 passed in 7.79s
+
+exit 0
