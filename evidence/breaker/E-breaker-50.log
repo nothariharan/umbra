@@ -1,0 +1,25 @@
+$ set BASE_URL=http://127.0.0.1:57063 && C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-3/test_statement.py
+F...........                                                             [100%]
+================================== FAILURES ===================================
+___________ test_statement_orders_oldest_first_and_reports_balances ___________
+
+boot3 = <function boot3.<locals>._boot at 0x000002ACF29AF1A0>
+
+    def test_statement_orders_oldest_first_and_reports_balances(boot3):
+        world = _seeded_world(boot3)
+        body = assert_status(world.ada.statement(), 200).json()
+        entries = entries_of(world.ada.statement())
+>       assert [e["payment"]["payment_id"] for e in entries] == ["p1", "p2", "p3"], \
+            "statement entries must be oldest-first"
+E       AssertionError: statement entries must be oldest-first
+E       assert ['p1', 'p2'] == ['p1', 'p2', 'p3']
+E         
+E         Right contains one more item: 'p3'
+E         Use -v to get more diff
+
+attacks\stage-3\test_statement.py:47: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-3/test_statement.py::test_statement_orders_oldest_first_and_reports_balances
+1 failed, 11 passed in 47.95s
+
+exit 1

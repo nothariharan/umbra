@@ -1,0 +1,73 @@
+$ set BASE_URL=http://127.0.0.1:57063 && C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider attacks/stage-3/test_timestamps.py
+.FF...F                                                                  [100%]
+================================== FAILURES ===================================
+_____________ test_seeded_created_at_orders_activity_newest_first _____________
+
+boot3 = <function boot3.<locals>._boot at 0x00000210609EFB00>
+
+    def test_seeded_created_at_orders_activity_newest_first(boot3):
+        t1 = "2026-09-24T08:00:00+00:00"
+        t2 = "2026-09-24T09:00:00+00:00"
+        world = boot3(fixture3(payments=[
+            payment_seed("p_old", "u_ada", "u_bob", 100, created_at=t1),
+            payment_seed("p_new", "u_bob", "u_ada", 100, created_at=t2),
+        ]))
+        order = [p["payment_id"] for p in _feed(world.ada)]
+>       assert order == ["p_new", "p_old"], \
+            f"activity must stay newest-first by created_at, got {order}"
+E       AssertionError: activity must stay newest-first by created_at, got ['p_old', 'p_new']
+E       assert ['p_old', 'p_new'] == ['p_new', 'p_old']
+E         
+E         At index 0 diff: 'p_old' != 'p_new'
+E         Use -v to get more diff
+
+attacks\stage-3\test_timestamps.py:47: AssertionError
+__________ test_seeded_omission_uses_reset_time_before_api_payments ___________
+
+boot3 = <function boot3.<locals>._boot at 0x00000210609EFE20>
+
+    def test_seeded_omission_uses_reset_time_before_api_payments(boot3):
+        world = boot3(fixture3(payments=[
+            payment_seed("p_seeded", "u_bob", "u_ada", 10),
+        ]))
+        made = assert_status(
+            world.ada.post("/payments", json={"to_handle": "bob", "amount": 20},
+                           headers={"Idempotency-Key": new_key()}), 201).json()
+        order = [p["payment_id"] for p in _feed(world.ada)]
+>       assert order and order[0] == made["payment_id"], \
+            f"a reset-time seeded payment must sort before later API payments, got {order}"
+E       AssertionError: a reset-time seeded payment must sort before later API payments, got ['p_seeded', 'p_b19b5e571a2f6334c02d5896f43c4b0e']
+E       assert (['p_seeded', 'p_b19b5e571a2f6334c02d5896f43c4b0e'] and 'p_seeded' == 'p_b19b5e571a...d5896f43c4b0e'
+E         
+E         - p_b19b5e571a2f6334c02d5896f43c4b0e
+E         + p_seeded)
+
+attacks\stage-3\test_timestamps.py:59: AssertionError
+________________ test_activity_orders_by_instant_not_by_string ________________
+
+boot3 = <function boot3.<locals>._boot at 0x0000021060A467A0>
+
+    def test_activity_orders_by_instant_not_by_string(boot3):
+        # C is earliest (02:30Z), A is 06:00Z, B is 09:00Z; lexicographically A < C < B.
+        a = payment_seed("p_a", "u_ada", "u_bob", 100, created_at="2026-09-24T06:00:00+00:00")
+        b = payment_seed("p_b", "u_bob", "u_ada", 100, created_at="2026-09-24T11:00:00+02:00")
+        c = payment_seed("p_c", "u_bob", "u_ada", 100, created_at="2026-09-24T08:00:00+05:30")
+        world = boot3(fixture3(payments=[a, b, c]))
+        order = [p["payment_id"] for p in _feed(world.ada)]
+>       assert order == ["p_b", "p_a", "p_c"], (
+            "activity must order by the instant, not the literal offset string; "
+            f"got {order}")
+E       AssertionError: activity must order by the instant, not the literal offset string; got ['p_c', 'p_a', 'p_b']
+E       assert ['p_c', 'p_a', 'p_b'] == ['p_b', 'p_a', 'p_c']
+E         
+E         At index 0 diff: 'p_c' != 'p_b'
+E         Use -v to get more diff
+
+attacks\stage-3\test_timestamps.py:113: AssertionError
+=========================== short test summary info ===========================
+FAILED attacks/stage-3/test_timestamps.py::test_seeded_created_at_orders_activity_newest_first
+FAILED attacks/stage-3/test_timestamps.py::test_seeded_omission_uses_reset_time_before_api_payments
+FAILED attacks/stage-3/test_timestamps.py::test_activity_orders_by_instant_not_by_string
+3 failed, 4 passed in 26.62s
+
+exit 1
