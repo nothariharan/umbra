@@ -39,9 +39,10 @@ def dispatched_spec(room, stage):
             if row.get("sender_type") == "Agent":
                 continue
             content = row.get("content") or ""
-            for found in SPEC_MARK.finditer(content):
+            marks = list(SPEC_MARK.finditer(content))
+            for found, after in zip(marks, marks[1:] + [None]):
                 if int(found.group(1)) == stage:
-                    return content[found.end():].strip()
+                    return content[found.end():after.start() if after else None].strip()
         if not result.get("has_more"):
             break
     sys.exit(f"no human dispatch carrying the stage {stage} specification found in room {room}")
