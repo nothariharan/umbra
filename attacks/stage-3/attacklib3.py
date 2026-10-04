@@ -15,7 +15,7 @@ for _p in (_HERE.parent / "stage-2", _HERE.parent / "stage-1"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
-from attacklib import (  # noqa: E402,F401
+from attacklib import (  # noqa: E402
     BASE_URL,
     PASSWORD,
     Client,

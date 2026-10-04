@@ -50,7 +50,9 @@ def reset():
 
 @pytest.fixture
 def boot3(api, reset):
-    def _boot(body, handles=HANDLES):
+    def _boot(body, handles=None):
+        if handles is None:
+            handles = tuple(u["handle"] for u in body["users"])
         reset(body)
         clients = {}
         for handle in handles:

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from attacklib3 import (
+    assert_error,
     assert_status,
     authz,
     entries_of,
