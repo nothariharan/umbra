@@ -64,7 +64,7 @@ func (s *Store) buildStatementLocked(userID string, fromT, toT *time.Time, known
 			tj, _ = parseTime(items[j].p.CreatedAt)
 		}
 		if ti.Equal(tj) {
-			return items[i].p.PaymentID < items[j].p.PaymentID
+			return s.findPaymentIndex(items[i].p.PaymentID) < s.findPaymentIndex(items[j].p.PaymentID)
 		}
 		return ti.Before(tj)
 	})
