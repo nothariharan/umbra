@@ -1,0 +1,1002 @@
+$ python scripts/lever.py mutate --stage 3 --rev 55207f5fd143 --mutant mutants/stage-3/m03_idempotency_no_replay.patch --suites verifier,breaker
+.................F....F.................F................F.FFF......F... [ 44%]
+.................FF....FF.........sss...............F................... [ 89%]
+....F............                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_s1_c22_idempotency_replay_and_reuse ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6E714C0>, bob=<lib.http.Api object at 0x00000292B666BD70>, cy=<lib.http.Api object at 0x00000292B6E6C2F0>)
+pay = <function pay.<locals>._pay at 0x00000292B6E4BE20>
+balance = <function balance.<locals>._balance at 0x00000292B66DE700>
+conservation = <function conservation.<locals>._check at 0x00000292B66DF600>
+
+    def test_s1_c22_idempotency_replay_and_reuse(world, pay, balance, conservation):
+        key = new_key()
+        first = assert_status(pay(amount=300, key=key), 201).json()
+>       replay = assert_status(pay(amount=300, key=key), 200).json()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_idempotency.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 201. POST /payments -> 201 '{"payment_id":"p_1297f71be6503ed533f3b64eabdab8be","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":300,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:34:38+00:00"}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:95: AssertionError
+____________________ test_s1_c26_request_paid_at_most_once ____________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6669E80>, bob=<lib.http.Api object at 0x00000292B6E73860>, cy=<lib.http.Api object at 0x00000292B6E6B080>)
+ask = <function ask.<locals>._ask at 0x00000292B6A13B00>
+balance = <function balance.<locals>._balance at 0x00000292B6A13BA0>
+
+    def test_s1_c26_request_paid_at_most_once(world, ask, balance):
+        rq = assert_status(ask(amount=100), 201).json()
+        key = new_key()
+        assert_status(world.ada.post(f"/requests/{rq['request_id']}/pay", json={}, idempotency_key=key), 201)
+>       assert_status(world.ada.post(f"/requests/{rq['request_id']}/pay", json={}, idempotency_key=key), 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_invariants.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 409. POST /requests/rq_07191028586889c6ad5d9dc7bd351c8a/pay -> 409 '{"error":{"code":"request_not_pending","message":"request not pending"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:95: AssertionError
+________________ test_s1_c14_pay_replay_200_when_already_paid _________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6E87C50>, bob=<lib.http.Api object at 0x00000292B6E70080>, cy=<lib.http.Api object at 0x00000292B6E86B70>)
+ask = <function ask.<locals>._ask at 0x00000292B6A44360>
+
+    def test_s1_c14_pay_replay_200_when_already_paid(world, ask):
+        rq = assert_status(ask(amount=50), 201).json()
+        key = new_key()
+        first = assert_status(
+            world.ada.post(f"/requests/{rq['request_id']}/pay", json={}, idempotency_key=key), 201
+        ).json()
+>       replay = assert_status(
+            world.ada.post(f"/requests/{rq['request_id']}/pay", json={}, idempotency_key=key), 200
+        ).json()
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_requests.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 409. POST /requests/rq_42a5a9b6768f403e9c2e0d93cb1dbe65/pay -> 409 '{"error":{"code":"request_not_pending","message":"request not pending"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:95: AssertionError
+____________ test_s1_c22_concurrent_identical_idempotency_one_201 _____________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6E6E090>, bob=<lib.http.Api object at 0x00000292B6E1A540>, cy=<lib.http.Api object at 0x00000292B6E6A8A0>)
+conservation = <function conservation.<locals>._check at 0x00000292B6A44A40>
+
+    def test_s1_c22_concurrent_identical_idempotency_one_201(world, conservation):
+        key = new_key()
+        body = {"to_handle": "bob", "amount": 50}
+    
+        def shoot(_i):
+            return world.ada.post("/payments", json=body, idempotency_key=key)
+    
+        out = burst(shoot, 10)
+        no_5xx(out)
+        counts = tally(out)
+>       assert counts.get(201) == 1, counts
+E       AssertionError: {201: 10}
+E       assert 10 == 1
+E        +  where 10 = <built-in method get of dict object at 0x00000292B673C080>(201)
+E        +    where <built-in method get of dict object at 0x00000292B673C080> = {201: 10}.get
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py:23: AssertionError
+_______________ test_s1_c22_claimed_key_before_field_validation _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6E86B40>, bob=<lib.http.Api object at 0x00000292B699D670>, cy=<lib.http.Api object at 0x00000292B682F560>)
+pay = <function pay.<locals>._pay at 0x00000292B6A44360>
+
+    def test_s1_c22_claimed_key_before_field_validation(world, pay):
+        key = new_key()
+        assert_status(pay(amount=10, key=key), 201)
+>       assert_error(
+            world.ada.post("/payments", json={"to_handle": "bob", "amount": 0}, idempotency_key=key),
+            409,
+            "idempotency_key_reuse",
+        )
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [422 Unprocessable Entity]>, status = 409
+code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 409 idempotency_key_reuse, got 422 validation_failed. POST /payments -> 422 '{"error":{"code":"validation_failed","message":"invalid amount"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:114: AssertionError
+______________ test_s1_c14_pay_body_empty_vs_public_are_distinct ______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6E84350>, bob=<lib.http.Api object at 0x00000292B6E85B20>, cy=<lib.http.Api object at 0x00000292B6E86BA0>)
+ask = <function ask.<locals>._ask at 0x00000292B6A45E40>
+
+    def test_s1_c14_pay_body_empty_vs_public_are_distinct(world, ask):
+        rq = assert_status(ask(amount=40), 201).json()["request_id"]
+        key = new_key()
+        assert_status(world.ada.post(f"/requests/{rq}/pay", json={}, idempotency_key=key), 201)
+>       assert_error(
+            world.ada.post(
+                f"/requests/{rq}/pay",
+                json={"visibility": "public"},
+                idempotency_key=key,
+            ),
+            409,
+            "idempotency_key_reuse",
+        )
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, status = 409, code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 409 idempotency_key_reuse, got 409 request_not_pending. POST /requests/rq_6cd2562e586a267219a6051e63403a00/pay -> 409 '{"error":{"code":"request_not_pending","message":"request not pending"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:114: AssertionError
+__________ test_s1_c22_idempotent_paths_requests_splits_settlements ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B682F890>, bob=<lib.http.Api object at 0x00000292B682DB20>, cy=<lib.http.Api object at 0x00000292B6D48EC0>)
+ask = <function ask.<locals>._ask at 0x00000292B6A46520>
+reset = <function reset.<locals>._reset at 0x00000292B6A139C0>
+api = <function api.<locals>._api at 0x00000292B6A45EE0>
+
+    def test_s1_c22_idempotent_paths_requests_splits_settlements(world, ask, reset, api):
+        key_r = new_key()
+        rq = assert_status(ask(amount=5, key=key_r), 201).json()
+>       assert_status(ask(amount=5, key=key_r), 200).json() == rq
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 201. POST /requests -> 201 '{"request_id":"rq_019c91da9fa56192df573b18ccd54e76","requester_id":"u_bob","requester_handle":"bob","payer_id":"u_ada","payer_handle":"ada","amount":5,"currency":"EUR","note":"","status":"pending","payment_id":null,"created_at":"2026-10-04T14:36:47+00:00"}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:95: AssertionError
+_______________ test_s1_c23_import_preserves_idempotency_replay _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...t 0x00000292B6E73AD0>, bob=<lib.http.Api object at 0x00000292B6E6E720>, cy=<lib.http.Api object at 0x00000292B6E6C2C0>)
+pay = <function pay.<locals>._pay at 0x00000292B6A46340>
+reset = <function reset.<locals>._reset at 0x00000292B6A44C20>
+
+    def test_s1_c23_import_preserves_idempotency_replay(world, pay, reset):
+        key = new_key()
+        receipt = assert_status(pay(amount=33, key=key), 201).json()
+        snap = world.ada.get("/_test/export", token=None).json()
+        reset(world.fixture)
+        assert_status(world.ada.post("/_test/import", json=snap, token=None), 204)
+>       replay = assert_status(
+            world.ada.post(
+                "/payments",
+                json={"to_handle": "bob", "amount": 33},
+                idempotency_key=key,
+            ),
+            200,
+        ).json()
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 201. POST /payments -> 201 '{"payment_id":"p_07f7a488a6f1c34d44311243cb26fe4c","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":33,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:37:14+00:00"}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\lib\http.py:95: AssertionError
+_______________ test_s2_c19_capture_idempotency_body_must_match _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000292B6E4C050>, bob=<s2lib.http.Api object at 0x00000292B66CF500>, cy=<s2lib.http.Api object at 0x00000292B66CF710>)
+authorize = <function authorize.<locals>._auth at 0x00000292B6A47060>
+
+    def test_s2_c19_capture_idempotency_body_must_match(world, authorize):
+        auth = assert_status(authorize(amount=800), 201).json()
+        aid = auth["authorization_id"]
+        key = new_key()
+        first = world.bob.post(f"/authorizations/{aid}/capture", json={"amount": 800}, idempotency_key=key)
+        assert_status(first, 201)
+        reuse = world.bob.post(f"/authorizations/{aid}/capture", json={}, idempotency_key=key)
+>       assert_error(reuse, 409, "idempotency_key_reuse")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_authorization_spec.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, status = 409, code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 409 idempotency_key_reuse, got 409 authorization_not_open. POST /authorizations/a_d5ac9d3d9270ded3836d7de4a63d7b43/capture -> 409 '{"error":{"code":"authorization_not_open","message":"authorization not open"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\s2lib\http.py:114: AssertionError
+__________________ test_s2_c19_capture_replay_identical_body __________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000292B6E6EC00>, bob=<s2lib.http.Api object at 0x00000292B6E4F830>, cy=<s2lib.http.Api object at 0x00000292B6E86210>)
+authorize = <function authorize.<locals>._auth at 0x00000292B6A44720>
+
+    def test_s2_c19_capture_replay_identical_body(world, authorize):
+        auth = assert_status(authorize(amount=600), 201).json()
+        aid = auth["authorization_id"]
+        key = new_key()
+        body = {"amount": 600}
+        r1 = world.bob.post(f"/authorizations/{aid}/capture", json=body, idempotency_key=key)
+        r2 = world.bob.post(f"/authorizations/{aid}/capture", json=body, idempotency_key=key)
+        assert_status(r1, 201)
+>       assert_status(r2, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_authorization_spec.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 409. POST /authorizations/a_3afdb9e9517793c08331adbd75765aa0/capture -> 409 '{"error":{"code":"authorization_not_open","message":"authorization not open"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\s2lib\http.py:95: AssertionError
+______________________ test_s2_c13_competing_clients_ui _______________________
+
+base_url = 'http://127.0.0.1:64763'
+reset = <function reset.<locals>._reset at 0x00000292B6A7CC20>
+api = <function api.<locals>._api at 0x00000292B6A7CEA0>
+
+    @pytest.mark.skipif(not delivery.stage_dir_exists(), reason="stage-2 not present")
+    def test_s2_c13_competing_clients_ui(base_url, reset, api):
+        from playwright.sync_api import sync_playwright
+    
+        _rich_fixture(reset)
+    
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+    
+            # Remote spend -> pay-error, balance refresh, form inputs kept
+            _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+            page.goto(f"{base_url}/")
+            _wait_amount(page, "wallet-balance", "100000")
+            ada = api().authenticate(fx.ADA["email"], fx.ADA["password"])
+            spent = ada.post(
+                "/payments",
+                json={"to_handle": "bob", "amount": 99_000},
+                idempotency_key=new_key(),
+            )
+            assert_status(spent, 201)
+            page.goto(f"{base_url}/")
+            page.get_by_test_id("pay-handle").fill("bob")
+            page.get_by_test_id("pay-amount").fill("50.00")
+            page.get_by_test_id("pay-submit").click()
+            page.get_by_test_id("pay-error").wait_for(timeout=8_000)
+            _wait_amount(page, "wallet-balance", "1000")
+            assert page.get_by_test_id("pay-handle").input_value() == "bob"
+            assert page.get_by_test_id("pay-amount").input_value() == "50.00"
+    
+            # Remote cancel -> stale request pay control removed after error
+            _rich_fixture(reset)
+            bob = api().authenticate(fx.BOB["email"], fx.BOB["password"])
+            made = bob.post(
+                "/requests",
+                json={"payer_handle": "ada", "amount": 500},
+                idempotency_key=new_key(),
+            )
+            assert_status(made, 201)
+            rid = made.json()["request_id"]
+            page.goto(f"{base_url}/login")
+            _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+            page.goto(f"{base_url}/requests")
+            page.get_by_test_id(f"request-pay-{rid}").wait_for(timeout=8_000)
+            cancelled = bob.post(f"/requests/{rid}/cancel")
+            assert_status(cancelled, 200)
+            page.get_by_test_id(f"request-pay-{rid}").click()
+            page.get_by_test_id("request-error").wait_for(timeout=8_000)
+            page.get_by_test_id(f"request-pay-{rid}").wait_for(state="detached", timeout=8_000)
+            status = page.get_by_test_id(f"request-item-{rid}").get_attribute("data-status")
+            assert status == "cancelled"
+    
+            # Lost payment response -> pay-uncertain then same idempotency retry pays once
+            _rich_fixture(reset)
+            page.goto(f"{base_url}/login")
+            _login(page, base_url, fx.ADA["email"], fx.ADA["password"])
+            page.goto(f"{base_url}/")
+            _wait_amount(page, "wallet-balance", "100000")
+            state = {"n": 0}
+    
+            def payment_route(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    route.fetch()
+                    route.abort()
+                else:
+                    route.continue_()
+    
+            page.route("**/payments", payment_route)
+            page.get_by_test_id("pay-handle").fill("bob")
+            page.get_by_test_id("pay-amount").fill("1.00")
+            page.get_by_test_id("pay-submit").click()
+            uncertain = page.get_by_test_id("pay-uncertain")
+            uncertain.wait_for(timeout=8_000)
+            assert uncertain.inner_text().strip() != ""
+            assert page.get_by_test_id("pay-error").count() == 0
+            page.get_by_test_id("pay-submit").click()
+            uncertain.wait_for(state="detached", timeout=10_000)
+>           _wait_amount(page, "wallet-balance", "99900")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_c13_competing_clients.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:64763/'>, testid = 'wallet-balance'
+amount = '99900', timeout_ms = 10000
+
+    def _wait_amount(page, testid: str, amount: str, *, timeout_ms: int = 10_000) -> None:
+        loc = page.get_by_test_id(testid)
+        for _ in range(timeout_ms // 100):
+            if loc.get_attribute("data-amount") == amount:
+                return
+            page.wait_for_timeout(100)
+        got = loc.get_attribute("data-amount")
+>       assert got == amount, f"{testid} data-amount expected {amount}, got {got}"
+E       AssertionError: wallet-balance data-amount expected 99900, got 99800
+E       assert '99800' == '99900'
+E         
+E         - 99900
+E         ?   ^
+E         + 99800
+E         ?   ^
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_c13_competing_clients.py:30: AssertionError
+__________________ test_s2_c27_concurrent_authorize_same_key __________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000292B6E69400>, bob=<s2lib.http.Api object at 0x00000292B66CE600>, cy=<s2lib.http.Api object at 0x00000292B66CC2C0>)
+conservation = <function conservation.<locals>._check at 0x00000292B7F34C20>
+me_wallet = <function me_wallet.<locals>._read at 0x00000292B7F349A0>
+
+    def test_s2_c27_concurrent_authorize_same_key(world, conservation, me_wallet):
+        key = new_key()
+        body = {"to_handle": "bob", "amount": 40}
+    
+        def shoot(_i):
+            return world.ada.post("/authorizations", json=body, idempotency_key=key)
+    
+        out = burst(shoot, 8)
+        no_5xx(out)
+        counts = tally(out)
+>       assert counts.get(201) == 1
+E       assert 7 == 1
+E        +  where 7 = <built-in method get of dict object at 0x00000292B6D51240>(201)
+E        +    where <built-in method get of dict object at 0x00000292B6D51240> = {200: 1, 201: 7}.get
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_concurrent_auth.py:22: AssertionError
+_________________ test_s3_c18_idempotency_and_stale_revision __________________
+
+reset = <function reset.<locals>._reset at 0x00000292B91B7920>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000292B7F69790>, bob=<s3lib.http.Api object at 0x00000292B7F831A0>, cy=<s3lib.http.Api object at 0x00000292B7F820F0>)
+
+    def test_s3_c18_idempotency_and_stale_revision(reset, world):
+        pid = _seed_payment(reset, world)
+        body = {
+            "expected_revision": 1,
+            "amount": 450,
+            "effective_at": "2026-09-20T12:00:00+00:00",
+            "reason": "adjust",
+        }
+        key = new_key()
+        first = assert_status(
+            world.ada.post(f"/payments/{pid}/corrections", json=body, idempotency_key=key),
+            201,
+        )
+>       replay = assert_status(
+            world.ada.post(f"/payments/{pid}/corrections", json=body, idempotency_key=key),
+            200,
+        )
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-3\test_s3_corrections.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 409. POST /payments/pay1/corrections -> 409 '{"error":{"code":"stale_revision","message":"stale_revision"}}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-3\s3lib\http.py:95: AssertionError
+_____ test_s3_c19_idempotent_payment_response_unchanged_after_correction ______
+
+reset = <function reset.<locals>._reset at 0x00000292B698A0C0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000292B6E85D00>, bob=<s3lib.http.Api object at 0x00000292B6E86BD0>, cy=<s3lib.http.Api object at 0x00000292B6E4F4A0>)
+pay = <function pay.<locals>._pay at 0x00000292B698B7E0>
+
+    def test_s3_c19_idempotent_payment_response_unchanged_after_correction(reset, world, pay):
+        fx_body = fx.fixture()
+        reset(fx_body)
+        key = new_key()
+        first = assert_status(pay(amount=77, key=key), 201).json()
+        pid = first["payment_id"]
+        assert_status(
+            world.ada.post(
+                f"/payments/{pid}/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 70,
+                    "effective_at": "2026-09-20T12:00:00+00:00",
+                    "reason": "adj",
+                },
+                idempotency_key=new_key(),
+            ),
+            201,
+        )
+>       replay = assert_status(pay(amount=77, key=key), 200).json()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-3\test_s3_spec_part2.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}, got {resp.status_code}. {_describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200, got 201. POST /payments -> 201 '{"payment_id":"p_ae5a7fb25d443469f55e6066e2e26429","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":77,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:41:26+00:00"}'
+
+C:\Users\HARIHA~1\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-3\s3lib\http.py:95: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_idempotency.py::test_s1_c22_idempotency_replay_and_reuse
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_invariants.py::test_s1_c26_request_paid_at_most_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_requests.py::test_s1_c14_pay_replay_200_when_already_paid
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py::test_s1_c22_concurrent_identical_idempotency_one_201
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py::test_s1_c22_claimed_key_before_field_validation
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py::test_s1_c14_pay_body_empty_vs_public_are_distinct
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py::test_s1_c22_idempotent_paths_requests_splits_settlements
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-1\test_s1_spec_edges.py::test_s1_c23_import_preserves_idempotency_replay
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_authorization_spec.py::test_s2_c19_capture_idempotency_body_must_match
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_authorization_spec.py::test_s2_c19_capture_replay_identical_body
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_c13_competing_clients.py::test_s2_c13_competing_clients_ui
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-2\test_s2_concurrent_auth.py::test_s2_c27_concurrent_authorize_same_key
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-3\test_s3_corrections.py::test_s3_c18_idempotency_and_stale_revision
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\verify\stage-3\test_s3_spec_part2.py::test_s3_c19_idempotent_payment_response_unchanged_after_correction
+14 failed, 144 passed, 3 skipped in 514.26s (0:08:34)
+......................................F.F....F......FF.F..F..FF.....F... [ 35%]
+.....................FF....................FF.....................F..... [ 70%]
+....F......F...............................................              [100%]
+================================== FAILURES ===================================
+______________ test_concurrent_same_key_payment_moves_money_once ______________
+
+boot = <function boot.<locals>._boot at 0x000001DC071689A0>
+api = <function api.<locals>._make at 0x000001DC0716AAC0>
+
+    def test_concurrent_same_key_payment_moves_money_once(boot, api):
+        """30 simultaneous identical requests with one unused key: one effect, one 201."""
+        w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
+        key = new_key()
+        payload = {"to_handle": "bob", "amount": 100}
+    
+        def one(i):
+            c = api(token=w.ada.token)
+            return c.post(PAY, json=payload, headers={"Idempotency-Key": key})
+    
+        results = race(one, 30)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+>       assert codes.count(201) == 1, f"exactly one first-use must win: {codes}"
+E       AssertionError: exactly one first-use must win: [409, 409, 200, 201, 409, 201, 409, 201, 409, 409, 409, 409, 201, 409, 409, 201, 409, 409, 201, 409, 201, 201, 409, 201, 409, 409, 409, 409, 201, 409]
+E       assert 10 == 1
+E        +  where 10 = <built-in method count of list object at 0x000001DC070D7D80>(201)
+E        +    where <built-in method count of list object at 0x000001DC070D7D80> = [409, 409, 200, 201, 409, 201, ...].count
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_concurrency.py:60: AssertionError
+____________________ test_concurrent_pay_request_same_key _____________________
+
+boot = <function boot.<locals>._boot at 0x000001DC0B51D120>
+api = <function api.<locals>._make at 0x000001DC0B51FA60>
+
+    def test_concurrent_pay_request_same_key(boot, api):
+        """One request paid 30 times with the same key: replays are 200, money once."""
+        w = boot(fixture(users=[user("ada", 1000), user("bob", 0)]), handles=("ada", "bob"))
+        made = w.bob.post("/requests", json={"payer_handle": "ada", "amount": 100},
+                          headers={"Idempotency-Key": new_key()})
+        assert made.status_code == 201, made.text
+        rid = made.json()["request_id"]
+        key = new_key()
+    
+        def one(i):
+            c = api(token=w.ada.token)
+            return c.post(f"/requests/{rid}/pay", json={}, headers={"Idempotency-Key": key})
+    
+        results = race(one, 30)
+        for r in results:
+            assert_no_5xx(r)
+        codes = [r.status_code for r in results]
+        assert codes.count(201) == 1, codes
+>       assert all(c in (200, 201) for c in codes), codes
+E       AssertionError: [409, 409, 409, 409, 409, 409, ...]
+E       assert False
+E        +  where False = all(<generator object test_concurrent_pay_request_same_key.<locals>.<genexpr> at 0x000001DC06DDE0C0>)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_concurrency.py:116: AssertionError
+___________ test_round_trip_preserves_balances_tokens_and_receipts ____________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0715C800>, <attacklib.Client object at 0x000001DC0B59CAA0>], api=<function api.<locals>._make at 0x000001DC071682C0>)
+
+    def test_round_trip_preserves_balances_tokens_and_receipts(world):
+        key = new_key()
+        first = world.ada.post(PAY, json={"to_handle": "bob", "amount": 123},
+                               headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        pid = first.json()["payment_id"]
+        created = first.json()["created_at"]
+        ada_after = world.ada.balance()
+        bob_after = world.bob.balance()
+    
+        snapshot = _export()
+        assert_status(snapshot, 200)
+    
+        world.ada.post(PAY, json={"to_handle": "cy", "amount": 50},
+                       headers={"Idempotency-Key": new_key()})
+        assert world.ada.balance() != ada_after
+    
+        assert_status(_import(snapshot.json()), 204)
+    
+        assert world.ada.balance() == ada_after
+        assert world.bob.balance() == bob_after
+        assert world.ada.get("/me").status_code == 200, "token did not survive import"
+    
+        replay = world.ada.post(PAY, json={"to_handle": "bob", "amount": 123},
+                                headers={"Idempotency-Key": key})
+>       assert_status(replay, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_durability.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /payments -> 201 '{"payment_id":"p_d305c2f6b38984eabbc481e2220868f3","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":123,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:46:32+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+__________ test_replay_returns_identical_body_without_second_effect ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B5282F0>, <attacklib.Client object at 0x000001DC070F7050>], api=<function api.<locals>._make at 0x000001DC0B51F240>)
+
+    def test_replay_returns_identical_body_without_second_effect(world):
+        key = new_key()
+        first = _pay(world.ada, 100, key=key)
+        assert_status(first, 201)
+        before = world.ada.balance()
+        replay = _pay(world.ada, 100, key=key)
+>       assert_status(replay, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /payments -> 201 '{"payment_id":"p_bd4c63aa42c43c9067093df528815d09","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":100,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:47:10+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+____________________ test_same_key_different_body_is_reuse ____________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B585EE0>, <attacklib.Client object at 0x000001DC0B58FCB0>], api=<function api.<locals>._make at 0x000001DC0B51E2A0>)
+
+    def test_same_key_different_body_is_reuse(world):
+        key = new_key()
+        assert_status(_pay(world.ada, 100, to_handle="bob", key=key), 201)
+        r = _pay(world.ada, 100, to_handle="cy", key=key)
+>       assert_error(r, 409, "idempotency_key_reuse")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 409, code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 idempotency_key_reuse, got 201 None. POST /payments -> 201 '{"payment_id":"p_9ff93505423aa69420d87b6ca0a70018","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_cy","to_handle":"cy","amount":100,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:47:13+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:105: AssertionError
+___________________ test_claimed_key_wins_over_invalid_body ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B58E3F0>, <attacklib.Client object at 0x000001DC07045610>], api=<function api.<locals>._make at 0x000001DC071682C0>)
+
+    def test_claimed_key_wins_over_invalid_body(world):
+        key = new_key()
+        assert_status(_pay(world.ada, 100, key=key), 201)
+        r = _pay(world.ada, 0, key=key)
+>       assert_error(r, 409, "idempotency_key_reuse")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [422 Unprocessable Entity]>, status = 409
+code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 idempotency_key_reuse, got 422 validation_failed. POST /payments -> 422 '{"error":{"code":"validation_failed","message":"invalid amount"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:105: AssertionError
+_______________ test_request_pay_replay_after_paid_returns_200 ________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B59DF40>, <attacklib.Client object at 0x000001DC0B59C6B0>], api=<function api.<locals>._make at 0x000001DC0716A3E0>)
+
+    def test_request_pay_replay_after_paid_returns_200(world):
+        made = world.bob.post(REQ, json={"payer_handle": "ada", "amount": 100},
+                              headers={"Idempotency-Key": new_key()})
+        assert_status(made, 201)
+        rid = made.json()["request_id"]
+        key = new_key()
+        first = world.ada.post(f"/requests/{rid}/pay", json={},
+                               headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        assert first.json()["request_id"] == rid
+        replay = world.ada.post(f"/requests/{rid}/pay", json={},
+                                headers={"Idempotency-Key": key})
+>       assert_status(replay, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /requests/rq_ce59f65bd15857e8edde6221ac47235f/pay -> 409 '{"error":{"code":"request_not_pending","message":"request not pending"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+__________ test_split_replay_is_identical_and_creates_nothing_extra ___________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B5AC560>, <attacklib.Client object at 0x000001DC0B597800>], api=<function api.<locals>._make at 0x000001DC0716B2E0>)
+
+    def test_split_replay_is_identical_and_creates_nothing_extra(world):
+        key = new_key()
+        body = {"amount": 300, "participant_handles": ["ada", "bob", "cy"], "note": "x"}
+        first = world.ada.post(SPLIT, json=body, headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        count = len(world.bob.get(REQ).json()["requests"])
+        replay = world.ada.post(SPLIT, json=body, headers={"Idempotency-Key": key})
+>       assert_status(replay, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /splits -> 201 '{"amount":300,"created_at":"2026-10-04T14:47:45+00:00","currency":"EUR","note":"x","participant_handles":["ada","bob","cy"],"requests":[{"request_id":"rq_0a1176d822c311b7d92799df706209db","requester_id":"u_ada","requester_handle":"ada","payer_id":"u_bob","payer_handle":"bob","amount":100,"currency":"EUR","note":"x","status":"pending","payment_id":null,"created_at":"2026-10-04T14:47:45+00:00"},{"re...'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+_________ test_settlement_replay_is_identical_and_moves_nothing_extra _________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B5ACD70>, <attacklib.Client object at 0x000001DC0B598B30>], api=<function api.<locals>._make at 0x000001DC07168C20>)
+
+    def test_settlement_replay_is_identical_and_moves_nothing_extra(world):
+        key = new_key()
+        body = {"transfers": [{"from_handle": "op", "to_handle": "bob", "amount": 300}]}
+        first = world.op.post(SETTLE, json=body, headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        op_after = world.op.balance()
+        bob_after = world.bob.balance()
+        replay = world.op.post(SETTLE, json=body, headers={"Idempotency-Key": key})
+>       assert_status(replay, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /settlements -> 201 '{"committed_at":"2026-10-04T14:47:49+00:00","payments":[{"payment_id":"p_7e33c4398f05b6de33f986121ff4fcbe","from_user_id":"u_op","from_handle":"op","to_user_id":"u_bob","to_handle":"bob","amount":300,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"settlement_id":"st_613888cef0d18c3de0de0fa84160b6e0","created_at":"2026-10-04T14:47:49+00:00"}],"settlement_...'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+_______________ test_request_pay_replay_body_must_be_identical ________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...DC0B59BCB0>, <attacklib.Client object at 0x000001DC0B5AACF0>], api=<function api.<locals>._make at 0x000001DC07168A40>)
+
+    def test_request_pay_replay_body_must_be_identical(world):
+        made = _ask(world.bob, payer_handle="ada")
+        rid = made.json()["request_id"]
+        key = new_key()
+        assert_status(world.ada.post(f"/requests/{rid}/pay", json={},
+                                     headers={"Idempotency-Key": key}), 201)
+        r = world.ada.post(f"/requests/{rid}/pay", json={"visibility": "public"},
+                           headers={"Idempotency-Key": key})
+>       assert_error(r, 409, "idempotency_key_reuse")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_requests.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, status = 409, code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 idempotency_key_reuse, got 409 request_not_pending. POST /requests/rq_a68048a1c0485d47313bdca5f9a5ba5d/pay -> 409 '{"error":{"code":"request_not_pending","message":"request not pending"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:105: AssertionError
+__________________ test_capture_body_equality_is_byte_exact ___________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0B58DE50>, <attacklib2.AuthClient object at 0x000001DC0B58FB60>, <attacklib2.AuthClient object at 0x000001DC0B58D5B0>])
+
+    def test_capture_body_equality_is_byte_exact(world):
+        aid = open_authz(world, amount=2_000)
+        key = new_key()
+        assert_status(world.bob.capture(aid, body={"amount": 2_000}, key=key), 201)
+        # `{}` and `{"amount": 2000}` mean the same capture but are different JSON values
+>       assert_error(world.bob.capture(aid, body={}, key=key), 409, "idempotency_key_reuse")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_capture.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, status = 409, code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 idempotency_key_reuse, got 409 authorization_not_open. POST /authorizations/a_e6184f6f211e8f75fa7df946273da714/capture -> 409 '{"error":{"code":"authorization_not_open","message":"authorization not open"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:105: AssertionError
+_______________ test_capture_idempotent_replay_moves_money_once _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0B545D30>, <attacklib2.AuthClient object at 0x000001DC0B546E10>, <attacklib2.AuthClient object at 0x000001DC0B5445F0>])
+conservation = <function conservation.<locals>._check at 0x000001DC0B51F060>
+
+    def test_capture_idempotent_replay_moves_money_once(world, conservation):
+        aid = open_authz(world, amount=2_000)
+        key = new_key()
+        first = world.bob.capture(aid, 1_500, key=key)
+        second = world.bob.capture(aid, 1_500, key=key)
+        assert_status(first, 201)
+>       assert_status(second, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_capture.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [409 Conflict]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /authorizations/a_13b12beda8a2d2bfb117394dcc33d48c/capture -> 409 '{"error":{"code":"authorization_not_open","message":"authorization not open"}}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+_______________ test_authorization_idempotent_same_key_and_body _______________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0B4F5BB0>, <attacklib2.AuthClient object at 0x000001DC06C45BB0>, <attacklib2.AuthClient object at 0x000001DC0B4F6510>])
+
+    def test_authorization_idempotent_same_key_and_body(world):
+        key = new_key()
+        first = world.ada.authorize("bob", 2_000, key=key)
+        second = world.ada.authorize("bob", 2_000, key=key)
+        assert_status(first, 201)
+>       assert_status(second, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_holds.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /authorizations -> 201 '{"amount":2000,"authorization_id":"a_973b06471c3cb305b7d552db28d6c46b","captured_amount":0,"closed_at":null,"created_at":"2026-10-04T14:51:42+00:00","currency":"EUR","expires_at":"2026-10-04T15:01:42+00:00","from_handle":"ada","from_user_id":"u_ada","note":"","payment_id":null,"payment_ids":[],"remaining_amount":2000,"status":"open","to_handle":"bob","to_user_id":"u_bob","visibility":"public"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+____________ test_authorization_key_reuse_different_body_conflicts ____________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...0B4F5C10>, <attacklib2.AuthClient object at 0x000001DC0B5AD7F0>, <attacklib2.AuthClient object at 0x000001DC06D65E80>])
+
+    def test_authorization_key_reuse_different_body_conflicts(world):
+        key = new_key()
+        assert_status(world.ada.authorize("bob", 2_000, key=key), 201)
+>       assert_error(world.ada.authorize("bob", 2_500, key=key), 409, "idempotency_key_reuse")
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_holds.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 409, code = 'idempotency_key_reuse'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {describe(resp)}")
+E       AssertionError: expected 409 idempotency_key_reuse, got 201 None. POST /authorizations -> 201 '{"amount":2500,"authorization_id":"a_bf39b86a7cf457a0dd13a90b4eedc973","captured_amount":0,"closed_at":null,"created_at":"2026-10-04T14:51:46+00:00","currency":"EUR","expires_at":"2026-10-04T15:01:46+00:00","from_handle":"ada","from_user_id":"u_ada","note":"","payment_id":null,"payment_ids":[],"remaining_amount":2500,"status":"open","to_handle":"bob","to_user_id":"u_bob","visibility":"public"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:105: AssertionError
+_____ test_lost_payment_response_is_uncertain_then_retry_moves_money_once _____
+
+    def test_lost_payment_response_is_uncertain_then_retry_moves_money_once():
+        async def main(page):
+            await reset_fixture(fixture2())
+            await sign_in(page, "ada", goto="/")
+            await wait_amount(page, "wallet-balance", "100000")
+    
+            state = {"n": 0}
+    
+            async def handler(route):
+                state["n"] += 1
+                if state["n"] == 1:
+                    await route.fetch()      # the server commits
+                    await route.abort()      # ... but the browser never sees the response
+                else:
+                    await route.continue_()
+    
+            await page.route("**/payments", handler)
+            await page.get_by_test_id("pay-handle").fill("bob")
+            await page.get_by_test_id("pay-amount").fill("1.00")
+            await page.get_by_test_id("pay-submit").click()
+    
+            uncertain = page.get_by_test_id("pay-uncertain")
+            await uncertain.wait_for(timeout=8_000)
+            assert (await uncertain.inner_text()).strip() != "", "pay-uncertain must be nonempty"
+            assert await page.get_by_test_id("pay-error").count() == 0, \
+                "an unknown outcome is not a confirmed rejection"
+    
+            # unchanged retry with the same key and body
+            await page.get_by_test_id("pay-submit").click()
+            await uncertain.wait_for(state="detached", timeout=10_000)
+            await wait_amount(page, "wallet-balance", "99900")
+            assert await page.locator('[data-testid^="activity-item-"]').count() == 1
+    
+            bob = await login_token("bob")
+            feed = await api_call("GET", "/activity", token=bob)
+            assert len(feed.json()["payments"]) == 1, "money must move exactly once"
+    
+>       asyncio.run(with_page(main))
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_ui_race.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\uilab.py:24: in with_page
+    return await fn(page)
+           ^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_ui_race.py:84: in main
+    await wait_amount(page, "wallet-balance", "99900")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+page = <Page url='http://127.0.0.1:60368/'>, testid = 'wallet-balance'
+value = '99900', timeout = 8000
+
+    async def wait_amount(page, testid: str, value: str, timeout: float = 8_000):
+        loc = page.get_by_test_id(testid)
+        await loc.wait_for(timeout=timeout)
+        for _ in range(int(timeout / 100)):
+            if await loc.get_attribute("data-amount") == value:
+                return
+            await page.wait_for_timeout(100)
+        got = await loc.get_attribute("data-amount")
+>       raise AssertionError(f"{testid} data-amount is {got!r}, expected {value!r}")
+E       AssertionError: wallet-balance data-amount is '99800', expected '99900'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\uilab.py:73: AssertionError
+_______________ test_lost_payment_retry_survives_export_import ________________
+
+boot = <function boot.<locals>._boot at 0x000001DC09158220>
+
+    def test_lost_payment_retry_survives_export_import(boot):
+        ns = boot(fixture2())
+        key = new_key()
+        body = {"to_handle": "bob", "amount": 1_000}
+        first = ns.ada.post("/payments", json=body, headers={"Idempotency-Key": key})
+        assert_status(first, 201)
+        pid = first.json()["payment_id"]
+    
+        export = assert_status(ns.ada.get("/_test/export"), 200).json()
+        assert_status(ns.ada.post("/_test/import", json=as_stage1_export(export)), 204)
+    
+        # the original payment and its idempotency record survived: the retry replays
+        retry = ns.ada.post("/payments", json=body, headers={"Idempotency-Key": key})
+>       assert_status(retry, 200)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_upgrade.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, expected = 200
+
+    def assert_status(resp: httpx.Response, expected: int) -> httpx.Response:
+>       assert resp.status_code == expected, f"expected {expected}. {describe(resp)}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: expected 200. POST /payments -> 201 '{"payment_id":"p_54e495795ae0af764079bd911dff5ccf","from_user_id":"u_ada","from_handle":"ada","to_user_id":"u_bob","to_handle":"bob","amount":1000,"currency":"EUR","note":"","visibility":"public","request_id":null,"authorization_id":null,"created_at":"2026-10-04T14:54:15+00:00"}'
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\attacklib.py:82: AssertionError
+______________ test_replay_is_200_identical_and_key_reuse_is_409 ______________
+
+world3 = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...01DC0715EF60>, <attacklib3.S3Client object at 0x000001DC0715EA80>, <attacklib3.S3Client object at 0x000001DC0715D730>])
+
+    def test_replay_is_200_identical_and_key_reuse_is_409(world3):
+        made = _make_payment(world3)
+        pid = made["payment_id"]
+        key = new_key()
+        first = assert_status(world3.ada.correct(pid, _valid_body(made), key=key), 201).json()
+        replay = world3.ada.correct(pid, _valid_body(made), key=key)
+>       assert replay.status_code == 200
+E       assert 409 == 200
+E        +  where 409 = <Response [409 Conflict]>.status_code
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-3\test_corrections.py:90: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_concurrency.py::test_concurrent_same_key_payment_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_concurrency.py::test_concurrent_pay_request_same_key
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_durability.py::test_round_trip_preserves_balances_tokens_and_receipts
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py::test_replay_returns_identical_body_without_second_effect
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py::test_same_key_different_body_is_reuse
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py::test_claimed_key_wins_over_invalid_body
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py::test_request_pay_replay_after_paid_returns_200
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py::test_split_replay_is_identical_and_creates_nothing_extra
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_idempotency.py::test_settlement_replay_is_identical_and_moves_nothing_extra
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-1\test_requests.py::test_request_pay_replay_body_must_be_identical
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_capture.py::test_capture_body_equality_is_byte_exact
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_capture.py::test_capture_idempotent_replay_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_holds.py::test_authorization_idempotent_same_key_and_body
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_holds.py::test_authorization_key_reuse_different_body_conflicts
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_ui_race.py::test_lost_payment_response_is_uncertain_then_retry_moves_money_once
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-2\test_upgrade.py::test_lost_payment_retry_survives_export_import
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-0nsb16_7\repo\attacks\stage-3\test_corrections.py::test_replay_is_200_identical_and_key_reuse_is_409
+17 failed, 186 passed in 919.99s (0:15:19)
+MUTANT m03_idempotency_no_replay.patch: killed verifier,breaker
+mutation score 1/1 (invalid 0)
+
+exit 0

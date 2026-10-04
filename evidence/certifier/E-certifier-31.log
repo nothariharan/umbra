@@ -1,0 +1,4 @@
+$ powershell -NoProfile -File evidence/certifier/s3_cc3_parent.ps1
+mutation score 3/3 (E-certifier-23 m01, E-certifier-28 m02, E-certifier-30 m03 @ 55207f5fd143)
+
+exit 0

@@ -1,8 +1,8 @@
 diff --git a/stage-3/stage3_revisions.go b/stage-3/stage3_revisions.go
-index 1111111..2222222 100644
+index 9a60ebd..d508fb3 100644
 --- a/stage-3/stage3_revisions.go
 +++ b/stage-3/stage3_revisions.go
-@@ -58,22 +58,7 @@ func (s *Store) selectedRevisionAtLocked(pid string, knownAt *time.Time) (Paymen
+@@ -53,24 +53,7 @@ func (s *Store) selectedRevisionAtLocked(pid string, knownAt *time.Time) (Paymen
  	if len(revs) == 0 {
  		return PaymentRevision{}, false
  	}
@@ -26,3 +26,5 @@ index 1111111..2222222 100644
 -	return *sel, true
 +	return revs[len(revs)-1], true
  }
+ 
+ func (s *Store) paymentVisibleAtKnownLocked(p Payment, knownAt *time.Time) bool {

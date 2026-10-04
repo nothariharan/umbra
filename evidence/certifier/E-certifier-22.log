@@ -1,0 +1,109 @@
+$ powershell -NoProfile -File evidence/certifier/reexec_accept_s3_55207.ps1
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-55207f5f-0k8xgg14/repo/stage-3 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e7b4600e7/stage-1.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-55207f5f-0k8xgg14/repo/stage-1 ...
+  stage 2: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e7b4600e7/stage-2.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-55207f5f-0k8xgg14/repo/stage-2 ...
+  stage 3: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e7b4600e7/stage-3.log)
+  stage 4: fail  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e7b4600e7/stage-4.log)
+highest contiguous stage: 3
+claimed stage: 3 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5e7b4600e7/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\5e7b4600e7\report.json
+official stage 3: PASS (exit 0)
+E-verifier-272: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.........................................                                [100%]
+41 passed in 116.92s (0:01:56)
+E-verifier-273: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.50s
+E-verifier-275: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.41s
+E-verifier-276: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.24s
+E-verifier-277: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.52s
+E-verifier-278: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.13s
+E-verifier-279: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.54s
+E-verifier-280: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.47s
+E-verifier-281: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.80s
+E-verifier-282: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.46s
+E-verifier-283: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.69s
+E-verifier-284: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.45s
+E-verifier-285: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.48s
+E-verifier-286: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.45s
+E-verifier-287: recorded exit 0, re-executed exit 0 -> REPRODUCED
+...                                                                      [100%]
+3 passed in 4.87s
+E-verifier-288: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.47s
+E-verifier-289: recorded exit 0, re-executed exit 0 -> REPRODUCED
+...                                                                      [100%]
+3 passed in 6.79s
+E-verifier-290: recorded exit 0, re-executed exit 0 -> REPRODUCED
+...                                                                      [100%]
+3 passed in 7.84s
+E-verifier-291: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 6.15s
+E-verifier-292: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 29.13s
+E-verifier-293: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 6.59s
+E-verifier-294: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.59s
+E-verifier-295: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.51s
+E-verifier-296: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.71s
+E-verifier-297: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 3.93s
+E-verifier-298: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.57s
+E-verifier-299: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 0.02s
+E-verifier-300: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 3.85s
+E-verifier-301: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.....................................................                    [100%]
+53 passed in 185.90s (0:03:05)
+E-breaker-63: recorded exit 0, re-executed exit 0 -> REPRODUCED
+........................................................................ [ 96%]
+...                                                                      [100%]
+75 passed in 108.21s (0:01:48)
+uireviewer stage 3: PASS (exit 0)
+E-uireviewer-30: recorded exit 0, re-executed exit 0 -> REPRODUCED
+
+exit 0

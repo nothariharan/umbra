@@ -1,0 +1,64 @@
+$ python scripts/lever.py mutate --stage 3 --rev 55207f5fd143 --mutant mutants/stage-3/m02_ignore_known_at.patch --suites verifier,breaker
+........................................................................ [ 44%]
+..................................sss................................... [ 89%]
+......F..........                                                        [100%]
+================================== FAILURES ===================================
+_______________ test_s3_c20_payment_omitted_when_not_yet_known ________________
+
+reset = <function reset.<locals>._reset at 0x00000216CF712980>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000216CF64BF80>, bob=<s3lib.http.Api object at 0x00000216CE1E4620>, cy=<s3lib.http.Api object at 0x00000216CE5CE510>)
+
+    def test_s3_c20_payment_omitted_when_not_yet_known(reset, world):
+        fx_body = fx.fixture()
+        reset(fx_body)
+        pay_resp = assert_status(
+            world.ada.post("/payments", json={"to_handle": "bob", "amount": 50}, idempotency_key=new_key()),
+            201,
+        )
+        pid = pay_resp.json()["payment_id"]
+        early = "2020-01-01T00:00:00+00:00"
+        st = assert_status(world.ada.get("/statement", params={"known_at": early}), 200).json()
+>       assert all(e["payment"]["payment_id"] != pid for e in st["entries"])
+E       assert False
+E        +  where False = all(<generator object test_s3_c20_payment_omitted_when_not_yet_known.<locals>.<genexpr> at 0x00000216CE446190>)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-lmn8v9ra\repo\verify\stage-3\test_s3_spec_part2.py:81: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-lmn8v9ra\repo\verify\stage-3\test_s3_spec_part2.py::test_s3_c20_payment_omitted_when_not_yet_known
+1 failed, 157 passed, 3 skipped in 404.17s (0:06:44)
+........................................................................ [ 35%]
+........................................................................ [ 70%]
+.............................................F.............              [100%]
+================================== FAILURES ===================================
+__________________ test_known_at_selects_revision_and_echoes __________________
+
+world3 = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...021251C32870>, <attacklib3.S3Client object at 0x0000021251C32210>, <attacklib3.S3Client object at 0x0000021251C321B0>])
+
+    def test_known_at_selects_revision_and_echoes(world3):
+        made = assert_status(
+            world3.ada.post("/payments", json={"to_handle": "bob", "amount": 100},
+                            headers={"Idempotency-Key": new_key()}), 201).json()
+        pid = made["payment_id"]
+        corrected = assert_status(
+            world3.ada.correct(pid, {"expected_revision": 1, "amount": 400,
+                                     "effective_at": made["created_at"],
+                                     "reason": "correct amount"}), 201).json()
+        recorded = corrected["recorded_at"]
+    
+        now_view = assert_status(world3.ada.me_at(known_at=plus(1)), 200).json()
+        assert now_view["balance"] == 100000 - 400, "latest revision must be applied"
+    
+        past_view = assert_status(world3.ada.me_at(known_at=made["created_at"]), 200).json()
+>       assert past_view["balance"] == 100000 - 100, \
+            "a known_at before the correction recorded_at selects revision 1"
+E       AssertionError: a known_at before the correction recorded_at selects revision 1
+E       assert 99600 == (100000 - 100)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-lmn8v9ra\repo\attacks\stage-3\test_temporal.py:76: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-lmn8v9ra\repo\attacks\stage-3\test_temporal.py::test_known_at_selects_revision_and_echoes
+1 failed, 202 passed in 712.44s (0:11:52)
+MUTANT m02_ignore_known_at.patch: killed verifier,breaker
+mutation score 1/1 (invalid 0)
+
+exit 0

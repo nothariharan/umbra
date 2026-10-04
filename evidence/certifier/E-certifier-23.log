@@ -1,0 +1,124 @@
+$ python scripts/lever.py mutate --stage 3 --rev 55207f5fd143 --mutant mutants/stage-3/m01_activity_asc.patch --suites verifier,breaker
+........................................................................ [ 44%]
+..................................sss................................... [ 89%]
+..............F..                                                        [100%]
+================================== FAILURES ===================================
+__________________ test_s3_c3_activity_ordered_by_created_at __________________
+
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...00000240E230B710>, bob=<s3lib.http.Api object at 0x00000240E0E787A0>, cy=<s3lib.http.Api object at 0x00000240E1272090>)
+reset = <function reset.<locals>._reset at 0x00000240E23D2660>
+pay = <function pay.<locals>._pay at 0x00000240E0DB2B60>
+
+    def test_s3_c3_activity_ordered_by_created_at(world, reset, pay):
+        fx_body = fx.fixture(
+            payments=[
+                {
+                    "id": "p_old",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 10,
+                    "visibility": "public",
+                    "created_at": "2026-09-20T10:00:00+00:00",
+                },
+                {
+                    "id": "p_new",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 20,
+                    "visibility": "public",
+                    "created_at": "2026-09-21T10:00:00+00:00",
+                },
+            ]
+        )
+        reset(fx_body)
+        act = world.ada.get("/activity")
+        assert_status(act, 200)
+        ids = [p["payment_id"] for p in act.json()["payments"]]
+        # S3-U3: activity newest-first (descending created_at), same as stages 1–2.
+>       assert ids.index("p_new") < ids.index("p_old")
+E       AssertionError: assert 1 < 0
+E        +  where 1 = <built-in method index of list object at 0x00000240E2342D80>('p_new')
+E        +    where <built-in method index of list object at 0x00000240E2342D80> = ['p_old', 'p_new'].index
+E        +  and   0 = <built-in method index of list object at 0x00000240E2342D80>('p_old')
+E        +    where <built-in method index of list object at 0x00000240E2342D80> = ['p_old', 'p_new'].index
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\verify\stage-3\test_s3_timestamps.py:53: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\verify\stage-3\test_s3_timestamps.py::test_s3_c3_activity_ordered_by_created_at
+1 failed, 157 passed, 3 skipped in 529.15s (0:08:49)
+........................................................................ [ 35%]
+........................................................................ [ 70%]
+.....................................................FF...F              [100%]
+================================== FAILURES ===================================
+_____________ test_seeded_created_at_orders_activity_newest_first _____________
+
+boot3 = <function boot3.<locals>._boot at 0x0000025F369818A0>
+
+    def test_seeded_created_at_orders_activity_newest_first(boot3):
+        t1 = "2026-09-24T08:00:00+00:00"
+        t2 = "2026-09-24T09:00:00+00:00"
+        world = boot3(fixture3(payments=[
+            payment_seed("p_old", "u_ada", "u_bob", 100, created_at=t1),
+            payment_seed("p_new", "u_bob", "u_ada", 100, created_at=t2),
+        ]))
+        order = [p["payment_id"] for p in _feed(world.ada)]
+>       assert order == ["p_new", "p_old"], \
+            f"activity must stay newest-first by created_at, got {order}"
+E       AssertionError: activity must stay newest-first by created_at, got ['p_old', 'p_new']
+E       assert ['p_old', 'p_new'] == ['p_new', 'p_old']
+E         
+E         At index 0 diff: 'p_old' != 'p_new'
+E         Use -v to get more diff
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\attacks\stage-3\test_timestamps.py:47: AssertionError
+__________ test_seeded_omission_uses_reset_time_before_api_payments ___________
+
+boot3 = <function boot3.<locals>._boot at 0x0000025F3654BA60>
+
+    def test_seeded_omission_uses_reset_time_before_api_payments(boot3):
+        world = boot3(fixture3(payments=[
+            payment_seed("p_seeded", "u_bob", "u_ada", 10),
+        ]))
+        made = assert_status(
+            world.ada.post("/payments", json={"to_handle": "bob", "amount": 20},
+                           headers={"Idempotency-Key": new_key()}), 201).json()
+        order = [p["payment_id"] for p in _feed(world.ada)]
+>       assert order and order[0] == made["payment_id"], \
+            f"a reset-time seeded payment must sort before later API payments, got {order}"
+E       AssertionError: a reset-time seeded payment must sort before later API payments, got ['p_seeded', 'p_0326a5e8a342d0b63ce4931711a77b10']
+E       assert (['p_seeded', 'p_0326a5e8a342d0b63ce4931711a77b10'] and 'p_seeded' == 'p_0326a5e8a3...4931711a77b10'
+E         
+E         - p_0326a5e8a342d0b63ce4931711a77b10
+E         + p_seeded)
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\attacks\stage-3\test_timestamps.py:59: AssertionError
+________________ test_activity_orders_by_instant_not_by_string ________________
+
+boot3 = <function boot3.<locals>._boot at 0x0000025F36548A40>
+
+    def test_activity_orders_by_instant_not_by_string(boot3):
+        # C is earliest (02:30Z), A is 06:00Z, B is 09:00Z; lexicographically A < C < B.
+        a = payment_seed("p_a", "u_ada", "u_bob", 100, created_at="2026-09-24T06:00:00+00:00")
+        b = payment_seed("p_b", "u_bob", "u_ada", 100, created_at="2026-09-24T11:00:00+02:00")
+        c = payment_seed("p_c", "u_bob", "u_ada", 100, created_at="2026-09-24T08:00:00+05:30")
+        world = boot3(fixture3(payments=[a, b, c]))
+        order = [p["payment_id"] for p in _feed(world.ada)]
+>       assert order == ["p_b", "p_a", "p_c"], (
+            "activity must order by the instant, not the literal offset string; "
+            f"got {order}")
+E       AssertionError: activity must order by the instant, not the literal offset string; got ['p_c', 'p_a', 'p_b']
+E       assert ['p_c', 'p_a', 'p_b'] == ['p_b', 'p_a', 'p_c']
+E         
+E         At index 0 diff: 'p_c' != 'p_b'
+E         Use -v to get more diff
+
+..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\attacks\stage-3\test_timestamps.py:113: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\attacks\stage-3\test_timestamps.py::test_seeded_created_at_orders_activity_newest_first
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\attacks\stage-3\test_timestamps.py::test_seeded_omission_uses_reset_time_before_api_payments
+FAILED ..\..\..\..\AppData\Local\Temp\umbra-55207f5f-2uodii4w\repo\attacks\stage-3\test_timestamps.py::test_activity_orders_by_instant_not_by_string
+3 failed, 200 passed in 858.09s (0:14:18)
+MUTANT m01_activity_asc.patch: killed verifier,breaker
+mutation score 1/1 (invalid 0)
+
+exit 0

@@ -1,0 +1,5 @@
+$ python scripts/lever.py mutate --stage 3 --rev 55207f5fd143 --mutant mutants/stage-3/m02_ignore_known_at.patch --suites verifier,breaker
+MUTANT m02_ignore_known_at.patch: invalid error: corrupt patch at line 30
+mutation score 0/0 (invalid 1)
+
+exit 1
