@@ -30,8 +30,9 @@ def test_s4_c24_settlement_member_refund_keeps_membership(reset, world, refund):
     )
     reset(fx_body)
     assert_status(refund(world.bob, "settle_p", 100), 201)
-    pay = assert_status(world.ada.get("/activity"), 200).json()["payments"][0]
-    assert pay.get("settlement_id") == "s1"
+    acts = assert_status(world.ada.get("/activity"), 200).json()["payments"]
+    settle = next(p for p in acts if p["payment_id"] == "settle_p")
+    assert settle.get("settlement_id") == "s1"
 
 
 def test_s4_c25_concurrent_corrections_same_revision(reset, world):

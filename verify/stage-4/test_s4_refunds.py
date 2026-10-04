@@ -17,7 +17,7 @@ def _seed_direct(reset, amount=500):
                 "from_user_id": fx.ADA["id"],
                 "to_user_id": fx.BOB["id"],
                 "amount": amount,
-                "visibility": "friends",
+                "visibility": "public",
                 "note": "dinner",
                 "created_at": "2026-09-20T12:00:00+00:00",
             }
@@ -55,7 +55,7 @@ def test_s4_c4_refund_target_rules_and_refund_of_refund(reset, world, refund, pa
     pid = _seed_direct(reset)
     first = assert_status(refund(world.bob, pid, 100), 201).json()
     assert first.get("refund_of") == pid
-    assert_error(refund(world.bob, first["payment_id"], 50), 422, "invalid_refund_target")
+    assert_error(refund(world.ada, first["payment_id"], 50), 422, "invalid_refund_target")
 
 
 def test_s4_c5_refund_invalid_amount(reset, world, refund):
@@ -80,7 +80,7 @@ def test_s4_c7_refund_payment_shape_and_non_refund_null_refund_of(reset, world, 
     assert body["request_id"] is None
     assert body["authorization_id"] is None
     assert body["note"] == "dinner"
-    assert body["visibility"] == "friends"
+    assert body["visibility"] == "public"
     other = assert_status(pay(amount=50), 201).json()
     assert other.get("refund_of") is None
 

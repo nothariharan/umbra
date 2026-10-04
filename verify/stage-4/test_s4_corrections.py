@@ -37,7 +37,7 @@ def test_s4_c11_capture_and_refund_payments_immutable(reset, world, pay, refund,
         201,
     ).json()["payment_id"]
     assert_error(
-        world.ada.post(
+        world.bob.post(
             f"/payments/{ref}/corrections",
             json={
                 "expected_revision": 1,
