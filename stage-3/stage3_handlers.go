@@ -91,7 +91,7 @@ func (sv *Server) handleStatement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit, offset, ok2 := parseStatementLimitOffset(q)
+	limit, offset, ok2 := parseLimitOffset(q)
 	if !ok2 {
 		writeError(w, http.StatusUnprocessableEntity, "validation_failed", "invalid pagination")
 		return
