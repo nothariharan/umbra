@@ -1,0 +1,50 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check_10d2be5fa9c6.ps1 -Check S4-RC10
+F                                                                        [100%]
+================================== FAILURES ===================================
+_____________ test_s4_c10_refund_does_not_reopen_request_or_hold ______________
+
+reset = <function reset.<locals>._reset at 0x000001D50FE45080>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001D50FC0FBF0>, bob=<s3lib.http.Api object at 0x000001D50FC2F9E0>, cy=<s3lib.http.Api object at 0x000001D50D9E1CD0>)
+refund = <function refund.<locals>._refund at 0x000001D50FF29F80>
+authorize = <function authorize.<locals>._auth at 0x000001D50FF2A340>
+
+    def test_s4_c10_refund_does_not_reopen_request_or_hold(reset, world, refund, authorize):
+        fx_body = fx.fixture(
+            requests=[
+                {
+                    "id": "req1",
+                    "requester_id": fx.BOB["id"],
+                    "payer_id": fx.ADA["id"],
+                    "amount": 300,
+                    "note": "x",
+                    "status": "paid",
+                    "payment_id": "pay_req",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ],
+            payments=[
+                {
+                    "id": "pay_req",
+                    "from_user_id": fx.ADA["id"],
+                    "to_user_id": fx.BOB["id"],
+                    "amount": 300,
+                    "visibility": "public",
+                    "request_id": "req1",
+                    "created_at": "2026-09-20T12:00:00+00:00",
+                }
+            ],
+        )
+        reset(fx_body)
+        assert_status(refund(world.bob, "pay_req", 100), 201)
+        reqs = assert_status(world.bob.get("/requests"), 200).json()["requests"]
+        paid = next(r for r in reqs if r["request_id"] == "req1")
+        assert paid["status"] == "paid"
+>       assert paid["payment_id"] == "pay_req"
+E       AssertionError: assert None == 'pay_req'
+
+verify\stage-4\test_s4_refunds.py:146: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-4/test_s4_refunds.py::test_s4_c10_refund_does_not_reopen_request_or_hold
+1 failed in 2.25s
+
+exit 1
