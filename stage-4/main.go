@@ -13,6 +13,7 @@ func main() {
 		port = "8080"
 	}
 	sv := &Server{store: NewStore()}
+	seedDemoAccounts(sv)
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", sv.handleHealth)
 	mux.HandleFunc("POST /_test/reset", sv.handleReset)
