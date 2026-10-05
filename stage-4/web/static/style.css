@@ -263,6 +263,19 @@ a:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
   background: var(--brand);
 }
 
+.brand {
+  max-width: 480px;
+  margin: 0 auto 18px;
+  padding: 0 4px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--brand);
+}
+
+body[data-page="login"] > form,
+body[data-page="signup"] > form { margin-top: 0; }
+
 /* ---------- errors ---------- */
 
 [data-testid$="-error"],

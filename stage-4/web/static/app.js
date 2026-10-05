@@ -800,8 +800,52 @@
     loadActivitySync();
   }
 
+  // Presentation only: placeholders, brand mark and tab bar. Never touches test ids or behavior.
+  function decorate(page) {
+    const hints = {
+      "login-email": ["Email", "email"],
+      "login-password": ["Password", "current-password"],
+      "signup-email": ["Email", "email"],
+      "signup-password": ["Password", "new-password"],
+      "signup-display-name": ["Your name", "name"],
+      "authorize-handle": ["Handle", "off"],
+      "authorize-amount": ["Amount", "off"],
+      "authorize-note": ["Note", "off"],
+    };
+    Object.keys(hints).forEach((id) => {
+      const el = document.querySelector("[data-testid='" + id + "']");
+      if (!el) return;
+      if (!el.getAttribute("placeholder")) el.setAttribute("placeholder", hints[id][0]);
+      el.setAttribute("autocomplete", hints[id][1]);
+    });
+    if (page === "login" || page === "signup") {
+      const form = document.querySelector("form");
+      if (form && !document.querySelector(".brand")) {
+        const brand = document.createElement("div");
+        brand.className = "brand";
+        brand.textContent = "Pocketful";
+        form.parentNode.insertBefore(brand, form);
+      }
+    }
+    if (["home", "requests", "authorizations", "split"].includes(page) && !document.querySelector("nav")) {
+      const nav = document.createElement("nav");
+      [["/", "Home"], ["/requests", "Requests"], ["/authorizations", "Authorizations"], ["/split", "Split"]].forEach(
+        ([href, label]) => {
+          const a = document.createElement("a");
+          a.href = href;
+          a.textContent = label;
+          nav.appendChild(a);
+        }
+      );
+      document.body.appendChild(nav);
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     const page = document.body.dataset.page;
+    try {
+      decorate(page);
+    } catch (_) {}
     if (page === "home") initHome();
     if (page === "requests") {
       bindLogout();
