@@ -58,17 +58,15 @@ func (s *Store) totalRefundedLocked(targetID string) int64 {
 	return sum
 }
 
-func (s *Store) minCorrectionAmountLocked(cur PaymentRevision, refunded int64) int64 {
-	minAmt := cur.Amount - refunded
-	if refunded > minAmt {
-		minAmt = refunded
-	}
-	return minAmt
-}
-
 func (s *Store) correctionAmountValidLocked(cur PaymentRevision, amount int64, pid string) bool {
 	refunded := s.totalRefundedLocked(pid)
-	return amount >= s.minCorrectionAmountLocked(cur, refunded)
+	if refunded == 0 {
+		return true
+	}
+	if amount < refunded {
+		return false
+	}
+	return amount >= cur.Amount-refunded
 }
 
 func (s *Store) settlementMembersLocked(settlementID string) []string {

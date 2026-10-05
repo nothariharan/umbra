@@ -1,0 +1,17 @@
+$ python scripts/lever.py checks --suite official --stage 4 --isolated --rev 269de86774b4
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-269de867-tr8kdowm/repo/stage-4 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5f3c3b5159/stage-1.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-269de867-tr8kdowm/repo/stage-1 ...
+  stage 2: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5f3c3b5159/stage-2.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-269de867-tr8kdowm/repo/stage-2 ...
+  stage 3: fail  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5f3c3b5159/stage-3.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-269de867-tr8kdowm/repo/stage-3 ...
+  stage 4: fail  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5f3c3b5159/stage-4.log)
+highest contiguous stage: 2
+claimed stage: 4 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/5f3c3b5159/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\5f3c3b5159\report.json
+official stage 4: FAIL (exit 1)
+
+exit 1
