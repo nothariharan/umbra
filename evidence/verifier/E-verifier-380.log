@@ -1,0 +1,48 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check_10d2be5fa9c6.ps1 -Check S4-RC14
+F                                                                        [100%]
+================================== FAILURES ===================================
+______________________ test_s4_c14_batch_body_validation ______________________
+
+reset = <function reset.<locals>._reset at 0x00000290A3DDD300>
+api = <function api.<locals>._api at 0x00000290A3DDD440>
+
+    def test_s4_c14_batch_body_validation(reset, api):
+        ada, _ = _operator_world(reset, api)
+        assert_error(
+            ada.post(
+                "/correction-batches",
+                json={"corrections": []},
+                idempotency_key=new_key(),
+            ),
+            422,
+            "validation_failed",
+        )
+        dup = [
+            {"payment_id": "p1", "expected_revision": 1, "amount": 1, "effective_at": EFFECTIVE, "reason": "a"},
+            {"payment_id": "p1", "expected_revision": 1, "amount": 2, "effective_at": EFFECTIVE, "reason": "b"},
+        ]
+>       assert_error(
+            ada.post("/correction-batches", json={"corrections": dup}, idempotency_key=new_key()),
+            422,
+            "validation_failed",
+        )
+
+verify\stage-4\test_s4_batches.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [404 Not Found]>, status = 422, code = 'validation_failed'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 validation_failed, got 404 not_found. POST /correction-batches -> 404 '{"error":{"code":"not_found","message":"payment not found"}}'
+
+verify\stage-3\s3lib\http.py:114: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-4/test_s4_batches.py::test_s4_c14_batch_body_validation
+1 failed in 1.36s
+
+exit 1

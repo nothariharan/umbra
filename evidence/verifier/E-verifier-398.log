@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check.ps1 -Check S4-RC10
+.                                                                        [100%]
+1 passed in 5.54s
+
+exit 0

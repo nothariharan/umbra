@@ -9,20 +9,18 @@ $runScript = "evidence/verifier/run_s4_check_10d2be5fa9c6.ps1"
 
 & $py scripts/lever.py stop 2>&1 | Out-Null
 
-$checks = @(
-    'S4-C1', 'S4-C2', 'S4-C3', 'S4-C4', 'S4-C5', 'S4-C6', 'S4-C7', 'S4-C8', 'S4-C9', 'S4-C10',
-    'S4-C11', 'S4-C12', 'S4-C13', 'S4-C14', 'S4-C15', 'S4-C16', 'S4-C17', 'S4-C18', 'S4-C19', 'S4-C20',
-    'S4-C21', 'S4-C22', 'S4-C23', 'S4-C24', 'S4-C25', 'S4-C26', 'S4-C27', 'S4-C28'
-)
+# S4-C2..C28 withdrawn per S4-U7 (docker-stop rows); record S4-RC* successors at pin.
+$checks = @('S4-C1')
+foreach ($n in 2..28) { $checks += "S4-RC$n" }
 
 $failed = @()
 foreach ($c in $checks) {
     Write-Host "=== recording $c ==="
     $run = "powershell -NoProfile -File $runScript -Check $c"
     $timeout = switch ($c) {
-        'S4-C25' { 1200 }
-        'S4-C27' { 1200 }
-        'S4-C28' { 900 }
+        'S4-RC25' { 1200 }
+        'S4-RC27' { 1200 }
+        'S4-RC28' { 900 }
         default { 600 }
     }
     & $py scripts/record.py evidence --seat verifier --check $c --run $run --timeout $timeout

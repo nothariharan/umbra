@@ -10,6 +10,10 @@ $env:UMBRA_SEAT = 'verifier'
 $py = 'C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe'
 $rev = if ($env:SUBMIT_REV) { $env:SUBMIT_REV } else { '10d2be5fa9c6' }
 
+# S4-RC* are post-S4-U7 rerun check ids; same pytest nodes as S4-C*.
+$runCheck = $Check
+if ($Check -match '^S4-RC(\d+)$') { $runCheck = "S4-C$($Matches[1])" }
+
 function Invoke-Boot {
     $boot = & $py scripts/lever.py boot --stage 4 --rev $rev 2>&1 | Out-String
     if ($boot -notmatch 'BASE_URL=(\S+)') { throw "no BASE_URL in boot output: $boot" }
@@ -22,7 +26,7 @@ function Invoke-PytestNodes {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-switch ($Check) {
+switch ($runCheck) {
     'S4-C1' {
         Invoke-PytestNodes @('verify/stage-4/test_s4_delivery.py::test_s4_c1_prior_stages_and_ten_idempotent_writes')
     }
@@ -47,7 +51,7 @@ switch ($Check) {
     default {
         Invoke-Boot
         try {
-            switch ($Check) {
+            switch ($runCheck) {
                 'S4-C2' { Invoke-PytestNodes @('verify/stage-4/test_s4_refunds.py::test_s4_c2_refund_requires_idempotency_and_amount') }
                 'S4-C3' { Invoke-PytestNodes @('verify/stage-4/test_s4_refunds.py::test_s4_c3_refund_receiver_only_and_unknown_payment') }
                 'S4-C4' { Invoke-PytestNodes @('verify/stage-4/test_s4_refunds.py::test_s4_c4_refund_target_rules_and_refund_of_refund') }

@@ -1,0 +1,46 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check_10d2be5fa9c6.ps1 -Check S4-RC12
+F                                                                        [100%]
+================================== FAILURES ===================================
+________________ test_s4_c12_correction_below_refunded_amount _________________
+
+reset = <function reset.<locals>._reset at 0x000001CE795039C0>
+world = namespace(fixture={'currency': 'EUR', 'minor_units': 2, 'users': [{'id': 'u_ada', 'email': 'ada@example.com', 'passwor...000001CE78B0FBF0>, bob=<s3lib.http.Api object at 0x000001CE795CBF80>, cy=<s3lib.http.Api object at 0x000001CE79605220>)
+refund = <function refund.<locals>._refund at 0x000001CE795E5940>
+
+    def test_s4_c12_correction_below_refunded_amount(reset, world, refund):
+        pid = _seed_direct(reset, amount=500)
+        assert_status(refund(world.bob, pid, 200), 201)
+>       assert_error(
+            world.ada.post(
+                f"/payments/{pid}/corrections",
+                json={
+                    "expected_revision": 1,
+                    "amount": 250,
+                    "effective_at": "2026-09-20T12:00:00+00:00",
+                    "reason": "too low",
+                },
+                idempotency_key=new_key(),
+            ),
+            422,
+            "refund_exceeds_payment",
+        )
+
+verify\stage-4\test_s4_corrections.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+resp = <Response [201 Created]>, status = 422, code = 'refund_exceeds_payment'
+
+    def assert_error(resp: httpx.Response, status: int, code: str) -> httpx.Response:
+        actual = error_code(resp) if 400 <= resp.status_code < 600 else None
+>       assert resp.status_code == status and actual == code, (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"expected {status} {code}, got {resp.status_code} {actual}. {_describe(resp)}"
+        )
+E       AssertionError: expected 422 refund_exceeds_payment, got 201 None. POST /payments/pay1/corrections -> 201 '{"amount":250,"effective_at":"2026-09-20T12:00:00+00:00","payment_id":"pay1","reason":"too low","recorded_at":"2026-10-05T01:57:42+00:00","revision":2}'
+
+verify\stage-3\s3lib\http.py:114: AssertionError
+=========================== short test summary info ===========================
+FAILED verify/stage-4/test_s4_corrections.py::test_s4_c12_correction_below_refunded_amount
+1 failed in 2.04s
+
+exit 1
