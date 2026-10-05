@@ -241,7 +241,95 @@
     }
   }
 
+  // Decorative insights (not part of the tested surface): last-7-days sent chart and totals.
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function countUp(node, to) {
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || to === 0 || typeof requestAnimationFrame !== "function") {
+      node.textContent = formatMoney(to);
+      return;
+    }
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min((t - t0) / 1100, 1);
+      const e = 1 - Math.pow(1 - p, 4);
+      node.textContent = formatMoney(Math.round(to * e));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  function renderInsights(payments, handle) {
+    const box = document.getElementById("insights");
+    if (!box) return;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      days.push({ d, out: 0 });
+    }
+    let sent = 0;
+    let received = 0;
+    let week = 0;
+    for (const p of payments) {
+      if (p.from_handle !== handle) {
+        received += p.amount;
+        continue;
+      }
+      sent += p.amount;
+      const t = new Date(p.created_at);
+      t.setHours(0, 0, 0, 0);
+      const slot = days.find((x) => x.d.getTime() === t.getTime());
+      if (slot) {
+        slot.out += p.amount;
+        week += p.amount;
+      }
+    }
+    const max = Math.max(1, ...days.map((x) => x.out));
+    box.innerHTML = "";
+    box.setAttribute("aria-hidden", "true");
+    const head = el("div", "ins-head");
+    head.appendChild(el("span", "label", "Sent · last 7 days"));
+    const total = el("strong", "ins-total", formatMoney(0));
+    head.appendChild(total);
+    box.appendChild(head);
+    const bars = el("div", "bars");
+    days.forEach((x, i) => {
+      const bar = el("div", "bar" + (i === 6 ? " today" : ""));
+      bar.style.setProperty("--h", Math.max(x.out ? 8 : 3, Math.round((x.out / max) * 100)) + "%");
+      bar.style.setProperty("--d", i * 60 + "ms");
+      bar.appendChild(el("span"));
+      bar.appendChild(el("em", null, x.d.toLocaleDateString("en", { weekday: "narrow" })));
+      bars.appendChild(bar);
+    });
+    box.appendChild(bars);
+    const tiles = el("div", "tiles");
+    const out = el("div", "tile tile-out");
+    out.appendChild(el("span", "label", "Total sent"));
+    const outV = el("strong", null, formatMoney(0));
+    out.appendChild(outV);
+    const inn = el("div", "tile tile-in");
+    inn.appendChild(el("span", "label", "Total received"));
+    const inV = el("strong", null, formatMoney(0));
+    inn.appendChild(inV);
+    tiles.appendChild(out);
+    tiles.appendChild(inn);
+    box.appendChild(tiles);
+    countUp(total, week);
+    countUp(outV, sent);
+    countUp(inV, received);
+  }
+
   function renderActivityFeed(payments, handle) {
+    renderInsights(payments, handle);
     const host = document.querySelector("[data-testid='activity-host']");
     if (!host) return;
     let list = host.querySelector("[data-testid='activity-list']");
