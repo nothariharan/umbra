@@ -2,16 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d14">
   <title>Signup</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body data-page="signup">
-  <form data-testid="signup-form">
-    <input data-testid="signup-email" type="email" required>
-    <input data-testid="signup-password" type="password" required>
-    <input data-testid="signup-display-name" required>
-    <button type="submit" data-testid="signup-submit">Sign up</button>
-  </form>
+<body data-page="signup" class="auth">
+  <section class="stage" aria-hidden="true">
+    <div class="stage-brand">Pocketful</div>
+    <p class="stage-eyebrow">Closed loop &middot; No deposits, no cash-outs</p>
+    <p class="stage-title">Every cent accounted for.</p>
+    <p class="stage-sub">Money only moves between people who already have an account.</p>
+    <div class="stage-cards">
+      <div class="gcard gcard-a"><span>Available</span><strong>100.00 EUR</strong><em>@you</em></div>
+      <div class="gcard gcard-b"><span>Split dinner</span><strong>4 &times; 9.00 EUR</strong><em>Exact shares</em></div>
+    </div>
+  </section>
+  <main class="panel">
+    <div class="panel-inner">
+      <div class="panel-brand">Pocketful</div>
+      <h1>Create your wallet</h1>
+      <p class="sub">It takes a few seconds.</p>
+      <form data-testid="signup-form">
+        <label class="field"><span>Name</span><input data-testid="signup-display-name" placeholder="Your name" autocomplete="name" required></label>
+        <label class="field"><span>Email</span><input data-testid="signup-email" type="email" placeholder="you@example.com" autocomplete="email" required></label>
+        <label class="field"><span>Password</span><input data-testid="signup-password" type="password" placeholder="Choose a password" autocomplete="new-password" required></label>
+        <button type="submit" data-testid="signup-submit">Sign up</button>
+      </form>
+      <p class="alt">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+  </main>
   <script src="/static/app.js"></script>
 </body>
 </html>

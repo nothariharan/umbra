@@ -2,51 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
   <title>Pocketful</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body data-page="home" data-minor-units="2">
+  <nav aria-label="Primary">
+    <a href="/">Home</a>
+    <a href="/requests">Requests</a>
+    <a href="/authorizations">Authorizations</a>
+    <a href="/split">Split</a>
+  </nav>
   <header>
-    <span data-testid="current-user"></span>
-    <span data-testid="current-handle"></span>
-    <button type="button" data-testid="logout-button">Log out</button>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/requests">Requests</a>
-      <a href="/authorizations">Authorizations</a>
-      <a href="/split">Split</a>
-    </nav>
+    <div class="topbar">
+      <div class="who">
+        <span data-testid="current-user"></span>
+        <span data-testid="current-handle"></span>
+      </div>
+      <button type="button" data-testid="logout-button">Log out</button>
+    </div>
     <div class="wallet">
+      <div class="wallet-label">Available</div>
       <div class="wallet-headline" data-testid="wallet-available" data-amount="0">0.00 EUR</div>
       <div data-testid="wallet-balance" data-amount="0">0.00 EUR</div>
       <button type="button" data-testid="wallet-refresh">Refresh</button>
+      <div class="actions">
+        <a href="#pay" class="act act-pay"><i></i>Pay</a>
+        <a href="#request" class="act act-request"><i></i>Request</a>
+        <a href="/split" class="act act-split"><i></i>Split</a>
+      </div>
     </div>
   </header>
   <main>
-    <section>
+    <section class="card" id="pay">
       <h2>Pay</h2>
+      <p class="sub">Send money to someone you know, to the cent.</p>
       <form data-testid="pay-form">
-        <input data-testid="pay-handle" name="to_handle" placeholder="Handle" required>
-        <input data-testid="pay-amount" name="amount" placeholder="Amount" required>
-        <input data-testid="pay-note" name="note" placeholder="Note">
-        <select data-testid="pay-visibility" name="visibility">
-          <option value="public">public</option>
-          <option value="private">private</option>
-        </select>
+        <label class="field"><span>Handle</span><input data-testid="pay-handle" name="to_handle" placeholder="@handle" required></label>
+        <label class="field"><span>Amount</span><input data-testid="pay-amount" name="amount" placeholder="0.00" inputmode="decimal" required></label>
+        <label class="field wide"><span>Note</span><input data-testid="pay-note" name="note" placeholder="What is it for?"></label>
+        <label class="field wide"><span>Visibility</span>
+          <select data-testid="pay-visibility" name="visibility">
+            <option value="public">public</option>
+            <option value="private">private</option>
+          </select>
+        </label>
         <button type="submit" data-testid="pay-submit">Pay</button>
       </form>
     </section>
-    <section>
+    <section class="card" id="request">
       <h2>Request</h2>
+      <p class="sub">Ask someone to pay you.</p>
       <form data-testid="request-form">
-        <input data-testid="request-handle" name="payer_handle" placeholder="Payer handle" required>
-        <input data-testid="request-amount" name="amount" placeholder="Amount" required>
-        <input data-testid="request-note" name="note" placeholder="Note">
+        <label class="field"><span>Payer handle</span><input data-testid="request-handle" name="payer_handle" placeholder="@handle" required></label>
+        <label class="field"><span>Amount</span><input data-testid="request-amount" name="amount" placeholder="0.00" inputmode="decimal" required></label>
+        <label class="field wide"><span>Note</span><input data-testid="request-note" name="note" placeholder="What is it for?"></label>
         <button type="submit" data-testid="request-submit">Request</button>
       </form>
     </section>
-    <section>
-      <h2>Activity</h2>
+    <section class="card activity">
+      <h2>Recent activity</h2>
       <div data-testid="activity-host">
         <div data-testid="empty-activity" class="empty-marker activity-empty-static">&nbsp;</div>
       </div>

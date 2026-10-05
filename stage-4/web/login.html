@@ -2,15 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d14">
   <title>Login</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body data-page="login">
-  <form data-testid="login-form">
-    <input data-testid="login-email" type="email" required>
-    <input data-testid="login-password" type="password" required>
-    <button type="submit" data-testid="login-submit">Log in</button>
-  </form>
+<body data-page="login" class="auth">
+  <section class="stage" aria-hidden="true">
+    <div class="stage-brand">Pocketful</div>
+    <p class="stage-eyebrow">Peer to peer &middot; Exact amounts</p>
+    <p class="stage-title">Money, exactly where it should be.</p>
+    <p class="stage-sub">A wallet built for people who already know each other.</p>
+    <div class="stage-cards">
+      <div class="gcard gcard-a"><span>Available</span><strong>100.00 EUR</strong><em>@ada</em></div>
+      <div class="gcard gcard-b"><span>You paid bob</span><strong>12.50 EUR</strong><em>Coffee</em></div>
+    </div>
+  </section>
+  <main class="panel">
+    <div class="panel-inner">
+      <div class="panel-brand">Pocketful</div>
+      <h1>Welcome back</h1>
+      <p class="sub">Sign in to your wallet.</p>
+      <form data-testid="login-form">
+        <label class="field"><span>Email</span><input data-testid="login-email" type="email" placeholder="you@example.com" autocomplete="email" required></label>
+        <label class="field"><span>Password</span><input data-testid="login-password" type="password" placeholder="Your password" autocomplete="current-password" required></label>
+        <button type="submit" data-testid="login-submit">Log in</button>
+      </form>
+      <a class="continue" href="/">Continue to your wallet</a>
+      <p class="alt">New to Pocketful? <a href="/signup">Create an account</a></p>
+    </div>
+  </main>
   <script src="/static/app.js"></script>
 </body>
 </html>

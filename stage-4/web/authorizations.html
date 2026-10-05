@@ -2,26 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
   <title>Authorizations</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body data-page="authorizations" data-minor-units="2">
+  <nav aria-label="Primary">
+    <a href="/">Home</a>
+    <a href="/requests">Requests</a>
+    <a href="/authorizations">Authorizations</a>
+    <a href="/split">Split</a>
+  </nav>
   <header>
-    <span data-testid="current-user"></span>
-    <div class="wallet-headline" data-testid="wallet-available" data-amount="0">0.00 EUR</div>
-    <div data-testid="wallet-balance" data-amount="0">0.00 EUR</div>
+    <div class="topbar">
+      <div class="who">
+        <span data-testid="current-user"></span>
+        <span data-testid="current-handle"></span>
+      </div>
+      <button type="button" data-testid="logout-button">Log out</button>
+    </div>
+    <div class="wallet compact">
+      <div class="wallet-label">Available</div>
+      <div class="wallet-headline" data-testid="wallet-available" data-amount="0">0.00 EUR</div>
+      <div data-testid="wallet-balance" data-amount="0">0.00 EUR</div>
+    </div>
   </header>
   <main>
-    <section>
+    <h1 class="page-title">Authorizations</h1>
+    <section class="card">
       <h2>Authorize</h2>
+      <p class="sub">Place a hold now, capture the final amount later.</p>
       <form data-testid="authorize-form">
-        <input data-testid="authorize-handle" name="to_handle" required>
-        <input data-testid="authorize-amount" name="amount" required>
-        <input data-testid="authorize-note" name="note">
-        <select data-testid="authorize-visibility" name="visibility">
-          <option value="public">public</option>
-          <option value="private">private</option>
-        </select>
+        <label class="field"><span>Handle</span><input data-testid="authorize-handle" name="to_handle" placeholder="@handle" required></label>
+        <label class="field"><span>Amount</span><input data-testid="authorize-amount" name="amount" placeholder="0.00" inputmode="decimal" required></label>
+        <label class="field wide"><span>Note</span><input data-testid="authorize-note" name="note" placeholder="What is it for?"></label>
+        <label class="field wide"><span>Visibility</span>
+          <select data-testid="authorize-visibility" name="visibility">
+            <option value="public">public</option>
+            <option value="private">private</option>
+          </select>
+        </label>
         <button type="submit" data-testid="authorize-submit">Authorize</button>
       </form>
     </section>

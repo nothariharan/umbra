@@ -2,18 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
   <title>Split</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body data-page="split" data-minor-units="2">
+  <nav aria-label="Primary">
+    <a href="/">Home</a>
+    <a href="/requests">Requests</a>
+    <a href="/authorizations">Authorizations</a>
+    <a href="/split">Split</a>
+  </nav>
   <main>
-    <form data-testid="split-form">
-      <input data-testid="split-amount" placeholder="Amount">
-      <input data-testid="split-note" placeholder="Note">
-      <input data-testid="split-handles" placeholder="ada,bob,cy">
-      <div data-testid="split-preview"></div>
-      <button type="submit" data-testid="split-submit">Split</button>
-    </form>
+    <h1 class="page-title">Split</h1>
+    <section class="card">
+      <p class="sub">Divide a bill between friends. Shares are exact, with no rounding drift.</p>
+      <form data-testid="split-form">
+        <label class="field"><span>Amount</span><input data-testid="split-amount" placeholder="0.00" inputmode="decimal"></label>
+        <label class="field"><span>Note</span><input data-testid="split-note" placeholder="Dinner"></label>
+        <label class="field wide"><span>Handles</span><input data-testid="split-handles" placeholder="ada,bob,cy"></label>
+        <div data-testid="split-preview"></div>
+        <button type="submit" data-testid="split-submit">Split</button>
+      </form>
+    </section>
   </main>
   <script src="/static/app.js"></script>
 </body>

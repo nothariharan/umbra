@@ -74,7 +74,13 @@
     el.dataset.testid = testid;
     el.textContent = msg;
     if (!existing) {
+      const prefix = testid === "auth-error" ? "" : testid.split("-")[0];
+      const ownForm =
+        document.querySelector("form[data-testid='" + prefix + "-form']") ||
+        (testid === "auth-error" &&
+          document.querySelector("form[data-testid='login-form'],form[data-testid='signup-form']"));
       const anchor =
+        ownForm ||
         document.querySelector("main") ||
         document.querySelector("form[data-testid='pay-form']")?.parentElement ||
         document.body;
@@ -269,6 +275,7 @@
       const item = document.createElement("div");
       item.dataset.testid = "activity-item-" + p.payment_id;
       item.dataset.visibility = p.visibility;
+      item.dataset.dir = p.from_handle === handle ? "out" : "in";
       const parties = document.createElement("span");
       parties.dataset.testid = "activity-parties-" + p.payment_id;
       parties.textContent = p.from_handle + " → " + p.to_handle;
@@ -800,7 +807,7 @@
     loadActivitySync();
   }
 
-  // Presentation only: placeholders, brand mark and tab bar. Never touches test ids or behavior.
+  // Presentation only: autocomplete hints. Never touches test ids or behavior.
   function decorate(page) {
     const hints = {
       "login-email": ["Email", "email"],
@@ -818,27 +825,6 @@
       if (!el.getAttribute("placeholder")) el.setAttribute("placeholder", hints[id][0]);
       el.setAttribute("autocomplete", hints[id][1]);
     });
-    if (page === "login" || page === "signup") {
-      const form = document.querySelector("form");
-      if (form && !document.querySelector(".brand")) {
-        const brand = document.createElement("div");
-        brand.className = "brand";
-        brand.textContent = "Pocketful";
-        form.parentNode.insertBefore(brand, form);
-      }
-    }
-    if (["home", "requests", "authorizations", "split"].includes(page) && !document.querySelector("nav")) {
-      const nav = document.createElement("nav");
-      [["/", "Home"], ["/requests", "Requests"], ["/authorizations", "Authorizations"], ["/split", "Split"]].forEach(
-        ([href, label]) => {
-          const a = document.createElement("a");
-          a.href = href;
-          a.textContent = label;
-          nav.appendChild(a);
-        }
-      );
-      document.body.appendChild(nav);
-    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
