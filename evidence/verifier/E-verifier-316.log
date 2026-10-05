@@ -1,0 +1,10 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check_10d2be5fa9c6.ps1 -Check S4-C12
+python.exe : build failed for C:\Users\HARIHA~1\AppData\Local\Temp\umbra-10d2be5f-qigxi_iv\repo\stage-4
+At C:\Users\HARIHARAN\Desktop\Band\band-work\result\evidence\verifier\run_s4_check.ps1:14 char:13
++     $boot = & $py scripts/lever.py boot --stage 4 --rev $rev 2>&1 | O ...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (build failed fo...iv\repo\stage-4:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+exit 1

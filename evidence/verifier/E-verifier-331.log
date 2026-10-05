@@ -1,0 +1,20 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check_10d2be5fa9c6.ps1 -Check S4-C27
+.                                                                        [100%]
+1 passed in 0.03s
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-10d2be5f-snr2ggd1/repo/stage-4 ...
+highest contiguous stage: 0
+claimed stage: none (a suite passed under 50% of its checks)
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/07c844440c/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+harness could not complete: docker build failed:
+
+The command 'docker' could not be found in this WSL 2 distro.
+We recommend to activate the WSL integration in Docker Desktop settings.
+
+For details about using Docker Desktop with WSL 2, visit:
+
+https://docs.docker.com/go/wsl2/
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\07c844440c\report.json
+official stage 4: FAIL (exit 3)
+
+exit 3

@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 $env:UMBRA_SEAT = 'verifier'
 $py = 'C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe'
-$rev = if ($env:SUBMIT_REV) { $env:SUBMIT_REV } else { '55207f5fd143' }
+$rev = if ($env:SUBMIT_REV) { $env:SUBMIT_REV } else { '10d2be5fa9c6' }
 
 function Invoke-Boot {
     $boot = & $py scripts/lever.py boot --stage 4 --rev $rev 2>&1 | Out-String
@@ -28,6 +28,8 @@ switch ($Check) {
     }
     'S4-C27' {
         Invoke-PytestNodes @('verify/stage-4/test_s4_delivery.py::test_s4_c27_stage4_delivery_artifacts')
+        & $py scripts/lever.py checks --suite official --stage 4 --rev $rev --isolated
+        exit $LASTEXITCODE
     }
     'S4-C28' {
         Invoke-Boot
