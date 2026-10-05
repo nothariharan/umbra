@@ -1,0 +1,193 @@
+$ powershell -NoProfile -File evidence/certifier/reexec_accept_s4_79af985.ps1
+.                                                                        [100%]
+1 passed in 0.05s
+E-verifier-439: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 0.05s
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-z80ramyf/repo/stage-4 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/fbdb33d1b2/stage-1.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-z80ramyf/repo/stage-1 ...
+  stage 2: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/fbdb33d1b2/stage-2.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-z80ramyf/repo/stage-2 ...
+  stage 3: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/fbdb33d1b2/stage-3.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-z80ramyf/repo/stage-3 ...
+  stage 4: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/fbdb33d1b2/stage-4.log)
+highest contiguous stage: 4
+claimed stage: 4 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/fbdb33d1b2/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\fbdb33d1b2\report.json
+official stage 4: PASS (exit 0)
+E-verifier-440: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.........                                                                [100%]
+9 passed in 27.84s
+E-breaker-83: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.........                                                                [100%]
+9 passed in 26.39s
+E-breaker-84: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.....                                                                    [100%]
+5 passed in 28.16s
+E-breaker-85: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 18.61s
+E-breaker-86: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 17.15s
+E-breaker-87: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 14.69s
+E-breaker-88: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.....                                                                    [100%]
+5 passed in 26.17s
+E-breaker-89: recorded exit 0, re-executed exit 0 -> REPRODUCED
+...                                                                      [100%]
+3 passed in 6.09s
+E-breaker-90: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 7.85s
+E-breaker-91: recorded exit 0, re-executed exit 0 -> REPRODUCED
+....                                                                     [100%]
+4 passed in 10.68s
+E-breaker-92: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.......................................E                                 [100%]
+=================================== ERRORS ====================================
+__________ ERROR at setup of test_refund_cap_tracks_corrected_amount __________
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+>           yield
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:250: in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:256: in handle_request
+    raise exc from None
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection_pool.py:236: in handle_request
+    response = connection.handle_request(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\connection.py:103: in handle_request
+    return self._connection.handle_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:136: in handle_request
+    raise exc
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:106: in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:177: in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <HTTP11Connection ['http://127.0.0.1:63115', CLOSED, Request Count: 1]>
+timeout = 5.0
+
+    def _receive_event(
+        self, timeout: float | None = None
+    ) -> h11.Event | type[h11.PAUSED]:
+        while True:
+            with map_exceptions({h11.RemoteProtocolError: RemoteProtocolError}):
+                event = self._h11_state.next_event()
+    
+            if event is h11.NEED_DATA:
+                data = self._network_stream.read(
+                    self.READ_NUM_BYTES, timeout=timeout
+                )
+    
+                # If we feed this case through h11 we'll raise an exception like:
+                #
+                #     httpcore.RemoteProtocolError: can't handle event type
+                #     ConnectionClosed when role=SERVER and state=SEND_RESPONSE
+                #
+                # Which is accurate, but not very informative from an end-user
+                # perspective. Instead we handle this case distinctly and treat
+                # it as a ConnectError.
+                if data == b"" and self._h11_state.their_state == h11.SEND_RESPONSE:
+                    msg = "Server disconnected without sending a response."
+>                   raise RemoteProtocolError(msg)
+E                   httpcore.RemoteProtocolError: Server disconnected without sending a response.
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpcore\_sync\http11.py:231: RemoteProtocolError
+
+The above exception was the direct cause of the following exception:
+
+api = <function api.<locals>._make at 0x000002726B3EE2A0>
+reset = <function reset.<locals>._reset at 0x000002726B539260>
+
+    @pytest.fixture
+    def world4(api, reset):
+        body = fixture3()
+        reset(body)
+        clients = {}
+        for handle in HANDLES:
+            c = api()
+>           assert c.login(f"{handle}@example.com", PASSWORD).status_code == 200
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+attacks\stage-4\conftest.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+attacks\stage-1\attacklib.py:59: in login
+    resp = self.post("/auth/login", json={"email": email, "password": password},
+attacks\stage-1\attacklib.py:56: in post
+    return self.request("POST", path, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+attacks\stage-1\attacklib.py:50: in request
+    return self._c.request(method, path, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:249: in handle_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\contextlib.py:158: in __exit__
+    self.gen.throw(value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    @contextlib.contextmanager
+    def map_httpcore_exceptions() -> typing.Iterator[None]:
+        global HTTPCORE_EXC_MAP
+        if len(HTTPCORE_EXC_MAP) == 0:
+            HTTPCORE_EXC_MAP = _load_httpcore_exceptions()
+        try:
+            yield
+        except Exception as exc:
+            mapped_exc = None
+    
+            for from_exc, to_exc in HTTPCORE_EXC_MAP.items():
+                if not isinstance(exc, from_exc):
+                    continue
+                # We want to map to the most specific exception we can find.
+                # Eg if `exc` is an `httpcore.ReadTimeout`, we want to map to
+                # `httpx.ReadTimeout`, not just `httpx.TimeoutException`.
+                if mapped_exc is None or issubclass(to_exc, mapped_exc):
+                    mapped_exc = to_exc
+    
+            if mapped_exc is None:  # pragma: no cover
+                raise
+    
+            message = str(exc)
+>           raise mapped_exc(message) from exc
+E           httpx.RemoteProtocolError: Server disconnected without sending a response.
+
+..\..\dark-factory-wearedevs\.venv\Lib\site-packages\httpx\_transports\default.py:118: RemoteProtocolError
+=========================== short test summary info ===========================
+ERROR attacks/stage-4/test_refunds.py::test_refund_cap_tracks_corrected_amount
+39 passed, 1 error in 256.02s (0:04:16)
+E-breaker-93: recorded exit 0, re-executed exit 1 -> DIVERGED
+
+exit 1
