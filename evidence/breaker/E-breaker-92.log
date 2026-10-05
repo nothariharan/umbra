@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File attacks/stage-4/run_breaker_s4.ps1 -Rev 79af98560dd9 -Module test_fix79af985.py
+....                                                                     [100%]
+4 passed in 13.96s
+
+exit 0
