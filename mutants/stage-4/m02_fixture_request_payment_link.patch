@@ -1,0 +1,13 @@
+diff --git a/stage-4/store.go b/stage-4/store.go
+index 1111111..2222222 100644
+--- a/stage-4/store.go
++++ b/stage-4/store.go
+@@ -525,7 +525,7 @@ func (s *Store) loadFixtureLocked(f fixture) {
+ 			PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
+ 			ToUserID: to.ID, ToHandle: to.Handle, Amount: p.Amount,
+ 			Currency: f.Currency, Note: p.Note, Visibility: p.Visibility,
+-			RequestID: p.RequestID, AuthorizationID: p.AuthorizationID, SettlementID: p.SettlementID,
++			RequestID: nil, AuthorizationID: p.AuthorizationID, SettlementID: p.SettlementID,
+ 			CreatedAt: created,
+ 		}
+ 		s.registerPaymentLocked(pay, false)

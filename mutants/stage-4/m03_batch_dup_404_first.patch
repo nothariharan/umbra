@@ -1,0 +1,15 @@
+diff --git a/stage-4/stage4_batch.go b/stage-4/stage4_batch.go
+index 1111111..2222222 100644
+--- a/stage-4/stage4_batch.go
++++ b/stage-4/stage4_batch.go
+@@ -64,10 +64,6 @@ func (sv *Server) handleCorrectionBatch(w http.ResponseWriter, r *http.Request)
+ 				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "invalid payment_id")
+ 				return http.StatusUnprocessableEntity, b, f, true
+ 			}
+-			if _, dup := seenPID[pid]; dup {
+-				b, f := errResp(http.StatusUnprocessableEntity, "validation_failed", "duplicate payment_id")
+-				return http.StatusUnprocessableEntity, b, f, true
+-			}
+ 			seenPID[pid] = struct{}{}
+ 		}
+ 
