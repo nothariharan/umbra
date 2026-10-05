@@ -8,6 +8,10 @@ Stage 2: sealed **b013f5e17143** — UI, authorizations, captures.
 Stage 3: sealed **55207f5fd143** — statements, payment corrections, temporal reads, snapshot pagination.
 Stage 4: sealed **79af98560dd9** — refunds and correction batches (28/28; mutation checks withdrawn, see FACTORY.md).
 
+## Live demo
+
+Stage 4 is deployed at <https://pocketful-stage4.onrender.com> (sealed revision 79af98560dd9 plus the final UI). The free host sleeps when idle, so the first request can take about a minute. Demo accounts: `ada@example.com`, `bob@example.com`, `cy@example.com`, password `correct horse`. Data resets whenever the host restarts.
+
 ## Build and open stage 4
 
 Requires Docker.
