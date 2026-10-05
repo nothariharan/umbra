@@ -1,0 +1,3 @@
+ACCEPT stage=4 req=S4-R28 rev=10d2be5fa9c6 ev=E-uireviewer-43,E-uireviewer-44,E-uireviewer-45,E-uireviewer-46,E-uireviewer-47,E-uireviewer-48,E-uireviewer-49,E-uireviewer-50,E-uireviewer-51,E-uireviewer-61,E-uireviewer-58,E-uireviewer-59,E-uireviewer-60
+
+Playwright gate S4-UI-C1..C13 at 375+1280 on product pin 10d2be5fa9c6. C10 re-recorded (E-uireviewer-61, rev=10d2be5fa9c6, dirty=false, exit=0). C11-C13 pin-valid rows E-uireviewer-58..60 unchanged; off-pin E-uireviewer-52..56 not cited. Extra runs E-uireviewer-62..64 executed lever --rev 10d2be5fa9c6 but record rev stamp followed stage-* HEAD after Builder product commits—do not use for pin ACCEPT.
