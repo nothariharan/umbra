@@ -1,0 +1,5 @@
+$ powershell -NoProfile -File attacks/stage-4/run_breaker_s4.ps1 -Rev 79af98560dd9
+........................................                                 [100%]
+40 passed in 157.66s (0:02:37)
+
+exit 0
