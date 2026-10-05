@@ -3,9 +3,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
 $env:UMBRA_SEAT = 'verifier'
-$env:SUBMIT_REV = if ($env:SUBMIT_REV) { $env:SUBMIT_REV } else { '10d2be5fa9c6' }
+$env:SUBMIT_REV = if ($env:SUBMIT_REV) { $env:SUBMIT_REV } else { '79af98560dd9' }
 $py = 'C:\Users\HARIHARAN\Desktop\Band\dark-factory-wearedevs\.venv\Scripts\python.exe'
-$runScript = "evidence/verifier/run_s4_check_10d2be5fa9c6.ps1"
+$runScript = "evidence/verifier/run_s4_check_79af98560dd9.ps1"
 
 & $py scripts/lever.py stop 2>&1 | Out-Null
 

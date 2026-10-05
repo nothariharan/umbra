@@ -1,0 +1,7 @@
+$ powershell -NoProfile -File evidence/verifier/run_s4_check_79af98560dd9.ps1 -Check S4-C1
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+The argument 'evidence/verifier/run_s4_check_79af98560dd9.ps1' to the -File parameter does not exist. Provide the path to an existing '.ps1' file as an argument to the -File parameter.
+
+exit 4294770688
