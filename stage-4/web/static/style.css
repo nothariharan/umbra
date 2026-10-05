@@ -764,6 +764,19 @@ body.auth {
 .panel form > * { grid-column: 1; }
 .panel button[type="submit"] { margin-top: 6px; min-height: 54px; font-size: 16px; }
 
+.demo {
+  margin-top: 22px;
+  padding: 16px 18px;
+  background: rgba(200, 241, 53, 0.06);
+  border: 1px dashed rgba(200, 241, 53, 0.35);
+  border-radius: var(--r2);
+}
+.demo .label { color: var(--accent); }
+.demo dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 12px 0 14px; font-size: 14px; }
+.demo dt { color: var(--muted); }
+.demo dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; user-select: all; }
+.demo button { min-height: 38px; padding: 8px 18px; font-size: 13.5px; width: 100%; }
+
 .alt { margin-top: 26px; color: var(--muted); font-size: 14px; text-align: center; }
 .alt a { color: var(--text); font-weight: 650; text-underline-offset: 3px; }
 

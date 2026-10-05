@@ -897,6 +897,16 @@
 
   // Presentation only: autocomplete hints. Never touches test ids or behavior.
   function decorate(page) {
+    const fill = document.getElementById("demo-fill");
+    if (fill) {
+      fill.addEventListener("click", () => {
+        const e = document.querySelector("[data-testid='login-email']");
+        const p = document.querySelector("[data-testid='login-password']");
+        if (e) e.value = "ada@example.com";
+        if (p) p.value = "correct horse";
+        if (p) p.focus();
+      });
+    }
     const hints = {
       "login-email": ["Email", "email"],
       "login-password": ["Password", "current-password"],
