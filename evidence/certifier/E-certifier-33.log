@@ -1,0 +1,135 @@
+$ powershell -NoProfile -File evidence/certifier/reexec_accept_s4_79af985.ps1
+.                                                                        [100%]
+1 passed in 0.02s
+E-verifier-409: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.87s
+E-verifier-410: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.08s
+E-verifier-411: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.83s
+E-verifier-412: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.92s
+E-verifier-413: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.23s
+E-verifier-414: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.23s
+E-verifier-415: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.11s
+E-verifier-416: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.32s
+E-verifier-417: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.65s
+E-verifier-418: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.35s
+E-verifier-419: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.92s
+E-verifier-420: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 1.83s
+E-verifier-421: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.21s
+E-verifier-422: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.20s
+E-verifier-423: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.52s
+E-verifier-424: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.62s
+E-verifier-425: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 3.02s
+E-verifier-426: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.80s
+Traceback (most recent call last):
+  File "C:\Users\HARIHARAN\Desktop\Band\band-work\result\scripts\lever.py", line 390, in <module>
+    main()
+  File "C:\Users\HARIHARAN\Desktop\Band\band-work\result\scripts\lever.py", line 386, in main
+    args.handler(args)
+  File "C:\Users\HARIHARAN\Desktop\Band\band-work\result\scripts\lever.py", line 259, in cmd_stop
+    state = json.loads(path.read_text())
+                       ^^^^^^^^^^^^^^^^
+  File "C:\Users\HARIHARAN\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HARIHARAN\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\HARIHARAN\\Desktop\\Band\\band-work\\result\\.umbra\\umbra-s4-uireviewer-49108b.json'
+E-verifier-427: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 4.00s
+E-verifier-428: recorded exit 0, re-executed exit 0 -> REPRODUCED
+..                                                                       [100%]
+2 passed in 3.71s
+E-verifier-429: recorded exit 0, re-executed exit 0 -> REPRODUCED
+...                                                                      [100%]
+3 passed in 5.54s
+E-verifier-430: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.59s
+E-verifier-431: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.00s
+E-verifier-432: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 1.98s
+E-verifier-433: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 3.48s
+E-verifier-434: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 0.02s
+building /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-td7j0rqs/repo/stage-4 ...
+  stage 1: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/f54566b0c6/stage-1.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-td7j0rqs/repo/stage-1 ...
+  stage 2: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/f54566b0c6/stage-2.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-td7j0rqs/repo/stage-2 ...
+  stage 3: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/f54566b0c6/stage-3.log)
+building upgrade source /mnt/c/Users/HARIHARAN/AppData/Local/Temp/umbra-79af9856-td7j0rqs/repo/stage-3 ...
+  stage 4: pass  (log: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/f54566b0c6/stage-4.log)
+highest contiguous stage: 4
+claimed stage: 4 on the shipped checks
+report: /mnt/c/Users/HARIHARAN/Desktop/Band/band-work/result/.umbra/runs/f54566b0c6/report.json
+NOTE: this run only includes a portion of the full tests that are applied before judging; this is meant to provide directional feedback, and ultimately you may not pass the stage with the full set of tests.
+official report: C:\Users\HARIHARAN\Desktop\Band\band-work\result\.umbra\runs\f54566b0c6\report.json
+official stage 4: PASS (exit 0)
+E-verifier-435: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.                                                                        [100%]
+1 passed in 2.44s
+E-verifier-436: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.........                                                                [100%]
+9 passed in 30.43s
+E-breaker-83: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.........                                                                [100%]
+9 passed in 30.72s
+E-breaker-84: recorded exit 0, re-executed exit 0 -> REPRODUCED
+.....                                                                    [100%]
+5 passed in 15.81s
+E-breaker-85: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 19.82s
+E-breaker-86: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 18.64s
+E-breaker-87: recorded exit 0, re-executed exit 0 -> REPRODUCED
+......                                                                   [100%]
+6 passed in 18.48s
+E-breaker-88: recorded exit 0, re-executed exit 0 -> REPRODUCED
+no evidence E-breaker-89
+
+exit 1
