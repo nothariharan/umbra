@@ -58,6 +58,19 @@ func (s *Store) totalRefundedLocked(targetID string) int64 {
 	return sum
 }
 
+func (s *Store) minCorrectionAmountLocked(cur PaymentRevision, refunded int64) int64 {
+	minAmt := cur.Amount - refunded
+	if refunded > minAmt {
+		minAmt = refunded
+	}
+	return minAmt
+}
+
+func (s *Store) correctionAmountValidLocked(cur PaymentRevision, amount int64, pid string) bool {
+	refunded := s.totalRefundedLocked(pid)
+	return amount >= s.minCorrectionAmountLocked(cur, refunded)
+}
+
 func (s *Store) settlementMembersLocked(settlementID string) []string {
 	var ids []string
 	for _, p := range s.Payments {
@@ -288,7 +301,7 @@ func (s *Store) applyCorrectionLocked(pid string, u *User, expectedRev int, amou
 	if effT.After(now()) {
 		return PaymentRevision{}, httpStatusUnprocessable, "validation_failed"
 	}
-	if amount < s.totalRefundedLocked(pid) {
+	if !s.correctionAmountValidLocked(cur, amount, pid) {
 		return PaymentRevision{}, httpStatusUnprocessable, "refund_exceeds_payment"
 	}
 

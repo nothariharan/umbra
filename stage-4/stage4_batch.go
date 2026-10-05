@@ -54,7 +54,6 @@ func (sv *Server) handleCorrectionBatch(w http.ResponseWriter, r *http.Request) 
 		}
 
 		seenPID := map[string]struct{}{}
-		var items []batchCorrectionItem
 		for _, it := range itemsRaw {
 			pid, ek := stringField(it, "payment_id")
 			if ek == errMalformed {
@@ -70,6 +69,11 @@ func (sv *Server) handleCorrectionBatch(w http.ResponseWriter, r *http.Request) 
 				return http.StatusUnprocessableEntity, b, f, true
 			}
 			seenPID[pid] = struct{}{}
+		}
+
+		var items []batchCorrectionItem
+		for _, it := range itemsRaw {
+			pid, _ := stringField(it, "payment_id")
 
 			expRev, expOk, expEk := parseExpectedRevision(it["expected_revision"])
 			if expEk == errMalformed {
@@ -131,7 +135,7 @@ func (sv *Server) handleCorrectionBatch(w http.ResponseWriter, r *http.Request) 
 				b, f := errResp(http.StatusConflict, "stale_revision", "stale revision")
 				return http.StatusConflict, b, f, true
 			}
-			if amount < sv.store.totalRefundedLocked(pid) {
+			if !sv.store.correctionAmountValidLocked(cur, amount, pid) {
 				b, f := errResp(http.StatusUnprocessableEntity, "refund_exceeds_payment", "refund exceeds payment")
 				return http.StatusUnprocessableEntity, b, f, true
 			}

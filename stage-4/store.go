@@ -260,18 +260,20 @@ type fixturePayment struct {
 	Note            string  `json:"note"`
 	Visibility      string  `json:"visibility"`
 	CreatedAt       *string `json:"created_at"`
+	RequestID       *string `json:"request_id"`
 	SettlementID    *string `json:"settlement_id"`
 	AuthorizationID *string `json:"authorization_id"`
 }
 
 type fixtureRequest struct {
-	ID            string `json:"id"`
-	RequestID     string `json:"request_id"`
-	RequesterID   string `json:"requester_id"`
-	PayerID       string `json:"payer_id"`
-	Amount        int64  `json:"amount"`
-	Note          string `json:"note"`
-	Status        string `json:"status"`
+	ID            string  `json:"id"`
+	RequestID     string  `json:"request_id"`
+	RequesterID   string  `json:"requester_id"`
+	PayerID       string  `json:"payer_id"`
+	Amount        int64   `json:"amount"`
+	Note          string  `json:"note"`
+	Status        string  `json:"status"`
+	PaymentID     *string `json:"payment_id"`
 }
 
 type fixtureAuthorization struct {
@@ -523,7 +525,7 @@ func (s *Store) applyFixture(f fixture) error {
 			PaymentID: pid, FromUserID: from.ID, FromHandle: from.Handle,
 			ToUserID: to.ID, ToHandle: to.Handle, Amount: p.Amount,
 			Currency: f.Currency, Note: p.Note, Visibility: p.Visibility,
-			RequestID: nil, AuthorizationID: p.AuthorizationID, SettlementID: p.SettlementID,
+			RequestID: p.RequestID, AuthorizationID: p.AuthorizationID, SettlementID: p.SettlementID,
 			CreatedAt: created,
 		}
 		s.registerPaymentLocked(pay, false)
@@ -543,7 +545,7 @@ func (s *Store) applyFixture(f fixture) error {
 			RequestID: rid, RequesterID: reqr.ID, RequesterHandle: reqr.Handle,
 			PayerID: payer.ID, PayerHandle: payer.Handle, Amount: r.Amount,
 			Currency: f.Currency, Note: r.Note, Status: r.Status,
-			PaymentID: nil, CreatedAt: resetAt,
+			PaymentID: r.PaymentID, CreatedAt: resetAt,
 		}
 		s.Requests = append(s.Requests, mr)
 	}

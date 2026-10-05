@@ -1,0 +1,114 @@
+﻿{
+  "contract_version": 1,
+  "target": {
+    "profile": "default",
+    "scope": "umbra-builder",
+    "peer_key": "default/umbra-builder",
+    "agent_id": "7c7e73bf-dde8-49f6-a923-f5458079c8ac",
+    "handle": "hariwebsitelogger/builder",
+    "name": "Builder",
+    "host": "acp"
+  },
+  "connection": {
+    "state": "connected",
+    "running": true,
+    "warning": null
+  },
+  "sessions": [
+    {
+      "agent_session_id": null,
+      "binding": "detached",
+      "handle": null,
+      "host_pid": null,
+      "id": "default",
+      "last_activity_at": null,
+      "last_seen_at": null,
+      "presence": "unknown",
+      "provider": "acp",
+      "provider_session_id": null,
+      "room": null,
+      "runtime": "owned/acp:C:\\Users\\HARIHARAN\\AppData\\Local\\cursor-agent\\versions\\2026.10.01-e373342\\node.exe",
+      "runtime_host_id": null,
+      "runtime_session_id": "a2aed047-9acf-47fd-831e-15e0fc3ee926",
+      "runtime_template_id": null,
+      "window_pid": null
+    },
+    {
+      "agent_session_id": "34d6ecd8-f60f-4478-aa37-2835d38270e2",
+      "binding": "bound",
+      "handle": null,
+      "host_pid": null,
+      "id": "default-cf7682aa-cb30-44d4-a16a-b3e3df1a8435",
+      "last_activity_at": null,
+      "last_seen_at": null,
+      "presence": "live",
+      "provider": "acp",
+      "provider_session_id": "34d6ecd8-f60f-4478-aa37-2835d38270e2",
+      "room": "cf7682aa-cb30-44d4-a16a-b3e3df1a8435",
+      "runtime": "owned/acp:C:\\Users\\HARIHARAN\\AppData\\Local\\cursor-agent\\versions\\2026.10.01-e373342\\node.exe",
+      "runtime_host_id": null,
+      "runtime_session_id": "1f160868-3fa9-47e1-9695-f61e4d7c7824",
+      "runtime_template_id": "default",
+      "window_pid": null
+    }
+  ],
+  "messages": {
+    "availability": "ready",
+    "freshness": "current",
+    "recovery": null,
+    "items": [
+      {
+        "chat_id": "cf7682aa-cb30-44d4-a16a-b3e3df1a8435",
+        "message_id": "19f95e8c-56b4-4050-93be-f4e2955137d7",
+        "sender_id": "3759143d-ecb3-42eb-9535-c8ac8b047592",
+        "sender_name": "Lead",
+        "sender_handle": "hariwebsitelogger/lead",
+        "sender_type": "Agent",
+        "content": "@hariwebsitelogger/builder CLOCK (automatic) builder: your runtime stopped responding and was restarted. Messages sent to you since 01:27 UTC were lost. Run `python scripts/record.py status`, then act on the latest REQUEST or SUBMIT addressed to you.\n",
+        "attachment_ids": [],
+        "enqueued_at": 1791164011856,
+        "addressed_to_user": false
+      }
+    ]
+  },
+  "rooms": {
+    "availability": "ready",
+    "freshness": "cached",
+    "recovery": null,
+    "source_recovery": {
+      "state": "idle",
+      "detail": "",
+      "completed_rooms": 0,
+      "total_rooms": 0
+    },
+    "items": [
+      {
+        "id": "cf7682aa-cb30-44d4-a16a-b3e3df1a8435",
+        "host_session_ids": [
+          "default-cf7682aa-cb30-44d4-a16a-b3e3df1a8435"
+        ],
+        "title": null,
+        "observe_only": null
+      }
+    ]
+  },
+  "work": {
+    "availability": "ready",
+    "freshness": "current",
+    "recovery": null,
+    "private_lanes": [
+      {
+        "room": "cf7682aa-cb30-44d4-a16a-b3e3df1a8435",
+        "lanes": [
+          {
+            "peer_id": "default/umbra-builder",
+            "lane_id": "cf7682aa-cb30-44d4-a16a-b3e3df1a8435",
+            "active": true,
+            "items": []
+          }
+        ]
+      }
+    ],
+    "shared_boards": []
+  }
+}
