@@ -1,8 +1,8 @@
 # Pocketful band — final report (revision)
 
-**Dispatch:** pocketful stages **1–3** (payments → authorizations/holds → activity, statements, lifecycle). **Room:** `2fd5fd46-b6dc-4ce5-95bd-bbb53029fa2a`.
+**Dispatch:** pocketful stages **1–4**. **Rooms:** `2fd5fd46-b6dc-4ce5-95bd-bbb53029fa2a` (stages 1–3), `cf7682aa-cb30-44d4-a16a-b3e3df1a8435` (stage 4).
 
-Prior report **e1e17cf** covered stages **1–2** only; stage **3** opened after stage **2** **SEAL**. This revision closes the run.
+Prior report covered stages **1–3**. This revision seals stage **4** and closes the run.
 
 ## Stage 1 — SEAL `1125eee49810`
 
@@ -46,12 +46,27 @@ Prior report **e1e17cf** covered stages **1–2** only; stage **3** opened after
 
 **Certifier gate:** **E-certifier-21** (S3-CC1), **E-certifier-22** (S3-CC2), **SEAL** 2026-10-04T15:28:53Z.
 
+## Stage 4 — SEAL `79af98560dd9`
+
+| Item | Value |
+|------|--------|
+| Sealed rev | **79af98560dd9** |
+| Official isolated | **PASS** (**E-certifier-32**, exit 0) |
+| Requirements @ seal | **28/28** @ **79af98560dd9** after **S4-U13** |
+| Mutation | Not run. **S4-CC3** and **S4-CC3-m01..m03** withdrawn before the deadline |
+
+**Evidence the seal uses:** reviewer ACCEPT rows at the pin (verifier **S4-RC2..RC28**, breaker **S4-B1..B11**, UIReviewer **S4-UI-C1..C13**) plus official isolated **E-certifier-32**.
+
+**Withdrawn before seal (S4-U13):** **S4-CC2** after **E-certifier-33** and **E-certifier-34** exited 1 on a superseded UI bind and a refused connection (**S4-U12**), not a product failure. **S4-CC3** and mutants **m01..m03** had not run. The stage is judged on the evidence that exists.
+
+**Rejections → fixes:** Verifier **REJECT** @ **10d2be5fa9c6** (**S4-U9**) closed by successor SUBMIT **79af98560dd9**. Breaker rows on orphan pins were withdrawn (**S4-U5**, **S4-U6**). UIReviewer re-accepted at the successor pin (**E-uireviewer-86..98**).
+
 ## Residual risks
 
 - Stage-1 record @ **1125eee49810** still shows **3/46** unrun mutant sub-rows; **SEAL** evidence unchanged.
 - **S2-C13** withdrawn then re-passed via harness (**E-verifier-174**); monitor if reinstated without dedicated **S2-R15** pytest.
 - Stage **3** had multiple SUBMIT pins and **CLOCK** restarts; sealed product and evidence are at **55207f5fd143** only.
-- No **stage-4/** in repo — run complete at stage **3**.
+- Stage **4** mutation catalog was withdrawn under **S4-U13** and is not a kill score. Official isolated and reviewer evidence at **79af98560dd9** are the seal basis.
 
 ## Cost
 
@@ -59,4 +74,4 @@ No `record` cost rows captured in this run.
 
 ## Outcome
 
-All dispatched stages **sealed**. Product seal rev **`55207f5fd143`**. Run complete.
+All dispatched stages **sealed**. Stage 4 product seal rev **`79af98560dd9`**. Run complete.
