@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
-$verifier = @('E-verifier-437', 'E-verifier-438')
+$verifier = @('E-verifier-439', 'E-verifier-440')
 $breaker = 83..93 | ForEach-Object { "E-breaker-$_" }
 $uireviewer = @(
   'E-uireviewer-65','E-uireviewer-66','E-uireviewer-67','E-uireviewer-72','E-uireviewer-73',
